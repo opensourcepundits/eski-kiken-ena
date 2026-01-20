@@ -8,53 +8,81 @@
 	<!-- Hero Section -->
 	<header class="bg-gradient-to-br from-ocean to-blue-700 text-white pb-24 pt-8 px-6">
 		<nav class="max-w-7xl mx-auto flex justify-between items-center mb-20">
-			<div class="text-3xl font-extrabold tracking-tight">Eski kiken ena</div>
-			<div class="flex items-center gap-6">
-				{#if data.user}
-					<div class="flex items-center gap-4">
-						<div class="text-right">
-							<span class="block text-xs font-medium opacity-80 uppercase tracking-wider"
-								>Welcome</span
-							>
-							<span class="block font-bold text-lg leading-none"
-								>{data.user.firstName || 'User'}</span
-							>
-						</div>
-						<form method="POST" action="?/logout" use:enhance>
-							<button
-								class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all text-white shadow-sm ring-1 ring-white/10"
-								title="Logout"
-							>
-								<!-- LogOut Icon -->
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="20"
-									height="20"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline
-										points="16 17 21 12 16 7"
-									/><line x1="21" x2="9" y1="12" y2="12" /></svg
-								>
-							</button>
-						</form>
-					</div>
-				{:else}
+			<a href="/" class="text-3xl font-extrabold tracking-tight hover:opacity-90 transition-opacity"
+				>Eski kiken ena</a
+			>
+
+			<div class="flex items-center gap-8">
+				<!-- Static Navigation Links -->
+				<div class="hidden md:flex items-center gap-6 text-sm font-semibold tracking-wide">
 					<a
-						href="/login"
-						class="px-5 py-2.5 rounded-xl hover:bg-white/10 transition-all font-medium">Login</a
+						href="/how-it-works"
+						class="text-blue-100 hover:text-white hover:underline decoration-sunset decoration-2 underline-offset-4 transition-all"
+						>How this works</a
 					>
-				{/if}
-				<a
-					href="/listings/new"
-					class="bg-sunset px-6 py-2.5 rounded-xl font-bold hover:bg-orange-500 transition-all shadow-lg shadow-orange-900/20 transform hover:-translate-y-0.5"
-				>
-					List Item
-				</a>
+					<a
+						href="/contact"
+						class="text-blue-100 hover:text-white hover:underline decoration-sunset decoration-2 underline-offset-4 transition-all"
+						>Contact us</a
+					>
+					<a
+						href="/faqs"
+						class="text-blue-100 hover:text-white hover:underline decoration-sunset decoration-2 underline-offset-4 transition-all"
+						>FAQs</a
+					>
+				</div>
+
+				<!-- Auth / Actions -->
+				<div class="flex items-center gap-5 md:pl-5 md:border-l md:border-white/10">
+					{#if data.user}
+						<a
+							href="/listings/new"
+							class="bg-sunset px-5 py-2.5 rounded-xl font-bold hover:bg-orange-500 transition-all shadow-lg shadow-orange-900/20 transform hover:-translate-y-0.5 text-sm"
+						>
+							List Item
+						</a>
+
+						<div class="flex items-center gap-4">
+							<div class="text-right hidden sm:block">
+								<span class="block text-xs font-medium opacity-80 uppercase tracking-wider"
+									>Welcome</span
+								>
+								<span class="block font-bold text-base leading-none"
+									>{data.user.firstName || 'User'}</span
+								>
+							</div>
+							<form method="POST" action="?/logout" use:enhance>
+								<button
+									class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all text-white shadow-sm ring-1 ring-white/10 group"
+									title="Logout"
+								>
+									<!-- LogOut Icon -->
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="20"
+										height="20"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										class="opacity-90 group-hover:opacity-100"
+										><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline
+											points="16 17 21 12 16 7"
+										/><line x1="21" x2="9" y1="12" y2="12" /></svg
+									>
+								</button>
+							</form>
+						</div>
+					{:else}
+						<a
+							href="/login"
+							class="px-5 py-2.5 rounded-xl hover:bg-white/10 transition-all font-medium text-sm"
+							>Login</a
+						>
+					{/if}
+				</div>
 			</div>
 		</nav>
 
