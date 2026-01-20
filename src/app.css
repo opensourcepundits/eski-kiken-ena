@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+    --color-ocean: #0077b6;
+    --color-sunset: #fb8500;
+
+    --font-sans: 'Inter', sans-serif;
+}
+
+@layer base {
+    body {
+        @apply bg-slate-50 text-slate-900;
+    }
+}
