@@ -97,7 +97,7 @@
 			</p>
 
 			<!-- Search Bar -->
-			<div class="mt-12 relative max-w-2xl mx-auto group">
+			<form action="/listings" method="GET" class="mt-12 relative max-w-2xl mx-auto group">
 				<div
 					class="absolute inset-x-0 -inset-y-1 bg-gradient-to-r from-sunset to-orange-400 rounded-full opacity-20 group-hover:opacity-40 blur transition-opacity"
 				></div>
@@ -119,16 +119,18 @@
 					</div>
 					<input
 						type="text"
+						name="q"
 						placeholder="Eski kiken ena enn drill?"
 						class="w-full px-4 py-4 bg-transparent text-lg text-slate-800 placeholder:text-slate-400 focus:outline-none"
 					/>
 					<button
+						type="submit"
 						class="bg-ocean text-white px-8 py-3.5 rounded-full font-bold hover:bg-blue-600 transition-all shadow-md"
 					>
 						Search
 					</button>
 				</div>
-			</div>
+			</form>
 		</div>
 	</header>
 
