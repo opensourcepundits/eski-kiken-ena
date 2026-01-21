@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	let { data } = $props();
 	let listing = $derived(data.listing);
 	let listingBookings = $derived(data.listingBookings);
@@ -113,15 +114,39 @@
 														class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full {booking.status ===
 														'CONFIRMED'
 															? 'bg-emerald-50 text-emerald-600'
-															: 'bg-orange-50 text-orange-600'}"
+															: booking.status === 'CANCELLED'
+																? 'bg-red-50 text-red-600'
+																: 'bg-orange-50 text-orange-600'}"
 													>
 														{booking.status}
 													</span>
 												</td>
 												<td class="py-6 text-right">
-													<button class="text-indigo-600 font-black text-xs hover:underline"
-														>Manage</button
-													>
+													{#if booking.status === 'PENDING'}
+														<div class="flex justify-end gap-2">
+															<form method="POST" action="?/updateBookingStatus" use:enhance>
+																<input type="hidden" name="bookingId" value={booking.id} />
+																<input type="hidden" name="status" value="CONFIRMED" />
+																<button
+																	class="bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-colors shadow-sm disabled:opacity-50"
+																	>Approve</button
+																>
+															</form>
+															<form method="POST" action="?/updateBookingStatus" use:enhance>
+																<input type="hidden" name="bookingId" value={booking.id} />
+																<input type="hidden" name="status" value="CANCELLED" />
+																<button
+																	class="bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-colors disabled:opacity-50"
+																	>Decline</button
+																>
+															</form>
+														</div>
+													{:else}
+														<span
+															class="text-[10px] font-black text-slate-400 uppercase tracking-widest"
+															>No actions</span
+														>
+													{/if}
 												</td>
 											</tr>
 										{/each}

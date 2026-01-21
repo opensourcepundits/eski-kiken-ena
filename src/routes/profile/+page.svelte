@@ -106,7 +106,7 @@
 				<!-- Tabs View -->
 				<div class="lg:col-span-9 space-y-8">
 					{#if activeTab === 'bookings'}
-						<div class="space-y-8">
+						<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 							<!-- Bookings as Renter -->
 							<section>
 								<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
@@ -128,13 +128,13 @@
 										>
 									</div>
 								{:else}
-									<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+									<div class="space-y-6">
 										{#each userBookings as booking}
 											<div
 												class="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform"
 											>
 												<div
-													class="w-24 h-24 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0"
+													class="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0"
 												>
 													{#if (booking.listing.images as string[])?.length > 0}
 														<img
@@ -160,10 +160,10 @@
 															>
 														</div>
 													</div>
-													<div class="mt-4 grid grid-cols-2 gap-4 text-xs text-slate-500 font-bold">
+													<div class="mt-4 grid grid-cols-1 gap-2 text-xs text-slate-500 font-bold">
 														<div>
 															<p class="uppercase text-[9px] opacity-60">Total Paid</p>
-															<p class="text-slate-900 text-lg">Rs {booking.totalPrice}</p>
+															<p class="text-slate-900 text-base">Rs {booking.totalPrice}</p>
 														</div>
 														<div>
 															<p class="uppercase text-[9px] opacity-60">Date Range</p>
@@ -197,13 +197,13 @@
 										<p class="text-slate-400 font-bold italic">No requests for your items yet.</p>
 									</div>
 								{:else}
-									<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+									<div class="space-y-6">
 										{#each ownerBookings as booking}
 											<div
 												class="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform"
 											>
 												<div
-													class="w-24 h-24 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0"
+													class="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0"
 												>
 													{#if (booking.listing.images as string[])?.length > 0}
 														<img
@@ -224,9 +224,15 @@
 																{booking.listing.title}
 															</h3>
 															<span
-																class="text-[10px] font-black uppercase text-orange-500 tracking-widest bg-orange-50 px-2 py-0.5 rounded"
-																>{booking.status}</span
+																class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full {booking.status ===
+																'CONFIRMED'
+																	? 'bg-emerald-50 text-emerald-600'
+																	: booking.status === 'CANCELLED'
+																		? 'bg-red-50 text-red-600'
+																		: 'bg-orange-50 text-orange-600'}"
 															>
+																{booking.status}
+															</span>
 														</div>
 													</div>
 													<p class="mt-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -234,16 +240,54 @@
 															>{booking.renter?.firstName} {booking.renter?.lastName}</span
 														>
 													</p>
-													<div class="mt-4 flex gap-2">
-														<button
-															class="flex-1 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-100 transition-colors"
-															>Approve</button
-														>
-														<button
-															class="flex-1 py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition-colors"
-															>Decline</button
-														>
+													<div class="mt-2 text-xs text-slate-500 font-bold">
+														<p class="uppercase text-[9px] opacity-60">Dates</p>
+														<p class="text-slate-900">
+															{new Date(booking.startDate).toLocaleDateString('en-GB')} - {new Date(
+																booking.endDate
+															).toLocaleDateString('en-GB')}
+														</p>
 													</div>
+													{#if booking.status === 'PENDING'}
+														<div class="mt-4 flex gap-2">
+															<form
+																method="POST"
+																action="?/updateBookingStatus"
+																use:enhance
+																class="flex-1"
+															>
+																<input type="hidden" name="bookingId" value={booking.id} />
+																<input type="hidden" name="status" value="CONFIRMED" />
+																<button
+																	class="w-full py-2 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-colors shadow-sm"
+																	>Approve</button
+																>
+															</form>
+															<form
+																method="POST"
+																action="?/updateBookingStatus"
+																use:enhance
+																class="flex-1"
+															>
+																<input type="hidden" name="bookingId" value={booking.id} />
+																<input type="hidden" name="status" value="CANCELLED" />
+																<button
+																	class="w-full py-2 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors"
+																	>Decline</button
+																>
+															</form>
+														</div>
+													{:else}
+														<div class="mt-4 pt-4 border-t border-slate-50">
+															<p
+																class="text-[9px] font-black text-slate-400 uppercase tracking-widest italic"
+															>
+																Processed on {new Date(
+																	booking.createdAt ?? new Date()
+																).toLocaleDateString('en-GB')}
+															</p>
+														</div>
+													{/if}
 												</div>
 											</div>
 										{/each}
@@ -367,21 +411,27 @@
 							>
 								<div class="grid grid-cols-2 gap-8">
 									<div class="space-y-2">
-										<label class="text-sm font-black text-slate-700 uppercase tracking-widest ml-1"
+										<label
+											for="firstName"
+											class="text-sm font-black text-slate-700 uppercase tracking-widest ml-1"
 											>First Name</label
 										>
 										<input
 											type="text"
+											id="firstName"
 											value={user.firstName}
 											class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 transition-all font-bold text-slate-900"
 										/>
 									</div>
 									<div class="space-y-2">
-										<label class="text-sm font-black text-slate-700 uppercase tracking-widest ml-1"
+										<label
+											for="lastName"
+											class="text-sm font-black text-slate-700 uppercase tracking-widest ml-1"
 											>Last Name</label
 										>
 										<input
 											type="text"
+											id="lastName"
 											value={user.lastName}
 											class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 transition-all font-bold text-slate-900"
 										/>
@@ -389,11 +439,14 @@
 								</div>
 
 								<div class="space-y-2">
-									<label class="text-sm font-black text-slate-700 uppercase tracking-widest ml-1"
+									<label
+										for="email"
+										class="text-sm font-black text-slate-700 uppercase tracking-widest ml-1"
 										>Email Address</label
 									>
 									<input
 										type="email"
+										id="email"
 										value={user.email}
 										disabled
 										class="w-full px-6 py-4 bg-slate-100 border border-slate-200 rounded-2xl text-slate-500 font-bold opacity-60 cursor-not-allowed"

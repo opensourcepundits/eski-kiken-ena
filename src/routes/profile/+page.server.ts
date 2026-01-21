@@ -25,12 +25,13 @@ export const load: PageServerLoad = async ({ locals }) => {
     // Also fetch bookings for the user's listings (as an owner)
     const userId = locals.user.id;
     const ownerBookings = await db.query.bookings.findMany({
-        where: (table, { exists }) =>
-            exists(
+        where: (table, { inArray }) =>
+            inArray(
+                table.listingId,
                 db
-                    .select()
+                    .select({ id: listings.id })
                     .from(listings)
-                    .where(and(eq(listings.id, table.listingId), eq(listings.ownerId, userId)))
+                    .where(eq(listings.ownerId, userId))
             ),
         with: {
             listing: true,
@@ -76,5 +77,41 @@ export const actions: Actions = {
         }
 
         return { success: true };
+    },
+    updateBookingStatus: async ({ request, locals }) => {
+        if (!locals.user) {
+            return fail(401, { message: 'Unauthorized' });
+        }
+
+        const formData = await request.formData();
+        const bookingId = formData.get('bookingId') as string;
+        const status = formData.get('status') as any;
+
+        if (!bookingId || !status) {
+            return fail(400, { message: 'Missing data' });
+        }
+
+        // Verify the user owns the listing for this booking
+        const booking = await db.query.bookings.findFirst({
+            where: eq(bookings.id, bookingId),
+            with: {
+                listing: true
+            }
+        });
+
+        if (!booking || booking.listing.ownerId !== locals.user.id) {
+            return fail(403, { message: 'Forbidden' });
+        }
+
+        try {
+            console.log(`Updating booking ${bookingId} to ${status}`);
+            await db.update(bookings).set({ status }).where(eq(bookings.id, bookingId));
+            console.log('Update successful');
+        } catch (e) {
+            console.error('Update failed:', e);
+            return fail(500, { message: 'Failed to update status' });
+        }
+
+        throw redirect(303, '/profile');
     }
 };

@@ -30,6 +30,8 @@ export const actions: Actions = {
         const deposit = formData.get('deposit') as string;
         const replacementValue = formData.get('replacementValue') as string;
         const transportSize = formData.get('transportSize') as any;
+        const lat = formData.get('lat') ? parseFloat(formData.get('lat') as string) : null;
+        const lng = formData.get('lng') ? parseFloat(formData.get('lng') as string) : null;
 
         if (!title || !category || !district || !pricePerDay) {
             return fail(400, { message: 'Missing required fields' });
@@ -47,6 +49,8 @@ export const actions: Actions = {
                 powerSource,
                 district,
                 pickupAddress,
+                lat,
+                lng,
                 pricePerDay,
                 deposit: deposit || '0',
                 replacementValue,
