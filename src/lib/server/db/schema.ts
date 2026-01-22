@@ -63,6 +63,11 @@ export const transportSizeEnum = pgEnum('transport_size', [
 	'PICKUP_TRUCK',
 	'VAN_REQUIRED'
 ]);
+export const dispatchEnum = pgEnum('dispatch', [
+	'DELIVER_ONLY',
+	'PICKUP_ONLY',
+	'PICKUP_OR_DELIVERY'
+]);
 
 export const users = pgTable('users', {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -104,11 +109,13 @@ export const listings = pgTable('listings', {
 	powerSource: powerSourceEnum('power_source'),
 
 	// Logistics
-	district: districtEnum('district').notNull(),
+	district: districtEnum('district'),
 	pickupAddress: text('pickup_address'),
 	lat: doublePrecision('lat'),
 	lng: doublePrecision('lng'),
 	transportSize: transportSizeEnum('transport_size'),
+	dispatch: dispatchEnum('dispatch').notNull(),
+	deliveryAreas: text('delivery_areas'),
 
 	// Financials
 	pricePerDay: decimal('price_per_day', { precision: 10, scale: 2 }).notNull(),

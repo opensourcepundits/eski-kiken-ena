@@ -30,12 +30,27 @@ export const actions: Actions = {
 		const deposit = formData.get('deposit') as string;
 		const replacementValue = formData.get('replacementValue') as string;
 		const transportSize = formData.get('transportSize') as any;
+		const dispatch = formData.get('dispatch') as any;
+		const deliveryAreas = formData.get('deliveryAreas') as string;
 		const lat = formData.get('lat') ? parseFloat(formData.get('lat') as string) : null;
 		const lng = formData.get('lng') ? parseFloat(formData.get('lng') as string) : null;
 
-		if (!title || !category || !district || !pricePerDay) {
-			return fail(400, { message: 'Missing required fields' });
+		if (!title || !category || !pricePerDay || !dispatch) {
+			return fail(400, { message: 'Missing required fields.' });
 		}
+
+		// Location is required for PICKUP_OR_DELIVERY, optional for PICKUP_ONLY and DELIVER_ONLY
+		if (dispatch === 'PICKUP_OR_DELIVERY' && (!lat || !lng)) {
+			return fail(400, { message: 'Location is required. Please select a location on the map.' });
+		}
+
+		// Validate delivery areas if dispatch requires it
+		if ((dispatch === 'DELIVER_ONLY' || dispatch === 'PICKUP_OR_DELIVERY') && !deliveryAreas) {
+			return fail(400, { message: 'Delivery areas are required for delivery options.' });
+		}
+
+		// For delivery only, pickup address is not required but location is still needed for map
+		// For pickup options, both location and address are recommended
 
 		try {
 			await db.insert(listings).values({
@@ -55,6 +70,8 @@ export const actions: Actions = {
 				deposit: deposit || '0',
 				replacementValue,
 				transportSize,
+				dispatch,
+				deliveryAreas: (dispatch === 'DELIVER_ONLY' || dispatch === 'PICKUP_OR_DELIVERY') ? deliveryAreas : null,
 				isActive: true
 			});
 		} catch (e) {

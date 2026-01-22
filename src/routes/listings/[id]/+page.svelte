@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import ListingMap from '$lib/components/ListingMap.svelte';
 
 	let { data, form } = $props<{ data: any; form: any }>();
 	let listing = $derived(data.listing);
@@ -137,45 +138,96 @@
 								</h3>
 							</div>
 							<ul class="space-y-4 text-base list-none p-0 m-0 font-bold">
-								<li class="flex justify-between border-b border-slate-200/50 pb-3">
-									<span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest"
-										>Size</span
-									>
-									<span class="text-slate-900"
-										>{listing.transportSize?.replace('_', ' ') || 'Any vehicle'}</span
-									>
-								</li>
-								<li class="flex justify-between pb-3">
-									<span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest"
-										>District</span
-									>
-									<span class="text-slate-900"
-										>{listing.district?.replace('_', ' ') ?? 'Local'}</span
-									>
-								</li>
+								{#if listing.transportSize}
+									<li class="flex justify-between border-b border-slate-200/50 pb-3">
+										<span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest"
+											>Size</span
+										>
+										<span class="text-slate-900"
+											>{listing.transportSize.replace('_', ' ')}</span
+										>
+									</li>
+								{/if}
+								{#if listing.district}
+									<li class="flex justify-between pb-3">
+										<span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest"
+											>District</span
+										>
+										<span class="text-slate-900"
+											>{listing.district.replace('_', ' ')}</span
+										>
+									</li>
+								{/if}
 							</ul>
 						</div>
 					</div>
 
 					<!-- Location Detail -->
+					{#if listing.lat && listing.lng}
+						<div class="mt-12">
+							<h2 class="text-2xl font-black text-slate-900 border-b border-slate-100 pb-4 mb-6">
+								Location
+							</h2>
+							<div class="bg-slate-100 rounded-3xl h-96 w-full overflow-hidden border border-slate-200 shadow-lg">
+								<ListingMap lat={listing.lat} lng={listing.lng} title={listing.title} />
+							</div>
+							{#if listing.pickupAddress}
+								<div class="mt-4 flex items-center gap-2 text-slate-600">
+									<span class="text-indigo-600">📍</span>
+									<span class="font-medium">{listing.pickupAddress}</span>
+								</div>
+							{/if}
+						</div>
+					{/if}
+
+					<!-- Dispatch & Delivery Information -->
 					<div class="mt-12">
 						<h2 class="text-2xl font-black text-slate-900 border-b border-slate-100 pb-4 mb-6">
-							Location details
+							Delivery & Pickup
 						</h2>
-						<div
-							class="bg-slate-100 rounded-3xl h-64 w-full flex flex-col items-center justify-center gap-4 border-2 border-dashed border-slate-200 text-slate-400 relative overflow-hidden group"
-						>
-							<span class="text-4xl group-hover:scale-110 transition-transform">🗺️</span>
-							<p class="font-bold italic">
-								Approximate location in {listing.district?.replace('_', ' ')}
-							</p>
-							{#if listing.pickupAddress}
-								<p
-									class="text-xs uppercase tracking-widest font-black text-indigo-600 bg-white px-4 py-2 rounded-full shadow-sm"
-								>
-									{listing.pickupAddress}
-								</p>
-							{/if}
+						<div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm">
+							<div class="space-y-4">
+								<div class="flex items-start gap-3">
+									<div>
+										<div class="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">
+											Dispatch Method
+										</div>
+										<div class="font-bold text-slate-900">
+											{#if listing.dispatch === 'DELIVER_ONLY'}
+												Delivery only
+											{:else if listing.dispatch === 'PICKUP_ONLY'}
+												Pick up only
+											{:else if listing.dispatch === 'PICKUP_OR_DELIVERY'}
+												Pick up or Delivery
+											{:else}
+												Not specified
+											{/if}
+										</div>
+									</div>
+								</div>
+								{#if listing.deliveryAreas}
+									<div class="flex items-start gap-3 pt-4 border-t border-slate-200">
+										<div>
+											<div class="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">
+												Delivery applicable for
+											</div>
+											<div class="font-medium text-slate-700">{listing.deliveryAreas}</div>
+										</div>
+									</div>
+								{/if}
+								{#if listing.transportSize}
+									<div class="flex items-start gap-3 pt-4 border-t border-slate-200">
+										<div>
+											<div class="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">
+												Transport Requirements
+											</div>
+											<div class="font-medium text-slate-700">
+												{listing.transportSize.replace(/_/g, ' ')}
+											</div>
+										</div>
+									</div>
+								{/if}
+							</div>
 						</div>
 					</div>
 				</div>

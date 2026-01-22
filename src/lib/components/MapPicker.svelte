@@ -4,7 +4,7 @@
 	interface Props {
 		lat?: number | null;
 		lng?: number | null;
-		onLocationSelect: (lat: number, lng: number) => void;
+		onLocationSelect: (lat: number, lng: number, address?: string) => void;
 	}
 
 	let { lat, lng, onLocationSelect }: Props = $props();
@@ -82,15 +82,20 @@
 					draggable: true
 				}).addTo(map);
 
-				marker.on('dragend', (e: any) => {
+				marker.on('dragend', async (e: any) => {
 					const position = e.target.getLatLng();
 					selectedLat = position.lat;
 					selectedLng = position.lng;
+					// Auto-update address on drag
+					const address = await reverseGeocode(position.lat, position.lng);
+					if (address) {
+						onLocationSelect(position.lat, position.lng, address);
+					}
 				});
 			}
 
 			// Add click handler to place/update marker
-			map.on('click', (e: any) => {
+			map.on('click', async (e: any) => {
 				const { lat, lng } = e.latlng;
 				selectedLat = lat;
 				selectedLng = lng;
@@ -102,10 +107,15 @@
 						draggable: true
 					}).addTo(map);
 
-					marker.on('dragend', (e: any) => {
+					marker.on('dragend', async (e: any) => {
 						const position = e.target.getLatLng();
 						selectedLat = position.lat;
 						selectedLng = position.lng;
+						// Auto-update address on drag
+						const address = await reverseGeocode(position.lat, position.lng);
+						if (address) {
+							onLocationSelect(position.lat, position.lng, address);
+						}
 					});
 				}
 			});
@@ -164,9 +174,44 @@
 		}
 	}
 
+	async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+		try {
+			const response = await fetch(
+				`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+				{
+					headers: {
+						'User-Agent': 'EKE Rental Platform'
+					}
+				}
+			);
+			const data = await response.json();
+			if (data.address) {
+				const parts = [];
+				if (data.address.road) parts.push(data.address.road);
+				if (data.address.house_number) parts.push(data.address.house_number);
+				if (data.address.suburb || data.address.neighbourhood) {
+					parts.push(data.address.suburb || data.address.neighbourhood);
+				}
+				if (data.address.city || data.address.town || data.address.village) {
+					parts.push(data.address.city || data.address.town || data.address.village);
+				}
+				return parts.length > 0 ? parts.join(', ') : data.display_name || null;
+			}
+			return data.display_name || null;
+		} catch (error) {
+			console.error('Reverse geocoding failed:', error);
+			return null;
+		}
+	}
+
+	async function handleLocationSelect(lat: number, lng: number) {
+		const address = await reverseGeocode(lat, lng);
+		onLocationSelect(lat, lng, address || undefined);
+	}
+
 	function confirmLocation() {
 		if (selectedLat !== null && selectedLng !== null) {
-			onLocationSelect(selectedLat, selectedLng);
+			handleLocationSelect(selectedLat, selectedLng);
 			closeMap();
 		}
 	}

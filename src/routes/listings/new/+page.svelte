@@ -6,6 +6,15 @@
 
 	let latValue = $state<string>('');
 	let lngValue = $state<string>('');
+	let pickupAddressValue = $state<string>('');
+	let dispatchValue = $state<string>('PICKUP_ONLY');
+	let deliveryAreasValue = $state<string>('Quatre Bornes, Rose Hill, Trianon, ...');
+
+	const dispatchOptions = [
+		{ value: 'DELIVER_ONLY', label: 'Delivery only' },
+		{ value: 'PICKUP_ONLY', label: 'Pick up only' },
+		{ value: 'PICKUP_OR_DELIVERY', label: 'Pick up or Delivery' }
+	];
 
 	const categories = [
 		'POWER_TOOLS',
@@ -22,20 +31,6 @@
 	const conditions = ['LIKE_NEW', 'GOOD', 'FUNCTIONAL', 'HEAVY_WEAR'];
 
 	const powerSources = ['BATTERY', 'CORDED_220V', 'PETROL', 'DIESEL', 'MANUAL'];
-
-	const districts = [
-		'PORT_LOUIS',
-		'PAMPLEMOUSSES',
-		'RIVIERE_DU_REMPART',
-		'FLACQ',
-		'GRAND_PORT',
-		'SAVANNE',
-		'PLAINES_WILHEMS',
-		'MOKA',
-		'BLACK_RIVER',
-		'RODRIGUES'
-	];
-
 	const transportSizes = ['BACKPACK', 'CAR_TRUNK', 'BACKSEAT', 'PICKUP_TRUCK', 'VAN_REQUIRED'];
 </script>
 
@@ -181,18 +176,18 @@
 					</div>
 					<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 						<div>
-							<label for="district" class="block text-sm font-medium text-slate-700"
-								>District *</label
+							<label for="dispatch" class="block text-sm font-medium text-slate-700"
+								>Dispatch *</label
 							>
 							<select
-								id="district"
-								name="district"
+								id="dispatch"
+								name="dispatch"
+								bind:value={dispatchValue}
 								required
 								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border bg-white"
 							>
-								<option value="">Select District</option>
-								{#each districts as dist}
-									<option value={dist}>{dist.replace('_', ' ')}</option>
+								{#each dispatchOptions as option}
+									<option value={option.value}>{option.label}</option>
 								{/each}
 							</select>
 						</div>
@@ -213,62 +208,85 @@
 							</select>
 						</div>
 
-						<div class="sm:col-span-2 space-y-4">
-							<label for="pickupAddress" class="block text-sm font-medium text-slate-700"
-								>Pickup Address</label
-							>
-							<div class="flex gap-2">
+						{#if dispatchValue === 'DELIVER_ONLY' || dispatchValue === 'PICKUP_OR_DELIVERY'}
+							<div class="sm:col-span-2">
+								<label for="deliveryAreas" class="block text-sm font-medium text-slate-700"
+									>Delivery applicable for: *</label
+								>
 								<input
 									type="text"
-									name="pickupAddress"
-									id="pickupAddress"
-									class="flex-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-									placeholder="e.g. 12, Rue de la Paix, Port Louis"
-								/>
-								<MapPicker
-									lat={latValue ? parseFloat(latValue) : null}
-									lng={lngValue ? parseFloat(lngValue) : null}
-									onLocationSelect={(lat, lng) => {
-										latValue = lat.toString();
-										lngValue = lng.toString();
-									}}
+									id="deliveryAreas"
+									name="deliveryAreas"
+									bind:value={deliveryAreasValue}
+									required
+									class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+									placeholder="Quatre Bornes, Rose Hill, Trianon, ..."
 								/>
 							</div>
-							<div class="grid grid-cols-2 gap-4">
-								<div class="space-y-1">
-									<label
-										for="lat"
-										class="text-[10px] uppercase font-black text-slate-400 tracking-widest ml-1"
-										>Latitude</label
-									>
+						{/if}
+
+						{#if dispatchValue === 'PICKUP_ONLY'}
+							<!-- Pick up only - map selector optional, address optional -->
+							<div class="sm:col-span-2 space-y-4">
+								<label for="pickupAddress" class="block text-sm font-medium text-slate-700"
+									>Pickup Address (Optional)</label
+								>
+								<div class="flex gap-2">
 									<input
 										type="text"
-										id="lat"
-										name="lat"
-										bind:value={latValue}
-										readonly
-										class="block w-full rounded-lg border-slate-200 bg-slate-50 text-slate-500 text-xs p-2 border"
-										placeholder="Select on map"
+										name="pickupAddress"
+										id="pickupAddress"
+										bind:value={pickupAddressValue}
+										class="flex-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+										placeholder="e.g. 12, Rue de la Paix, Port Louis"
 									/>
-								</div>
-								<div class="space-y-1">
-									<label
-										for="lng"
-										class="text-[10px] uppercase font-black text-slate-400 tracking-widest ml-1"
-										>Longitude</label
-									>
-									<input
-										type="text"
-										id="lng"
-										name="lng"
-										bind:value={lngValue}
-										readonly
-										class="block w-full rounded-lg border-slate-200 bg-slate-50 text-slate-500 text-xs p-2 border"
-										placeholder="Select on map"
+									<MapPicker
+										lat={latValue ? parseFloat(latValue) : null}
+										lng={lngValue ? parseFloat(lngValue) : null}
+										onLocationSelect={(lat, lng, address) => {
+											latValue = lat.toString();
+											lngValue = lng.toString();
+											if (address) {
+												pickupAddressValue = address;
+											}
+										}}
 									/>
 								</div>
 							</div>
-						</div>
+						{:else if dispatchValue === 'DELIVER_ONLY'}
+							<!-- Delivery only - no address field, no map selector -->
+						{:else}
+							<!-- Pick up or Delivery - map required, address auto-filled -->
+							<div class="sm:col-span-2 space-y-4">
+								<label for="pickupAddress" class="block text-sm font-medium text-slate-700"
+									>Pickup Address *</label
+								>
+								<div class="flex gap-2">
+									<input
+										type="text"
+										name="pickupAddress"
+										id="pickupAddress"
+										bind:value={pickupAddressValue}
+										class="flex-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+										placeholder="e.g. 12, Rue de la Paix, Port Louis"
+									/>
+									<MapPicker
+										lat={latValue ? parseFloat(latValue) : null}
+										lng={lngValue ? parseFloat(lngValue) : null}
+										onLocationSelect={(lat, lng, address) => {
+											latValue = lat.toString();
+											lngValue = lng.toString();
+											if (address) {
+												pickupAddressValue = address;
+											}
+										}}
+									/>
+								</div>
+								{#if !latValue || !lngValue}
+									<p class="text-sm text-red-600">⚠️ Please select a location on the map (required)</p>
+								{/if}
+							</div>
+						{/if}
 					</div>
 				</section>
 
@@ -336,6 +354,16 @@
 					</div>
 				</section>
 
+				<!-- Hidden inputs for lat/lng and district -->
+				{#if dispatchValue === 'PICKUP_OR_DELIVERY'}
+					<input type="hidden" name="lat" value={latValue} required />
+					<input type="hidden" name="lng" value={lngValue} required />
+				{:else}
+					<input type="hidden" name="lat" value={latValue} />
+					<input type="hidden" name="lng" value={lngValue} />
+				{/if}
+				<input type="hidden" name="district" value="PORT_LOUIS" />
+
 				<div class="pt-6 border-t border-slate-200 flex items-center justify-end gap-4">
 					<button
 						type="button"
@@ -345,7 +373,8 @@
 					</button>
 					<button
 						type="submit"
-						class="px-10 py-2.5 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all shadow-lg hover:shadow-indigo-200"
+						disabled={dispatchValue === 'PICKUP_OR_DELIVERY' && (!latValue || !lngValue)}
+						class="px-10 py-2.5 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all shadow-lg hover:shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						Create Listing
 					</button>
