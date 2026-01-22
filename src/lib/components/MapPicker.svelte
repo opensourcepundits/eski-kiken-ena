@@ -7,67 +7,78 @@
 		onLocationSelect: (lat: number, lng: number) => void;
 	}
 
-	let { lat: initialLat, lng: initialLng, onLocationSelect }: Props = $props();
+	let { lat, lng, onLocationSelect }: Props = $props();
 
-	let mapContainer: HTMLDivElement;
-	let map: any;
-	let marker: any;
+	let mapContainer = $state<HTMLDivElement | null>(null);
+	let map: any = $state(null);
+	let marker: any = $state(null);
 	let isOpen = $state(false);
-	let selectedLat = $state<number | null>(initialLat || null);
-	let selectedLng = $state<number | null>(initialLng || null);
+	let selectedLat = $state<number | null>(null);
+	let selectedLng = $state<number | null>(null);
+	let leafletLoaded = $state(false);
 
-	onMount(async () => {
-		// Dynamically import Leaflet
-		const L = await import('leaflet');
-		await import('leaflet/dist/leaflet.css');
+	// Sync selected coordinates with props - properly reactive
+	$effect(() => {
+		selectedLat = lat ?? null;
+		selectedLng = lng ?? null;
+	});
 
-		// Fix for default marker icon issue
-		delete (L as any).Icon.Default.prototype._getIconUrl;
-		L.Icon.Default.mergeOptions({
-			iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-			iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-			shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png'
-		});
-
-		// Default to Mauritius center if no initial location
-		const defaultLat = initialLat || -20.3484;
-		const defaultLng = initialLng || 57.5522;
-
-		// Initialize map
-		map = L.map(mapContainer, {
-			center: [defaultLat, defaultLng],
-			zoom: 13
-		});
-
-		// Add tile layer (OpenStreetMap)
-		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			attribution: '© OpenStreetMap contributors',
-			maxZoom: 19
-		}).addTo(map);
-
-		// Add initial marker if location exists
-		if (initialLat && initialLng) {
-			marker = L.marker([initialLat, initialLng], {
-				draggable: true
-			}).addTo(map);
-
-			marker.on('dragend', (e: any) => {
-				const position = e.target.getLatLng();
-				selectedLat = position.lat;
-				selectedLng = position.lng;
-			});
+	async function initializeMap() {
+		if (!mapContainer) {
+			// Wait for container to be available
+			setTimeout(() => initializeMap(), 50);
+			return;
 		}
 
-		// Add click handler to place/update marker
-		map.on('click', (e: any) => {
-			const { lat, lng } = e.latlng;
-			selectedLat = lat;
-			selectedLng = lng;
+		if (map) {
+			// Map already exists, just resize it
+			setTimeout(() => {
+				map.invalidateSize();
+				if (selectedLat !== null && selectedLng !== null) {
+					map.setView([selectedLat, selectedLng], 13);
+				}
+			}, 100);
+			return;
+		}
 
-			if (marker) {
-				marker.setLatLng([lat, lng]);
-			} else {
-				marker = L.marker([lat, lng], {
+		try {
+			// Dynamically import Leaflet
+			const L = await import('leaflet');
+
+			// Import CSS dynamically
+			const link = document.createElement('link');
+			link.rel = 'stylesheet';
+			link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';
+			document.head.appendChild(link);
+
+			// Fix for default marker icon issue
+			delete (L as any).Icon.Default.prototype._getIconUrl;
+			L.Icon.Default.mergeOptions({
+				iconRetinaUrl:
+					'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+				iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+				shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png'
+			});
+
+			// Default to Mauritius center if no initial location
+			const defaultLat = selectedLat ?? -20.3484;
+			const defaultLng = selectedLng ?? 57.5522;
+
+			// Initialize map
+			map = L.map(mapContainer, {
+				center: [defaultLat, defaultLng],
+				zoom: 13
+			});
+
+			// Add tile layer (OpenStreetMap)
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution: '© OpenStreetMap contributors',
+				maxZoom: 19
+			}).addTo(map);
+
+			// Add initial marker if location exists
+			if (selectedLat !== null && selectedLng !== null) {
+				marker = L.marker([selectedLat, selectedLng], {
 					draggable: true
 				}).addTo(map);
 
@@ -77,25 +88,80 @@
 					selectedLng = position.lng;
 				});
 			}
-		});
-	});
+
+			// Add click handler to place/update marker
+			map.on('click', (e: any) => {
+				const { lat, lng } = e.latlng;
+				selectedLat = lat;
+				selectedLng = lng;
+
+				if (marker) {
+					marker.setLatLng([lat, lng]);
+				} else {
+					marker = L.marker([lat, lng], {
+						draggable: true
+					}).addTo(map);
+
+					marker.on('dragend', (e: any) => {
+						const position = e.target.getLatLng();
+						selectedLat = position.lat;
+						selectedLng = position.lng;
+					});
+				}
+			});
+
+			leafletLoaded = true;
+
+			// Invalidate size multiple times to ensure proper rendering
+			setTimeout(() => {
+				if (map) {
+					map.invalidateSize();
+				}
+			}, 100);
+
+			setTimeout(() => {
+				if (map) {
+					map.invalidateSize();
+				}
+			}, 300);
+
+			setTimeout(() => {
+				if (map) {
+					map.invalidateSize();
+				}
+			}, 500);
+		} catch (error) {
+			console.error('Failed to load Leaflet:', error);
+		}
+	}
 
 	function openMap() {
 		isOpen = true;
-		// Resize map when modal opens
+		// Initialize map when modal opens - wait a bit for DOM to update
 		setTimeout(() => {
-			if (map) {
-				map.invalidateSize();
-				// Re-center on selected location if available
-				if (selectedLat !== null && selectedLng !== null) {
-					map.setView([selectedLat, selectedLng], 13);
-				}
-			}
+			initializeMap();
 		}, 100);
 	}
 
 	function closeMap() {
 		isOpen = false;
+	}
+
+	function handleOverlayClick(e: MouseEvent | KeyboardEvent) {
+		if (e.target === e.currentTarget) {
+			closeMap();
+		}
+	}
+
+	function handleKeyDown(e: KeyboardEvent) {
+		if (e.key === 'Escape') {
+			closeMap();
+		} else if (e.key === 'Enter' || e.key === ' ') {
+			// Allow closing via Enter/Space on the overlay
+			if (e.target === e.currentTarget) {
+				closeMap();
+			}
+		}
 	}
 
 	function confirmLocation() {
@@ -105,6 +171,8 @@
 		}
 	}
 </script>
+
+<svelte:window onkeydown={handleKeyDown} />
 
 <button
 	type="button"
@@ -118,22 +186,32 @@
 	<!-- Modal Overlay -->
 	<div
 		class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-		onclick={(e) => {
-			if (e.target === e.currentTarget) closeMap();
-		}}
-		role="dialog"
-		aria-modal="true"
+		onclick={handleOverlayClick}
+		onkeydown={handleKeyDown}
+		role="button"
+		tabindex="0"
+		aria-label="Close map dialog by clicking outside"
 	>
 		<!-- Modal Content -->
-		<div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+		<div
+			class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col"
+			onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => e.stopPropagation()}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="map-dialog-title"
+			tabindex="-1"
+		>
 			<!-- Header -->
 			<div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-				<h2 class="text-xl font-bold text-slate-900">Select Location on Map</h2>
+				<h2 id="map-dialog-title" class="text-xl font-bold text-slate-900">
+					Select Location on Map
+				</h2>
 				<button
 					type="button"
 					onclick={closeMap}
 					class="text-slate-400 hover:text-slate-600 transition-colors"
-					aria-label="Close"
+					aria-label="Close map dialog"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -153,8 +231,13 @@
 			</div>
 
 			<!-- Map Container -->
-			<div class="flex-1 min-h-[400px] relative">
-				<div bind:this={mapContainer} class="w-full h-full rounded-b-2xl"></div>
+			<div class="flex-1 min-h-[400px] relative overflow-hidden">
+				<div bind:this={mapContainer} class="w-full h-full absolute inset-0"></div>
+				{#if !leafletLoaded}
+					<div class="absolute inset-0 flex items-center justify-center bg-slate-100 z-10">
+						<div class="text-slate-500">Loading map...</div>
+					</div>
+				{/if}
 			</div>
 
 			<!-- Footer with coordinates and actions -->
@@ -162,18 +245,18 @@
 				<div class="flex items-center justify-between gap-4">
 					<div class="flex-1 grid grid-cols-2 gap-4">
 						<div>
-							<label class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 block"
-								>Latitude</label
-							>
-							<div class="text-sm font-mono text-slate-700">
+							<div class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">
+								Latitude
+							</div>
+							<div class="text-sm font-mono text-slate-700" id="lat-display">
 								{selectedLat !== null ? selectedLat.toFixed(6) : 'Not selected'}
 							</div>
 						</div>
 						<div>
-							<label class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 block"
-								>Longitude</label
-							>
-							<div class="text-sm font-mono text-slate-700">
+							<div class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">
+								Longitude
+							</div>
+							<div class="text-sm font-mono text-slate-700" id="lng-display">
 								{selectedLng !== null ? selectedLng.toFixed(6) : 'Not selected'}
 							</div>
 						</div>
@@ -207,5 +290,19 @@
 <style>
 	:global(.leaflet-container) {
 		z-index: 0;
+		height: 100% !important;
+		width: 100% !important;
+	}
+
+	:global(.leaflet-tile-pane) {
+		z-index: 2;
+	}
+
+	:global(.leaflet-overlay-pane) {
+		z-index: 4;
+	}
+
+	:global(.leaflet-marker-pane) {
+		z-index: 6;
 	}
 </style>
