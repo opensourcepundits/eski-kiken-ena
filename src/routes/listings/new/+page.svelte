@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import MapPicker from '$lib/components/MapPicker.svelte';
 
 	let { form } = $props();
+
+	let latValue = $state<string>('');
+	let lngValue = $state<string>('');
 
 	const categories = [
 		'POWER_TOOLS',
@@ -38,9 +42,9 @@
 <div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
 	<div class="max-w-3xl mx-auto">
 		<div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-			<div class="bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-10">
-				<h1 class="text-3xl font-extrabold text-white">List Your Item</h1>
-				<p class="mt-2 text-indigo-100 italic">
+			<div class="bg-primary px-8 py-10">
+				<h1 class="text-3xl font-extrabold text-background">List Your Item</h1>
+				<p class="mt-2 text-background/70 italic">
 					Share your tools and earn while helping others finish their projects.
 				</p>
 			</div>
@@ -55,12 +59,12 @@
 				<!-- Core Information -->
 				<section>
 					<div class="flex items-center gap-2 mb-4">
-						<span class="text-indigo-600 text-xl">📦</span>
-						<h2 class="text-xl font-semibold text-slate-800">Core Information</h2>
+						<span class="text-accent text-xl"></span>
+						<h2 class="text-xl font-semibold text-secondary">Core Information</h2>
 					</div>
 					<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 						<div class="sm:col-span-2">
-							<label for="title" class="block text-sm font-medium text-slate-700"
+							<label for="title" class="block text-sm font-medium text-secondary"
 								>Item Title *</label
 							>
 							<input
@@ -68,31 +72,31 @@
 								name="title"
 								id="title"
 								required
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+								class="mt-1 block w-full rounded-lg border-surface shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2.5 border"
 								placeholder="e.g. Makita Cordless Drill HP457D"
 							/>
 						</div>
 
 						<div class="sm:col-span-2">
-							<label for="description" class="block text-sm font-medium text-slate-700"
+							<label for="description" class="block text-sm font-medium text-secondary"
 								>Description</label
 							>
 							<textarea
 								name="description"
 								id="description"
 								rows="3"
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+								class="mt-1 block w-full rounded-lg border-surface shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2.5 border"
 								placeholder="Describe the item, its condition, and what's included..."
 							></textarea>
 						</div>
 
 						<div>
-							<label for="brand" class="block text-sm font-medium text-slate-700">Brand</label>
+							<label for="brand" class="block text-sm font-medium text-secondary">Brand</label>
 							<input
 								type="text"
 								name="brand"
 								id="brand"
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+								class="mt-1 block w-full rounded-lg border-surface shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2.5 border"
 							/>
 						</div>
 
@@ -115,7 +119,6 @@
 				<!-- Classification -->
 				<section>
 					<div class="flex items-center gap-2 mb-4">
-						<span class="text-indigo-600 text-xl">🛠️</span>
 						<h2 class="text-xl font-semibold text-slate-800">Classification</h2>
 					</div>
 					<div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -174,7 +177,6 @@
 				<!-- Logistics -->
 				<section>
 					<div class="flex items-center gap-2 mb-4">
-						<span class="text-indigo-600 text-xl">📍</span>
 						<h2 class="text-xl font-semibold text-slate-800">Logistics</h2>
 					</div>
 					<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -223,34 +225,14 @@
 									class="flex-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
 									placeholder="e.g. 12, Rue de la Paix, Port Louis"
 								/>
-								<button
-									type="button"
-									onclick={() => {
-										if (navigator.geolocation) {
-											navigator.geolocation.getCurrentPosition(
-												(position) => {
-													const latInput = document.getElementById('lat') as HTMLInputElement;
-													const lngInput = document.getElementById('lng') as HTMLInputElement;
-													if (latInput && lngInput) {
-														latInput.value = position.coords.latitude.toString();
-														lngInput.value = position.coords.longitude.toString();
-														alert('Location fixed!');
-													}
-												},
-												(error) => {
-													alert(
-														'Echec pou gagne location. Svp check si ou finn permettre location dan browser.'
-													);
-												}
-											);
-										} else {
-											alert('Browser la pa supporte geolocation.');
-										}
+								<MapPicker
+									lat={latValue ? parseFloat(latValue) : null}
+									lng={lngValue ? parseFloat(lngValue) : null}
+									onLocationSelect={(lat, lng) => {
+										latValue = lat.toString();
+										lngValue = lng.toString();
 									}}
-									class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"
-								>
-									📍 Use My Location
-								</button>
+								/>
 							</div>
 							<div class="grid grid-cols-2 gap-4">
 								<div class="space-y-1">
@@ -263,9 +245,10 @@
 										type="text"
 										id="lat"
 										name="lat"
+										bind:value={latValue}
 										readonly
 										class="block w-full rounded-lg border-slate-200 bg-slate-50 text-slate-500 text-xs p-2 border"
-										placeholder="Auto-filled"
+										placeholder="Select on map"
 									/>
 								</div>
 								<div class="space-y-1">
@@ -278,9 +261,10 @@
 										type="text"
 										id="lng"
 										name="lng"
+										bind:value={lngValue}
 										readonly
 										class="block w-full rounded-lg border-slate-200 bg-slate-50 text-slate-500 text-xs p-2 border"
-										placeholder="Auto-filled"
+										placeholder="Select on map"
 									/>
 								</div>
 							</div>
@@ -292,7 +276,6 @@
 
 				<section>
 					<div class="flex items-center gap-2 mb-4">
-						<span class="text-indigo-600 text-xl">💰</span>
 						<h2 class="text-xl font-semibold text-slate-800">Financials</h2>
 					</div>
 					<div class="grid grid-cols-1 gap-6 sm:grid-cols-3">

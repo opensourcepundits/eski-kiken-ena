@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>Register | Eski kiken ena</title>
+	<title>Register | Eski Kiken Ena</title>
 </svelte:head>
 
 <div class="min-h-screen flex items-center justify-center p-6 bg-slate-50 font-sans">

@@ -75,10 +75,8 @@
 						/>
 					{:else}
 						<div
-							class="w-full h-full flex items-center justify-center text-slate-200 bg-gradient-to-br from-slate-50 to-slate-200 text-6xl"
-						>
-							📦
-						</div>
+							class="w-full h-full flex items-center justify-center text-secondary bg-surface text-6xl"
+						></div>
 					{/if}
 				</div>
 

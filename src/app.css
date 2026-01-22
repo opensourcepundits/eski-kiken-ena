@@ -1,14 +1,17 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-    --color-ocean: #0077b6;
-    --color-sunset: #fb8500;
+	--color-primary: #FF4136;
+	--color-secondary: #263743;
+	--color-accent: #456478;
+	--color-background: #eafbff;
+	--color-surface: #88a0b0;
 
-    --font-sans: 'Inter', sans-serif;
+	--font-sans: 'Inter', sans-serif;
 }
 
 @layer base {
-    body {
-        @apply bg-slate-50 text-slate-900;
-    }
+	body {
+		@apply bg-background text-secondary;
+	}
 }

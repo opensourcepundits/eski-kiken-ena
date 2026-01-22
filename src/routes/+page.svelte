@@ -6,7 +6,7 @@
 
 <div class="min-h-screen flex flex-col font-sans text-slate-900 overflow-hidden">
 	<!-- Hero Section -->
-	<header class="bg-indigo-900 text-white pb-32 pt-20 px-6 relative">
+	<header class="bg-secondary text-background pb-32 pt-20 px-6 relative">
 		<!-- Background pattern -->
 		<div class="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
 			<svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -23,12 +23,12 @@
 			<h1
 				class="text-5xl md:text-8xl font-black tracking-tighter leading-none drop-shadow-xl animate-in fade-in slide-in-from-bottom-8 duration-700"
 			>
-				Need a tool for <span class="text-sunset underline decoration-4 underline-offset-8"
-					>the weekend?</span
-				>
+				Need a tool for the <span class="text-primary underline decoration-4 underline-offset-8"
+					>weekend</span
+				>?
 			</h1>
 			<p
-				class="text-xl md:text-2xl text-indigo-100 font-medium max-w-2xl mx-auto leading-relaxed opacity-90 delay-150 animate-in fade-in slide-in-from-bottom-4 duration-700"
+				class="text-xl md:text-2xl text-background/80 font-medium max-w-2xl mx-auto leading-relaxed opacity-90 delay-150 animate-in fade-in slide-in-from-bottom-4 duration-700"
 			>
 				Mauritius' trusted peer-to-peer rental marketplace for power tools & pro equipment. Built
 				for neighbors, by neighbors.
@@ -41,10 +41,7 @@
 				class="mt-12 relative max-w-2xl mx-auto group delay-300 animate-in fade-in slide-in-from-bottom-2 duration-700"
 			>
 				<div
-					class="absolute inset-x-0 -inset-y-1 bg-gradient-to-r from-sunset to-orange-400 rounded-full opacity-20 group-hover:opacity-40 blur transition-opacity"
-				></div>
-				<div
-					class="relative flex items-center bg-white rounded-full p-2 shadow-2xl ring-1 ring-white/20"
+					class="relative flex items-center bg-background rounded-full p-2 shadow-2xl ring-1 ring-background/20"
 				>
 					<div class="pl-6 text-slate-400">
 						<svg
@@ -63,29 +60,29 @@
 					<input
 						type="text"
 						name="q"
-						placeholder="Eski kiken ena enn drill?"
-						class="w-full px-4 py-4 bg-transparent text-lg text-slate-800 placeholder:text-slate-400 focus:outline-none"
+						placeholder="Eski Kiken Ena enn drill?"
+						class="w-full px-4 py-4 bg-transparent text-lg text-secondary placeholder:text-surface focus:outline-none"
 					/>
 					<button
 						type="submit"
-						class="bg-sunset text-white px-8 py-3.5 rounded-full font-black hover:bg-orange-500 transition-all shadow-lg shadow-orange-900/40 transform active:scale-95 text-lg"
+						class="bg-primary text-background px-8 py-3.5 rounded-full font-black hover:bg-primary/80 transition-all shadow-lg shadow-secondary/40 transform active:scale-95 text-lg"
 					>
 						Search
 					</button>
 				</div>
-				<div class="mt-4 flex flex-wrap justify-center gap-2 text-sm text-indigo-200 font-bold">
+				<div class="mt-4 flex flex-wrap justify-center gap-2 text-sm text-background/80 font-bold">
 					<span>Popular:</span>
 					<a
 						href="/listings?q=drill"
-						class="hover:text-white underline decoration-indigo-700 underline-offset-4">Drills</a
+						class="hover:text-background underline decoration-accent underline-offset-4">Drills</a
 					>
 					<a
 						href="/listings?q=ladder"
-						class="hover:text-white underline decoration-indigo-700 underline-offset-4">Ladders</a
+						class="hover:text-background underline decoration-accent underline-offset-4">Ladders</a
 					>
 					<a
 						href="/listings?q=generator"
-						class="hover:text-white underline decoration-indigo-700 underline-offset-4"
+						class="hover:text-background underline decoration-accent underline-offset-4"
 						>Generators</a
 					>
 				</div>
@@ -98,10 +95,10 @@
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 			<!-- Feature 1 -->
 			<div
-				class="bg-white p-10 rounded-3xl shadow-2xl shadow-slate-900/10 border border-slate-100 hover:shadow-indigo-900/10 transition-all duration-500 group"
+				class="bg-background p-10 rounded-3xl shadow-2xl shadow-secondary/10 border border-surface hover:shadow-accent/10 transition-all duration-500 group"
 			>
 				<div
-					class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-8 shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 transform group-hover:-rotate-6"
+					class="w-16 h-16 bg-accent/20 rounded-2xl flex items-center justify-center text-accent mb-8 shadow-sm group-hover:bg-accent group-hover:text-background transition-all duration-300 transform group-hover:-rotate-6"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -118,8 +115,8 @@
 						/></svg
 					>
 				</div>
-				<h3 class="text-2xl font-black mb-4 text-slate-900">Rent Tools</h3>
-				<p class="text-slate-500 leading-relaxed font-medium">
+				<h3 class="text-2xl font-black mb-4 text-secondary">Rent Tools</h3>
+				<p class="text-surface leading-relaxed font-medium">
 					Access high-end equipment you only need once. Professional gear at local, affordable
 					prices.
 				</p>
@@ -127,10 +124,10 @@
 
 			<!-- Feature 2 -->
 			<div
-				class="bg-white p-10 rounded-3xl shadow-2xl shadow-slate-900/10 border border-slate-100 hover:shadow-indigo-900/10 transition-all duration-500 group"
+				class="bg-background p-10 rounded-3xl shadow-2xl shadow-secondary/10 border border-surface hover:shadow-accent/10 transition-all duration-500 group"
 			>
 				<div
-					class="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center text-sunset mb-8 shadow-sm group-hover:bg-sunset group-hover:text-white transition-all duration-300 transform group-hover:rotate-6"
+					class="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center text-primary mb-8 shadow-sm group-hover:bg-primary group-hover:text-background transition-all duration-300 transform group-hover:rotate-6"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -149,8 +146,8 @@
 						/></svg
 					>
 				</div>
-				<h3 class="text-2xl font-black mb-4 text-slate-900">Local Community</h3>
-				<p class="text-slate-500 leading-relaxed font-medium">
+				<h3 class="text-2xl font-black mb-4 text-secondary">Local Community</h3>
+				<p class="text-surface leading-relaxed font-medium">
 					Direct rentals between verified neighbors in your district. Safe, secure, and rooted in
 					trust.
 				</p>
@@ -158,10 +155,10 @@
 
 			<!-- Feature 3 -->
 			<div
-				class="bg-white p-10 rounded-3xl shadow-2xl shadow-slate-900/10 border border-slate-100 hover:shadow-indigo-900/10 transition-all duration-500 group"
+				class="bg-background p-10 rounded-3xl shadow-2xl shadow-secondary/10 border border-surface hover:shadow-accent/10 transition-all duration-500 group"
 			>
 				<div
-					class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-8 shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 transform group-hover:-rotate-12"
+					class="w-16 h-16 bg-surface/50 rounded-2xl flex items-center justify-center text-secondary mb-8 shadow-sm group-hover:bg-secondary group-hover:text-background transition-all duration-300 transform group-hover:-rotate-12"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -178,8 +175,8 @@
 						/></svg
 					>
 				</div>
-				<h3 class="text-2xl font-black mb-4 text-slate-900">Earn Extra</h3>
-				<p class="text-slate-500 leading-relaxed font-medium">
+				<h3 class="text-2xl font-black mb-4 text-secondary">Earn Extra</h3>
+				<p class="text-surface leading-relaxed font-medium">
 					Turn your underutilized workshop into a second paycheck. List your gear and start earning
 					today.
 				</p>
@@ -189,12 +186,12 @@
 		<div class="mt-32">
 			<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
 				<div>
-					<h2 class="text-4xl font-black text-slate-900 tracking-tight">Recent Gear</h2>
-					<p class="text-slate-500 font-bold mt-2 italic">Nouvo zafer kinn mete sa ban zour la.</p>
+					<h2 class="text-4xl font-black text-secondary tracking-tight">Recent Gear</h2>
+					<p class="text-surface font-bold mt-2 italic">Nouvo zafer kinn mete sa ban zour la.</p>
 				</div>
 				<a
 					href="/listings"
-					class="text-indigo-600 font-black hover:underline underline-offset-4 flex items-center gap-2 group"
+					class="text-accent font-black hover:underline underline-offset-4 flex items-center gap-2 group"
 				>
 					Check All Listings
 					<span class="group-hover:translate-x-1 transition-transform">→</span>
@@ -202,7 +199,7 @@
 			</div>
 
 			<div
-				class="py-32 bg-white rounded-[3rem] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-6 shadow-sm"
+				class="py-32 bg-background rounded-[3rem] border-2 border-dashed border-surface flex flex-col items-center justify-center gap-6 shadow-sm"
 			>
 				<div class="text-slate-200 transform hover:scale-110 transition-transform">
 					<svg
@@ -218,16 +215,16 @@
 					>
 				</div>
 				<div class="text-center space-y-2">
-					<p class="text-slate-400 text-xl font-bold italic">
+					<p class="text-surface text-xl font-bold italic">
 						Pena nanye dan sa l'endroit la pour ler.
 					</p>
-					<p class="text-slate-300 text-sm font-medium uppercase tracking-widest">
+					<p class="text-accent text-sm font-medium uppercase tracking-widest">
 						Check enn lot district?
 					</p>
 				</div>
 				<a
 					href="/listings"
-					class="mt-4 bg-slate-900 text-white px-10 py-4 rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all"
+					class="mt-4 bg-secondary text-background px-10 py-4 rounded-2xl font-black shadow-xl hover:bg-accent transition-all"
 					>Browse all Districts</a
 				>
 			</div>
