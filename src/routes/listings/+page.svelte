@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import ImageCarousel from '$lib/components/ImageCarousel.svelte';
 
 	let { data } = $props();
 	let listings = $derived(data.listings);
@@ -359,17 +360,14 @@
 						>
 							<!-- Image Placeholder -->
 							<div class="h-48 bg-surface overflow-hidden relative">
-								{#if (listing.images as string[])?.length > 0}
-									<img
-										src={(listing.images as string[])[0]}
-										alt={listing.title}
-										class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-									/>
-								{:else}
-									<div
-										class="w-full h-full flex items-center justify-center text-secondary bg-surface"
-									></div>
-								{/if}
+								<ImageCarousel
+									images={(listing.images as string[]) || []}
+									alt={listing.title}
+									containerClass="h-48 bg-surface"
+									imageClass="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+									showDots={false}
+									controlsOnHover={true}
+								/>
 								<div
 									class="absolute top-4 left-4 bg-background/95 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-accent shadow-sm"
 								>

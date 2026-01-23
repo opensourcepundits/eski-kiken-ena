@@ -9,6 +9,11 @@
 	let pickupAddressValue = $state<string>('');
 	let dispatchValue = $state<string>('PICKUP_ONLY');
 	let deliveryAreasValue = $state<string>('Quatre Bornes, Rose Hill, Trianon, ...');
+	
+	// Image upload state
+	let selectedImages = $state<File[]>([]);
+	let imagePreviews = $state<string[]>([]);
+	let imageError = $state<string>('');
 
 	const dispatchOptions = [
 		{ value: 'DELIVER_ONLY', label: 'Delivery only' },
@@ -44,7 +49,27 @@
 				</p>
 			</div>
 
-			<form method="POST" action="/listings/new" use:enhance class="p-8 space-y-8">
+			<form method="POST" action="/listings/new" use:enhance={({ formData, cancel }) => {
+				// Validate images before submission
+				if (selectedImages.length < 1) {
+					cancel();
+					imageError = 'At least 1 image is required';
+					return;
+				}
+				
+				// Add images to formData
+				selectedImages.forEach((file, index) => {
+					formData.append(`image_${index}`, file);
+				});
+				formData.append('imageCount', selectedImages.length.toString());
+				
+				return async ({ result, update }) => {
+					if (result.type === 'failure' && result.data?.message) {
+						imageError = result.data.message;
+					}
+					update();
+				};
+			}} enctype="multipart/form-data" class="p-8 space-y-8">
 				{#if form?.message}
 					<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
 						{form.message}
@@ -105,6 +130,118 @@
 								id="modelNumber"
 								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
 							/>
+						</div>
+
+						<!-- Image Upload Section -->
+						<div class="sm:col-span-2">
+							<label for="images" class="block text-sm font-medium text-secondary mb-2"
+								>Images * (Minimum 1, Maximum 5)</label
+							>
+							<input
+								type="file"
+								name="images"
+								id="images"
+								accept="image/*"
+								multiple
+								class="hidden"
+								onchange={(e) => {
+									const files = Array.from((e.target as HTMLInputElement).files || []);
+									if (files.length + selectedImages.length > 5) {
+										imageError = 'Maximum 5 images allowed';
+										return;
+									}
+									imageError = '';
+									
+									// Validate file types and sizes
+									const validFiles: File[] = [];
+									for (const file of files) {
+										if (!file.type.startsWith('image/')) {
+											imageError = 'Only image files are allowed';
+											continue;
+										}
+										if (file.size > 5 * 1024 * 1024) { // 5MB limit
+											imageError = 'Images must be less than 5MB';
+											continue;
+										}
+										validFiles.push(file);
+									}
+									
+									if (validFiles.length > 0) {
+										selectedImages = [...selectedImages, ...validFiles];
+										// Create previews
+										validFiles.forEach((file) => {
+											const reader = new FileReader();
+											reader.onload = (e) => {
+												imagePreviews = [...imagePreviews, e.target?.result as string];
+											};
+											reader.readAsDataURL(file);
+										});
+									}
+								}}
+							/>
+							<div class="mt-2 space-y-4">
+								<div class="flex items-center gap-4">
+									<button
+										type="button"
+										onclick={() => document.getElementById('images')?.click()}
+										class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+										disabled={selectedImages.length >= 5}
+									>
+										{selectedImages.length === 0 ? 'Select Images' : 'Add More Images'}
+									</button>
+									<span class="text-sm text-slate-600">
+										{selectedImages.length} / 5 images selected
+									</span>
+								</div>
+								
+								{#if imageError}
+									<p class="text-sm text-red-600">{imageError}</p>
+								{/if}
+								
+								{#if selectedImages.length < 1}
+									<p class="text-sm text-red-600">At least 1 image is required</p>
+								{/if}
+
+								<!-- Image Previews -->
+								{#if imagePreviews.length > 0}
+									<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+										{#each imagePreviews as preview, index}
+											<div class="relative group">
+												<img
+													src={preview}
+													alt={`Preview ${index + 1}`}
+													class="w-full h-32 object-cover rounded-lg border-2 border-slate-200"
+												/>
+												<button
+													type="button"
+													onclick={() => {
+														selectedImages = selectedImages.filter((_, i) => i !== index);
+														imagePreviews = imagePreviews.filter((_, i) => i !== index);
+														imageError = '';
+													}}
+													class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+													aria-label="Remove image"
+												>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														class="h-4 w-4"
+														fill="none"
+														viewBox="0 0 24 24"
+														stroke="currentColor"
+													>
+														<path
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															stroke-width="2"
+															d="M6 18L18 6M6 6l12 12"
+														/>
+													</svg>
+												</button>
+											</div>
+										{/each}
+									</div>
+								{/if}
+							</div>
 						</div>
 					</div>
 				</section>
@@ -373,7 +510,7 @@
 					</button>
 					<button
 						type="submit"
-						disabled={dispatchValue === 'PICKUP_OR_DELIVERY' && (!latValue || !lngValue)}
+						disabled={(dispatchValue === 'PICKUP_OR_DELIVERY' && (!latValue || !lngValue)) || selectedImages.length < 1}
 						class="px-10 py-2.5 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all shadow-lg hover:shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						Create Listing

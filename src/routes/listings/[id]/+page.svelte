@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import ListingMap from '$lib/components/ListingMap.svelte';
+	import ImageCarousel from '$lib/components/ImageCarousel.svelte';
 
 	let { data, form } = $props<{ data: any; form: any }>();
 	let listing = $derived(data.listing);
@@ -65,21 +66,11 @@
 				</div>
 
 				<!-- Main Image -->
-				<div
-					class="aspect-[16/9] bg-slate-100 rounded-[2.5rem] overflow-hidden shadow-2xl relative group"
-				>
-					{#if (listing.images as string[]).length > 0}
-						<img
-							src={(listing.images as string[])[0]}
-							alt={listing.title}
-							class="w-full h-full object-cover"
-						/>
-					{:else}
-						<div
-							class="w-full h-full flex items-center justify-center text-secondary bg-surface text-6xl"
-						></div>
-					{/if}
-				</div>
+				<ImageCarousel
+					images={(listing.images as string[]) || []}
+					alt={listing.title}
+					containerClass="aspect-[16/9] bg-slate-100 rounded-[2.5rem] shadow-2xl"
+				/>
 
 				<!-- Description & Features -->
 				<div class="prose prose-slate max-w-none">
