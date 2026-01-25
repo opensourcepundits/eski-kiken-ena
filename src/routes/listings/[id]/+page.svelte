@@ -326,27 +326,7 @@
 						</form>
 					</div>
 
-					<!-- Owner Info -->
-					<div
-						class="bg-slate-50 rounded-[2rem] p-6 border border-slate-100 flex items-center gap-4 group"
-					>
-						<div
-							class="w-16 h-16 rounded-2xl bg-white border-2 border-indigo-50 flex items-center justify-center overflow-hidden text-2xl shadow-sm group-hover:scale-110 transition-transform"
-						>
-							👤
-						</div>
-						<div>
-							<p
-								class="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1 leading-none"
-							>
-								Property of
-							</p>
-							<h4 class="text-lg font-black text-slate-900 leading-tight">
-								{listing.owner?.firstName}
-								{listing.owner?.lastName}
-							</h4>
-						</div>
-					</div>
+					<!-- Owner Info removed -->
 				</div>
 			</div>
 		</div>

@@ -71,9 +71,9 @@ export const actions: Actions = {
 		const totalPrice = (rentalCost + deposit).toFixed(2);
 
 		try {
-			// Check for date conflicts with existing CONFIRMED bookings
+			// Check for date conflicts with existing CONFIRMED bookings for THIS listing only
 			const existing = await db.query.bookings.findMany({
-				where: (b) => eq(b.listingId, params.id) && eq(b.status, 'CONFIRMED')
+				where: (b, { eq, and }) => and(eq(b.listingId, params.id), eq(b.status, 'CONFIRMED'))
 			});
 			const hasConflict = existing?.some((b: any) => {
 				const s = new Date(b.startDate);
@@ -82,7 +82,8 @@ export const actions: Actions = {
 			});
 			if (hasConflict) {
 				return fail(400, {
-					message: 'Selected dates are unavailable due to an existing confirmed booking'
+					message:
+						'Selected dates are unavailable due to an existing confirmed booking for this listing'
 				});
 			}
 
