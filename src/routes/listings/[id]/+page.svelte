@@ -2,12 +2,14 @@
 	import { enhance } from '$app/forms';
 	import ListingMap from '$lib/components/ListingMap.svelte';
 	import ImageCarousel from '$lib/components/ImageCarousel.svelte';
+	import DateRangeCalendar from '$lib/components/DateRangeCalendar.svelte';
 
 	let { data, form } = $props<{ data: any; form: any }>();
 	let listing = $derived(data.listing);
 
 	let startDate = $state('');
 	let endDate = $state('');
+	let hasConflict = false;
 
 	let totalPrice = $derived.by(() => {
 		if (!startDate || !endDate) return 0;
@@ -22,10 +24,12 @@
 	});
 
 	let occupiedDates = $derived(
-		listing.bookings?.map((b: any) => ({
-			start: new Date(b.startDate),
-			end: new Date(b.endDate)
-		})) || []
+		listing.bookings
+			?.filter((b: any) => b.status === 'CONFIRMED')
+			.map((b: any) => ({
+				start: new Date(b.startDate),
+				end: new Date(b.endDate)
+			})) || []
 	);
 
 	let formattedDate = $derived(
@@ -134,9 +138,7 @@
 										<span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest"
 											>Size</span
 										>
-										<span class="text-slate-900"
-											>{listing.transportSize.replace('_', ' ')}</span
-										>
+										<span class="text-slate-900">{listing.transportSize.replace('_', ' ')}</span>
 									</li>
 								{/if}
 								{#if listing.district}
@@ -144,9 +146,7 @@
 										<span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest"
 											>District</span
 										>
-										<span class="text-slate-900"
-											>{listing.district.replace('_', ' ')}</span
-										>
+										<span class="text-slate-900">{listing.district.replace('_', ' ')}</span>
 									</li>
 								{/if}
 							</ul>
@@ -159,7 +159,9 @@
 							<h2 class="text-2xl font-black text-slate-900 border-b border-slate-100 pb-4 mb-6">
 								Location
 							</h2>
-							<div class="bg-slate-100 rounded-3xl h-96 w-full overflow-hidden border border-slate-200 shadow-lg">
+							<div
+								class="bg-slate-100 rounded-3xl h-96 w-full overflow-hidden border border-slate-200 shadow-lg"
+							>
 								<ListingMap lat={listing.lat} lng={listing.lng} title={listing.title} />
 							</div>
 							{#if listing.pickupAddress}
@@ -247,38 +249,15 @@
 								</div>
 							{/if}
 
-							<div class="grid grid-cols-1 gap-4">
-								<div class="space-y-2">
-									<label
-										for="startDate"
-										class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"
-										>L'entrer</label
-									>
-									<input
-										type="date"
-										id="startDate"
-										name="startDate"
-										bind:value={startDate}
-										required
-										class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-bold text-slate-900 appearance-none"
-									/>
-								</div>
-								<div class="space-y-2">
-									<label
-										for="endDate"
-										class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"
-										>Sortie</label
-									>
-									<input
-										type="date"
-										id="endDate"
-										name="endDate"
-										bind:value={endDate}
-										required
-										class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-bold text-slate-900 appearance-none"
-									/>
-								</div>
-							</div>
+							<DateRangeCalendar
+								bind:startDate
+								bind:endDate
+								blockedRanges={data.blockedRanges}
+								bind:hasConflict
+							/>
+							<!-- Hidden fields to submit selected date range with the form -->
+							<input type="hidden" name="startDate" value={startDate} />
+							<input type="hidden" name="endDate" value={endDate} />
 
 							{#if occupiedDates.length > 0}
 								<div class="space-y-3">

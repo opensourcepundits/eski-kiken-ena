@@ -2,6 +2,15 @@
 	import { enhance } from '$app/forms';
 
 	let { data } = $props();
+
+	const recentListings = $derived((data?.recentListings ?? []) as any[]);
+
+	function formatRating(listing: any) {
+		const rating = Number(listing?.rating ?? 0);
+		const reviewCount = Number(listing?.reviewCount ?? 0);
+		if (!reviewCount) return 'No ratings yet';
+		return `★ ${rating.toFixed(1)} (${reviewCount})`;
+	}
 </script>
 
 <div class="min-h-screen flex flex-col font-sans text-slate-900 overflow-hidden">
@@ -198,36 +207,101 @@
 				</a>
 			</div>
 
-			<div
-				class="py-32 bg-background rounded-[3rem] border-2 border-dashed border-surface flex flex-col items-center justify-center gap-6 shadow-sm"
-			>
-				<div class="text-slate-200 transform hover:scale-110 transition-transform">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="80"
-						height="80"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="1.5"
-						stroke-linecap="round"
-						stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
+			{#if recentListings.length > 0}
+				<!-- Card carousel (horizontal) -->
+				<div class="relative">
+					<div
+						class="flex gap-6 overflow-x-auto pb-6 snap-x snap-mandatory scroll-px-6 [-ms-overflow-style:none] [scrollbar-width:none]"
+					>
+						<!-- hide scrollbar (webkit) -->
+						<div class="hidden [::-webkit-scrollbar]:hidden"></div>
+
+						{#each recentListings as listing (listing.id)}
+							<a
+								href={`/listings/${listing.id}`}
+								class="snap-start min-w-[18rem] max-w-[18rem] sm:min-w-[20rem] sm:max-w-[20rem] bg-background rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-surface flex flex-col group"
+							>
+								<div class="h-44 bg-surface overflow-hidden relative">
+									{#if (listing.images as string[])?.length > 0}
+										<img
+											src={(listing.images as string[])[0]}
+											alt={listing.title}
+											class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+										/>
+									{:else}
+										<div class="w-full h-full bg-surface"></div>
+									{/if}
+									<div
+										class="absolute top-4 left-4 bg-background/95 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black text-accent shadow-sm"
+									>
+										{listing.category?.replace(/_/g, ' ') ?? 'General'}
+									</div>
+								</div>
+
+								<div class="p-6 flex-grow flex flex-col">
+									<h3 class="text-lg font-black text-secondary line-clamp-1">{listing.title}</h3>
+
+									<div class="mt-2 flex items-center justify-between gap-3">
+										<div
+											class="inline-flex items-center px-3 py-1 rounded-full bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600"
+										>
+											{listing.condition?.replace(/_/g, ' ') ?? 'GOOD'}
+										</div>
+										<div class="text-[11px] font-black text-slate-500">{formatRating(listing)}</div>
+									</div>
+
+									<div class="mt-3 text-sm font-bold text-slate-600">
+										{listing.district?.replace(/_/g, ' ') ?? 'Unknown'}
+									</div>
+
+									<div class="mt-auto pt-5 border-t border-surface flex items-center justify-between">
+										<div>
+											<span class="text-2xl font-black text-accent">Rs {listing.pricePerDay}</span>
+											<span class="text-surface text-sm">/ day</span>
+										</div>
+										<div
+											class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-secondary group-hover:bg-accent group-hover:text-background transition-all"
+										>
+											→
+										</div>
+									</div>
+								</div>
+							</a>
+						{/each}
+					</div>
+				</div>
+			{:else}
+				<div
+					class="py-32 bg-background rounded-[3rem] border-2 border-dashed border-surface flex flex-col items-center justify-center gap-6 shadow-sm"
+				>
+					<div class="text-slate-200 transform hover:scale-110 transition-transform">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="80"
+							height="80"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
+						>
+					</div>
+					<div class="text-center space-y-2">
+						<p class="text-surface text-xl font-bold italic">
+							Pena nanye dan sa l'endroit la pour ler.
+						</p>
+						<p class="text-accent text-sm font-medium uppercase tracking-widest">
+							Check enn lot district?
+						</p>
+					</div>
+					<a
+						href="/listings"
+						class="mt-4 bg-secondary text-background px-10 py-4 rounded-2xl font-black shadow-xl hover:bg-accent transition-all"
+						>Browse all Districts</a
 					>
 				</div>
-				<div class="text-center space-y-2">
-					<p class="text-surface text-xl font-bold italic">
-						Pena nanye dan sa l'endroit la pour ler.
-					</p>
-					<p class="text-accent text-sm font-medium uppercase tracking-widest">
-						Check enn lot district?
-					</p>
-				</div>
-				<a
-					href="/listings"
-					class="mt-4 bg-secondary text-background px-10 py-4 rounded-2xl font-black shadow-xl hover:bg-accent transition-all"
-					>Browse all Districts</a
-				>
-			</div>
+			{/if}
 		</div>
 	</main>
 </div>

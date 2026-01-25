@@ -78,6 +78,13 @@
 	function handleSearch() {
 		updateFilters();
 	}
+
+	function formatRating(listing: any) {
+		const rating = Number(listing?.rating ?? 0);
+		const reviewCount = Number(listing?.reviewCount ?? 0);
+		if (!reviewCount) return 'No ratings yet';
+		return `★ ${rating.toFixed(1)} (${reviewCount})`;
+	}
 </script>
 
 <div class="min-h-screen bg-background">
@@ -293,8 +300,11 @@
 						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">Price Range</h3>
 						<div class="space-y-3">
 							<div>
-								<label class="block text-xs text-slate-600 mb-1">Min Price (Rs)</label>
+								<label for="minPrice" class="block text-xs text-slate-600 mb-1"
+									>Min Price (Rs)</label
+								>
 								<input
+									id="minPrice"
 									type="number"
 									bind:value={minPrice}
 									onchange={updateFilters}
@@ -303,8 +313,11 @@
 								/>
 							</div>
 							<div>
-								<label class="block text-xs text-slate-600 mb-1">Max Price (Rs)</label>
+								<label for="maxPrice" class="block text-xs text-slate-600 mb-1"
+									>Max Price (Rs)</label
+								>
 								<input
+									id="maxPrice"
 									type="number"
 									bind:value={maxPrice}
 									onchange={updateFilters}
@@ -383,6 +396,15 @@
 									>
 										{listing.title}
 									</h3>
+								</div>
+
+								<div class="flex items-center justify-between gap-3 mb-4">
+									<div
+										class="inline-flex items-center px-3 py-1 rounded-full bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600"
+									>
+										{listing.condition?.replace(/_/g, ' ') ?? 'GOOD'}
+									</div>
+									<div class="text-xs font-black text-slate-500">{formatRating(listing)}</div>
 								</div>
 
 								<div class="flex items-center gap-1.5 text-surface text-sm mb-4">

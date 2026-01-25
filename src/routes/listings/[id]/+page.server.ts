@@ -15,12 +15,22 @@ export const load: PageServerLoad = async ({ params }) => {
 		}
 	});
 
+	// Build blocked ranges from CONFIRMED bookings for the calendar widget
+	const blockedRanges = (listing?.bookings ?? [])
+		.filter((b: any) => b.status === 'CONFIRMED')
+		.map((b: any) => {
+			const s = new Date(b.startDate).toISOString().slice(0, 10);
+			const e = new Date(b.endDate).toISOString().slice(0, 10);
+			return { start: s, end: e };
+		});
+
 	if (!listing) {
 		throw error(404, 'Listing not found');
 	}
 
 	return {
-		listing
+		listing,
+		blockedRanges
 	};
 };
 
@@ -61,6 +71,21 @@ export const actions: Actions = {
 		const totalPrice = (rentalCost + deposit).toFixed(2);
 
 		try {
+			// Check for date conflicts with existing CONFIRMED bookings
+			const existing = await db.query.bookings.findMany({
+				where: (b) => eq(b.listingId, params.id) && eq(b.status, 'CONFIRMED')
+			});
+			const hasConflict = existing?.some((b: any) => {
+				const s = new Date(b.startDate);
+				const e = new Date(b.endDate);
+				return start <= e && end >= s;
+			});
+			if (hasConflict) {
+				return fail(400, {
+					message: 'Selected dates are unavailable due to an existing confirmed booking'
+				});
+			}
+
 			await db.insert(bookings).values({
 				listingId: params.id,
 				renterId: locals.user.id,
