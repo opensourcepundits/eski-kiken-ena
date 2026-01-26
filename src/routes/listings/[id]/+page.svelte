@@ -23,15 +23,6 @@
 		return rentalCost + deposit;
 	});
 
-	let occupiedDates = $derived(
-		listing.bookings
-			?.filter((b: any) => b.status === 'CONFIRMED')
-			.map((b: any) => ({
-				start: new Date(b.startDate),
-				end: new Date(b.endDate)
-			})) || []
-	);
-
 	let formattedDate = $derived(
 		new Intl.DateTimeFormat('en-GB', {
 			month: 'long',
@@ -228,22 +219,23 @@
 
 			<!-- Right Column: Booking Card -->
 			<div class="lg:col-span-4">
-				<div class="sticky top-32 space-y-6">
+				<!-- Changed top-32 to top-24 to move it up -->
+				<div class="sticky top-24 space-y-4">
 					<div
-						class="bg-white rounded-[2.5rem] border border-slate-200 shadow-2xl p-8 overflow-hidden relative"
+						class="bg-white rounded-[2rem] border border-slate-200 shadow-2xl p-5 overflow-hidden relative"
 					>
-						<!-- Price Header -->
-						<div class="flex items-baseline justify-between mb-8">
+						<!-- Price Header (Compact margin) -->
+						<div class="flex items-baseline justify-between mb-4">
 							<div class="flex items-baseline gap-1">
-								<span class="text-4xl font-black text-indigo-600">Rs {listing.pricePerDay}</span>
-								<span class="text-slate-400 font-medium italic">/ day</span>
+								<span class="text-3xl font-black text-indigo-600">Rs {listing.pricePerDay}</span>
+								<span class="text-slate-400 font-medium italic text-sm">/ day</span>
 							</div>
 						</div>
 
-						<form method="POST" action="?/book" use:enhance class="space-y-6">
+						<form method="POST" action="?/book" use:enhance class="space-y-4">
 							{#if form?.message}
 								<div
-									class="bg-red-50 text-red-600 p-4 rounded-2xl text-xs font-bold border border-red-100 animate-in fade-in slide-in-from-top-2"
+									class="bg-red-50 text-red-600 p-3 rounded-xl text-xs font-bold border border-red-100 animate-in fade-in slide-in-from-top-2"
 								>
 									{form.message}
 								</div>
@@ -259,30 +251,11 @@
 							<input type="hidden" name="startDate" value={startDate} />
 							<input type="hidden" name="endDate" value={endDate} />
 
-							{#if occupiedDates.length > 0}
-								<div class="space-y-3">
-									<h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-										📅 Occupied Dates
-									</h4>
-									<div class="flex flex-wrap gap-2">
-										{#each occupiedDates as range}
-											<div
-												class="bg-red-50 text-red-600 px-3 py-1.5 rounded-xl text-[10px] font-black border border-red-100"
-											>
-												{range.start.toLocaleDateString('en-GB')} - {range.end.toLocaleDateString(
-													'en-GB'
-												)}
-											</div>
-										{/each}
-									</div>
-								</div>
-							{/if}
-
 							{#if totalPrice > 0}
 								<div
-									class="bg-indigo-50 p-6 rounded-3xl space-y-4 border border-indigo-100 animate-in zoom-in-95"
+									class="bg-indigo-50 p-4 rounded-2xl space-y-3 border border-indigo-100 animate-in zoom-in-95"
 								>
-									<div class="space-y-2 pb-3 border-b border-indigo-200/30">
+									<div class="space-y-2 pb-2 border-b border-indigo-200/30">
 										<div
 											class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-500"
 										>
@@ -316,17 +289,15 @@
 								</div>
 							{/if}
 
-							<!-- Action Button -->
+							<!-- Action Button (Reduced vertical padding) -->
 							<button
 								type="submit"
-								class="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[1.5rem] font-black text-lg transition-all shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transform"
+								class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[1.25rem] font-black text-lg transition-all shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transform"
 							>
 								Request Booking
 							</button>
 						</form>
 					</div>
-
-					<!-- Owner Info removed -->
 				</div>
 			</div>
 		</div>
