@@ -36,7 +36,7 @@
 					{#if data.user}
 						<a
 							href="/listings/new"
-							class="bg-primary text-background px-5 py-2 rounded-xl font-bold hover:bg-primary/80 transition-all shadow-lg shadow-secondary/20 transform hover:-translate-y-0.5 text-sm"
+							class="bg-primary text-background px-5 py-2 rounded-md font-bold hover:bg-primary/80 transition-all shadow-lg shadow-secondary/20 transform hover:-translate-y-0.5 text-sm"
 						>
 							List Item
 						</a>

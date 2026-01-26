@@ -109,7 +109,7 @@
 					type="text"
 					placeholder="Search for tools, equipment, or categories..."
 					bind:value={searchQuery}
-					class="w-full pl-6 pr-32 py-5 rounded-full text-secondary text-lg shadow-2xl focus:ring-4 focus:ring-accent/50 transition-all border-none"
+					class="w-full pl-6 pr-32 py-5 rounded-full text-secondary text-white shadow-2xl focus:ring-4 focus:ring-accent/50 transition-all border-none"
 				/>
 				<button
 					type="submit"
@@ -354,7 +354,7 @@
 					</div>
 					<a
 						href="/listings/new"
-						class="flex items-center gap-2 bg-accent hover:bg-surface text-background px-6 py-3 rounded-full font-bold shadow-lg shadow-accent/30 transition-all hover:scale-105 active:scale-95"
+						class="flex items-center gap-2 rounded-md bg-accent hover:bg-surface text-background px-6 py-3 rounded-full font-bold shadow-lg shadow-accent/30 transition-all hover:scale-105 active:scale-95"
 					>
 						List Your Gear
 					</a>
@@ -418,7 +418,7 @@
 									</div>
 									<a
 										href="/listings/{listing.id}"
-										class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-secondary hover:bg-accent hover:text-background transition-all"
+										class="w-10 h-10 rounded-full rounded-md bg-surface flex items-center justify-center text-secondary hover:bg-accent hover:text-background transition-all"
 									>
 										→
 									</a>
