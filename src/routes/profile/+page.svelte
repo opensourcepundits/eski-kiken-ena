@@ -9,7 +9,37 @@
 
 	let activeTab = $state('bookings'); // 'bookings', 'listings', 'settings'
 
-	// Delete Modal State
+	// --- Booking Details Modal State ---
+	let selectedBooking = $state<any>(null);
+
+	function openBookingModal(booking: any) {
+		selectedBooking = booking;
+	}
+
+	function closeBookingModal() {
+		selectedBooking = null;
+	}
+
+	function getDays(start: string | Date, end: string | Date) {
+		const diff = new Date(end).getTime() - new Date(start).getTime();
+		return Math.ceil(diff / (1000 * 3600 * 24));
+	}
+	// -----------------------------------
+
+	// --- Cancel Booking State (Two-Step Verification) ---
+	let bookingToCancel = $state<{ id: string; title: string } | null>(null);
+
+	function openCancelModal(event: Event, booking: any) {
+		event.stopPropagation();
+		bookingToCancel = { id: booking.id, title: booking.listing.title };
+	}
+
+	function closeCancelModal() {
+		bookingToCancel = null;
+	}
+	// ----------------------------------------------------
+
+	// --- Delete Listing State ---
 	let isDeleteModalOpen = $state(false);
 	let listingToDelete = $state<{ id: string; title: string } | null>(null);
 
@@ -110,7 +140,7 @@
 							<!-- Bookings as Renter -->
 							<section>
 								<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
-									Items I'm Renting
+									Rental requests
 									<span class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full"
 										>{userBookings.length}</span
 									>
@@ -130,52 +160,119 @@
 								{:else}
 									<div class="space-y-6">
 										{#each userBookings as booking}
-											<div
-												class="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform"
+											<button
+												type="button"
+												onclick={() => openBookingModal(booking)}
+												class="w-full text-left bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform cursor-pointer relative overflow-hidden"
 											>
+												<!-- Hover Highlight -->
 												<div
-													class="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0"
-												>
-													{#if (booking.listing.images as string[])?.length > 0}
-														<img
-															src={(booking.listing.images as string[])[0]}
-															alt=""
-															class="w-full h-full object-cover"
-														/>
-													{:else}
-														<div class="w-full h-full flex items-center justify-center text-2xl">
-															📦
+													class="absolute inset-0 bg-indigo-50 opacity-0 group-hover:opacity-50 transition-opacity"
+												></div>
+
+												<div class="relative z-10 flex gap-6 w-full">
+													<div
+														class="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0 shadow-inner"
+													>
+														{#if (booking.listing.images as string[])?.length > 0}
+															<img
+																src={(booking.listing.images as string[])[0]}
+																alt=""
+																class="w-full h-full object-cover"
+															/>
+														{:else}
+															<div class="w-full h-full flex items-center justify-center text-2xl">
+																📦
+															</div>
+														{/if}
+													</div>
+													<div class="flex-grow">
+														<div class="flex justify-between items-start">
+															<div>
+																<h3
+																	class="font-black text-slate-900 leading-tight mb-1 group-hover:text-indigo-700 transition-colors"
+																>
+																	{booking.listing.title}
+																</h3>
+																<div class="flex items-center gap-2">
+																	<span
+																		class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded
+                                                                        {booking.status === 'CONFIRMED'
+																			? 'bg-emerald-100 text-emerald-700'
+																			: booking.status === 'CANCELLED'
+																				? 'bg-red-100 text-red-700'
+																				: 'bg-indigo-100 text-indigo-700'}"
+																		>{booking.status}</span
+																	>
+
+																	<!-- Cancel Button (List View) -->
+																	{#if booking.status !== 'CANCELLED' && booking.status !== 'COMPLETED'}
+																		<button
+																			onclick={(e) => openCancelModal(e, booking)}
+																			class="p-1 rounded-full text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all z-20"
+																			title="Cancel Booking"
+																		>
+																			<svg
+																				xmlns="http://www.w3.org/2000/svg"
+																				width="14"
+																				height="14"
+																				viewBox="0 0 24 24"
+																				fill="none"
+																				stroke="currentColor"
+																				stroke-width="3"
+																				stroke-linecap="round"
+																				stroke-linejoin="round"
+																				><line x1="18" y1="6" x2="6" y2="18" /><line
+																					x1="6"
+																					y1="6"
+																					x2="18"
+																					y2="18"
+																				/></svg
+																			>
+																		</button>
+																	{/if}
+																</div>
+															</div>
+															<div class="text-slate-300 group-hover:text-indigo-400">
+																<!-- Info Icon -->
+																<svg
+																	xmlns="http://www.w3.org/2000/svg"
+																	width="20"
+																	height="20"
+																	viewBox="0 0 24 24"
+																	fill="none"
+																	stroke="currentColor"
+																	stroke-width="2"
+																	stroke-linecap="round"
+																	stroke-linejoin="round"
+																	><circle cx="12" cy="12" r="10" /><line
+																		x1="12"
+																		y1="16"
+																		x2="12"
+																		y2="12"
+																	/><line x1="12" y1="8" x2="12.01" y2="8" /></svg
+																>
+															</div>
 														</div>
-													{/if}
-												</div>
-												<div class="flex-grow">
-													<div class="flex justify-between items-start">
-														<div>
-															<h3 class="font-black text-slate-900 leading-tight mb-1">
-																{booking.listing.title}
-															</h3>
-															<span
-																class="text-[10px] font-black uppercase text-indigo-500 tracking-widest bg-indigo-50 px-2 py-0.5 rounded"
-																>{booking.status}</span
-															>
+														<div
+															class="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-500 font-bold"
+														>
+															<div>
+																<p class="uppercase text-[9px] opacity-60">Total Paid</p>
+																<p class="text-slate-900 text-base">Rs {booking.totalPrice}</p>
+															</div>
+															<div>
+																<p class="uppercase text-[9px] opacity-60">Date Range</p>
+																<p class="text-slate-900">
+																	{new Date(booking.startDate).toLocaleDateString('en-GB')} - {new Date(
+																		booking.endDate
+																	).toLocaleDateString('en-GB')}
+																</p>
+															</div>
 														</div>
 													</div>
-													<div class="mt-4 grid grid-cols-1 gap-2 text-xs text-slate-500 font-bold">
-														<div>
-															<p class="uppercase text-[9px] opacity-60">Total Paid</p>
-															<p class="text-slate-900 text-base">Rs {booking.totalPrice}</p>
-														</div>
-														<div>
-															<p class="uppercase text-[9px] opacity-60">Date Range</p>
-															<p class="text-slate-900">
-																{new Date(booking.startDate).toLocaleDateString('en-GB')} - {new Date(
-																	booking.endDate
-																).toLocaleDateString('en-GB')}
-															</p>
-														</div>
-													</div>
 												</div>
-											</div>
+											</button>
 										{/each}
 									</div>
 								{/if}
@@ -468,6 +565,225 @@
 			</div>
 		</main>
 	</div>
+
+	<!-- Booking Details Modal -->
+	{#if selectedBooking}
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+		<div
+			class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+			onclick={closeBookingModal}
+			role="presentation"
+		>
+			<div
+				class="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]"
+				onclick={(e) => e.stopPropagation()}
+				role="dialog"
+			>
+				<!-- Modal Header / Image -->
+				<div class="relative h-48 bg-slate-100 flex-shrink-0">
+					{#if (selectedBooking.listing.images as string[])?.length > 0}
+						<img
+							src={(selectedBooking.listing.images as string[])[0]}
+							alt={selectedBooking.listing.title}
+							class="w-full h-full object-cover"
+						/>
+					{:else}
+						<div class="w-full h-full flex items-center justify-center text-6xl">📦</div>
+					{/if}
+					
+                    <!-- Close Button -->
+					<button
+						onclick={closeBookingModal}
+						class="absolute top-4 right-4 bg-white/50 backdrop-blur-md p-2 rounded-full hover:bg-white text-slate-900 transition-all"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg
+						>
+					</button>
+
+                    <!-- Status and Cancel Button -->
+					<div class="absolute bottom-4 left-4 flex items-center gap-2">
+						<span
+							class="bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest shadow-sm
+                            {selectedBooking.status === 'CONFIRMED'
+								? 'text-emerald-600'
+								: selectedBooking.status === 'CANCELLED'
+									? 'text-red-600'
+									: 'text-indigo-600'}"
+						>
+							{selectedBooking.status}
+						</span>
+
+                        <!-- Cancel Button (Modal View) -->
+                        {#if selectedBooking.status !== 'CANCELLED' && selectedBooking.status !== 'COMPLETED'}
+                            <button
+                                onclick={(e) => openCancelModal(e, selectedBooking)}
+                                class="bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-white transition-all shadow-sm"
+                                title="Cancel Booking"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="3"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    ><line x1="18" y1="6" x2="6" y2="18" /><line
+                                        x1="6"
+                                        y1="6"
+                                        x2="18"
+                                        y2="18"
+                                    /></svg
+                                >
+                            </button>
+                        {/if}
+					</div>
+				</div>
+
+				<!-- Modal Content -->
+				<div class="p-8 overflow-y-auto">
+					<h2 class="text-2xl font-black text-slate-900 mb-2 leading-tight">
+						{selectedBooking.listing.title}
+					</h2>
+					<div class="flex items-center gap-2 mb-6">
+						<p class="text-sm font-bold text-slate-400">Listed for</p>
+						<p class="text-sm font-black text-indigo-600">
+							Rs {selectedBooking.listing.pricePerDay} / day
+						</p>
+					</div>
+
+					<!-- Receipt / Breakdown Card -->
+					<div class="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-4 mb-6">
+						<div class="flex justify-between items-center pb-4 border-b border-slate-200 border-dashed">
+							<div>
+								<p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Start Date</p>
+								<p class="font-bold text-slate-700">
+									{new Date(selectedBooking.startDate).toLocaleDateString('en-GB')}
+								</p>
+							</div>
+							<div class="text-right">
+								<p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">End Date</p>
+								<p class="font-bold text-slate-700">
+									{new Date(selectedBooking.endDate).toLocaleDateString('en-GB')}
+								</p>
+							</div>
+						</div>
+
+						<div class="flex justify-between items-center text-sm">
+							<span class="text-slate-500 font-medium">Duration</span>
+							<span class="font-bold text-slate-900">
+								{getDays(selectedBooking.startDate, selectedBooking.endDate)} days
+							</span>
+						</div>
+
+						<div class="flex justify-between items-center pt-2">
+							<span class="text-slate-900 font-black text-lg">Total Paid</span>
+							<span class="text-indigo-600 font-black text-2xl"
+								>Rs {selectedBooking.totalPrice}</span
+							>
+						</div>
+					</div>
+
+					<!-- Footer Actions -->
+					<div class="grid grid-cols-1 gap-3">
+						{#if selectedBooking.status === 'PENDING'}
+							<p class="text-center text-xs text-orange-500 font-bold bg-orange-50 py-3 rounded-xl">
+								Waiting for owner approval
+							</p>
+						{/if}
+						<button
+							onclick={closeBookingModal}
+							class="w-full py-3.5 bg-slate-900 text-white rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-slate-900/20 hover:bg-slate-800 transition-all active:scale-[0.98]"
+						>
+							Close Details
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	{/if}
+
+	<!-- Cancellation Confirmation Modal (Two-Step Verification) -->
+	{#if bookingToCancel}
+		<div
+			class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+		>
+			<div
+				class="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 max-w-md w-full p-10 space-y-8 animate-in zoom-in-95 duration-300"
+			>
+				<div class="text-center">
+					<div
+						class="w-20 h-20 bg-orange-50 rounded-3xl flex items-center justify-center text-orange-600 mx-auto mb-6 shadow-sm"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="40"
+							height="40"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line
+								x1="9"
+								y1="9"
+								x2="15"
+								y2="15"
+							/></svg
+						>
+					</div>
+					<h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Cancel Booking?</h2>
+					<p class="text-slate-500 font-medium leading-relaxed">
+						Are you sure you want to cancel your reservation for <span class="text-slate-900 font-black"
+							>"{bookingToCancel.title}"</span
+						>?
+					</p>
+				</div>
+
+				<div class="flex flex-col gap-3">
+					<form
+						method="POST"
+						action="?/updateBookingStatus"
+						use:enhance={() => {
+							return async ({ update }) => {
+								await update();
+								closeCancelModal();
+							};
+						}}
+					>
+						<input type="hidden" name="bookingId" value={bookingToCancel.id} />
+						<input type="hidden" name="status" value="CANCELLED" />
+						<button
+							type="submit"
+							class="w-full py-4 bg-red-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-100 active:scale-[0.98]"
+						>
+							Yes, Cancel Booking
+						</button>
+					</form>
+					<button
+						onclick={closeCancelModal}
+						class="w-full py-4 bg-slate-50 text-slate-500 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-[0.98]"
+					>
+						No, Keep it
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
 
 	<!-- Custom Delete Modal -->
 	{#if isDeleteModalOpen && listingToDelete}
