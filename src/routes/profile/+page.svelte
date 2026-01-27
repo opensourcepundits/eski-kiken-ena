@@ -12,8 +12,17 @@
 	// --- Booking Details Modal State ---
 	let selectedBooking = $state<any>(null);
 
+	// --- Review Form State ---
+	let reviewRating = $state(0);
+	let reviewComment = $state('');
+	let isReviewSubmitted = $state(false);
+
 	function openBookingModal(booking: any) {
 		selectedBooking = booking;
+		// Reset review state when opening a new modal
+		reviewRating = 0;
+		reviewComment = '';
+		isReviewSubmitted = false;
 	}
 
 	function closeBookingModal() {
@@ -75,7 +84,7 @@
 {#if user}
 	<div class="min-h-screen bg-slate-50 pb-20">
 		<!-- Profile Header -->
-		<div class="bg-indigo-900 pt-32 pb-48 px-4 text-white">
+		<div class="bg-teal-900 pt-32 pb-48 px-4 text-white">
 			<div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-8">
 				<div class="relative group">
 					<div
@@ -117,32 +126,32 @@
 				<!-- Sticky Sidebar Navigation -->
 				<div class="lg:col-span-3">
 					<div
-						class="bg-white rounded-3xl shadow-2xl shadow-indigo-900/5 border border-slate-100 p-4 sticky top-32"
+						class="bg-white rounded-3xl shadow-2xl shadow-teal-900/5 border border-slate-100 p-4 sticky top-32"
 					>
 						<nav class="space-y-1">
 							<button
 								onclick={() => (activeTab = 'bookings')}
-								class="w-full text-left px-6 py-4 rounded-2xl font-black text-sm transition-all flex items-center gap-3 {activeTab ===
+								class="w-full text-left px-6 py-4 rounded-md font-black text-sm transition-all flex items-center gap-3 {activeTab ===
 								'bookings'
-									? 'bg-indigo-600 text-white shadow-xl shadow-indigo-200'
+									? 'bg-teal-600 text-white shadow-xl shadow-indigo-200'
 									: 'text-slate-500 hover:bg-slate-50'}"
 							>
 								<span class="text-xl">📅</span> My Bookings
 							</button>
 							<button
 								onclick={() => (activeTab = 'listings')}
-								class="w-full text-left px-6 py-4 rounded-2xl font-black text-sm transition-all flex items-center gap-3 {activeTab ===
+								class="w-full text-left px-6 py-4 rounded-md font-black text-sm transition-all flex items-center gap-3 {activeTab ===
 								'listings'
-									? 'bg-indigo-600 text-white shadow-xl shadow-indigo-200'
+									? 'bg-teal-600 text-white shadow-xl shadow-indigo-200'
 									: 'text-slate-500 hover:bg-slate-50'}"
 							>
-								<span class="text-xl">🛠️</span> My Inventory
+								<span class="text-xl">🛠️</span> My Listings
 							</button>
 							<button
 								onclick={() => (activeTab = 'settings')}
-								class="w-full text-left px-6 py-4 rounded-2xl font-black text-sm transition-all flex items-center gap-3 {activeTab ===
+								class="w-full text-left px-6 py-4 rounded-md font-black text-sm transition-all flex items-center gap-3 {activeTab ===
 								'settings'
-									? 'bg-indigo-600 text-white shadow-xl shadow-indigo-200'
+									? 'bg-teal-600 text-white shadow-xl shadow-indigo-200'
 									: 'text-slate-500 hover:bg-slate-50'}"
 							>
 								<span class="text-xl">⚙️</span> Account Settings
@@ -159,7 +168,7 @@
 							<section>
 								<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
 									My rentals
-									<span class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full"
+									<span class="text-xs bg-indigo-100 text-teal-600 px-3 py-1 rounded-full"
 										>{userBookings.length}</span
 									>
 								</h2>
@@ -171,7 +180,7 @@
 										<p class="text-slate-400 font-bold italic">You haven't rented any items yet.</p>
 										<a
 											href="/listings"
-											class="mt-4 inline-block text-indigo-600 font-black hover:underline"
+											class="mt-4 inline-block text-teal-600 font-black hover:underline"
 											>Explore Marketplace</a
 										>
 									</div>
@@ -195,7 +204,7 @@
 
 												<div class="relative z-10 flex gap-6 w-full">
 													<div
-														class="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0 shadow-inner"
+														class="w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0 shadow-inner"
 													>
 														{#if (booking.listing.images as string[])?.length > 0}
 															<img
@@ -228,8 +237,7 @@
 																				? 'bg-slate-100 text-slate-500'
 																				: displayStatus === 'CANCELLED'
 																					? 'bg-red-100 text-red-700'
-																					: 'bg-indigo-100 text-indigo-700'}"
-																		>{displayStatus}</span
+																					: 'bg-indigo-100 text-indigo-700'}">{displayStatus}</span
 																	>
 
 																	<!-- Cancel Button (List View) -->
@@ -332,7 +340,7 @@
 												class="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform"
 											>
 												<div
-													class="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden flex-shrink-0"
+													class="w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0"
 												>
 													{#if (booking.listing.images as string[])?.length > 0}
 														<img
@@ -354,9 +362,7 @@
 															</h3>
 															<span
 																class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full whitespace-nowrap
-                                                                {displayStatus.includes(
-																	'CONFIRMED'
-																)
+                                                                {displayStatus.includes('CONFIRMED')
 																	? 'bg-emerald-50 text-emerald-600'
 																	: displayStatus === 'COMPLETED'
 																		? 'bg-slate-100 text-slate-500'
@@ -433,13 +439,13 @@
 							<div class="flex justify-between items-center mb-8">
 								<h2 class="text-2xl font-black text-slate-900 flex items-center gap-3">
 									My Gear
-									<span class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full"
+									<span class="text-xs bg-indigo-100 text-teal-600 px-3 py-1 rounded-full"
 										>{userListings.length}</span
 									>
 								</h2>
 								<a
 									href="/listings/new"
-									class="bg-sunset text-white px-6 py-3 rounded-2xl font-black text-sm shadow-xl shadow-orange-900/20 hover:bg-orange-500 transition-all"
+									class="bg-sunset text-white px-6 py-3 rounded-md font-black text-sm shadow-xl shadow-orange-900/20 hover:bg-orange-500 transition-all"
 									>+ Add Item</a
 								>
 							</div>
@@ -453,7 +459,7 @@
 									</p>
 									<a
 										href="/listings/new"
-										class="bg-indigo-600 text-white px-10 py-4 rounded-2xl font-black shadow-2xl hover:bg-indigo-700 transition-all"
+										class="bg-teal-600 text-white px-10 py-4 rounded-md font-black shadow-2xl hover:bg-indigo-700 transition-all"
 										>List Your First Item</a
 									>
 								</div>
@@ -461,7 +467,7 @@
 								<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 									{#each userListings as listing}
 										<div
-											class="group bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-2xl shadow-indigo-900/5 hover:shadow-indigo-900/10 transition-all"
+											class="group bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-2xl shadow-teal-900/5 hover:shadow-teal-900/10 transition-all"
 										>
 											<div class="h-48 bg-slate-100 relative">
 												{#if (listing.images as string[])?.length > 0}
@@ -478,7 +484,7 @@
 												<div class="absolute top-4 right-4 flex gap-2">
 													<a
 														href="/listings/{listing.id}/edit"
-														class="bg-white/90 backdrop-blur p-2.5 rounded-xl shadow-sm hover:text-indigo-600 transition-colors"
+														class="bg-white/90 backdrop-blur p-2.5 rounded-xl shadow-sm hover:text-teal-600 transition-colors"
 														title="Edit Item">✏️</a
 													>
 													<button
@@ -496,13 +502,13 @@
 													</h3>
 												</div>
 												<div class="flex items-center gap-2 mb-6">
-													<span class="text-indigo-600 font-black">Rs {listing.pricePerDay}</span>
+													<span class="text-teal-600 font-black">Rs {listing.pricePerDay}</span>
 													<span class="text-slate-400 text-sm font-medium italic">/ day</span>
 												</div>
 
 												<div class="space-y-4">
 													<div class="flex gap-3">
-														<div class="flex-1 bg-slate-50 p-4 rounded-2xl text-center">
+														<div class="flex-1 bg-slate-50 p-4 rounded-md text-center">
 															<p
 																class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1"
 															>
@@ -512,7 +518,7 @@
 																{listing.isActive ? 'Active' : 'Inactive'}
 															</p>
 														</div>
-														<div class="flex-1 bg-slate-50 p-4 rounded-2xl text-center">
+														<div class="flex-1 bg-slate-50 p-4 rounded-md text-center">
 															<p
 																class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1"
 															>
@@ -524,7 +530,7 @@
 
 													<a
 														href="/profile/inventory/{listing.id}"
-														class="block w-full text-center py-4 bg-indigo-50 text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-100 transition-colors"
+														class="block w-full text-center py-4 bg-indigo-50 text-teal-600 rounded-md font-black text-xs uppercase tracking-widest hover:bg-indigo-100 transition-colors"
 													>
 														View Details & History
 													</a>
@@ -540,7 +546,7 @@
 							<h2 class="text-2xl font-black text-slate-900 mb-8">Account Settings</h2>
 
 							<form
-								class="bg-white rounded-[2.5rem] shadow-2xl shadow-indigo-900/5 border border-slate-100 p-10 space-y-8"
+								class="bg-white rounded-[2.5rem] shadow-2xl shadow-teal-900/5 border border-slate-100 p-10 space-y-8"
 							>
 								<div class="grid grid-cols-2 gap-8">
 									<div class="space-y-2">
@@ -553,7 +559,7 @@
 											type="text"
 											id="firstName"
 											value={user.firstName}
-											class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 transition-all font-bold text-slate-900"
+											class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-md focus:ring-4 focus:ring-indigo-100 transition-all font-bold text-slate-900"
 										/>
 									</div>
 									<div class="space-y-2">
@@ -566,7 +572,7 @@
 											type="text"
 											id="lastName"
 											value={user.lastName}
-											class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 transition-all font-bold text-slate-900"
+											class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-md focus:ring-4 focus:ring-indigo-100 transition-all font-bold text-slate-900"
 										/>
 									</div>
 								</div>
@@ -582,14 +588,14 @@
 										id="email"
 										value={user.email}
 										disabled
-										class="w-full px-6 py-4 bg-slate-100 border border-slate-200 rounded-2xl text-slate-500 font-bold opacity-60 cursor-not-allowed"
+										class="w-full px-6 py-4 bg-slate-100 border border-slate-200 rounded-md text-slate-500 font-bold opacity-60 cursor-not-allowed"
 									/>
 									<p class="text-[10px] text-slate-400 italic">Email cannot be changed yet.</p>
 								</div>
 
 								<div class="pt-4">
 									<button
-										class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all transform active:scale-95"
+										class="w-full py-5 bg-teal-600 text-white rounded-md font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all transform active:scale-95"
 									>
 										Save Profile Changes
 									</button>
@@ -604,6 +610,7 @@
 
 	<!-- Booking Details Modal -->
 	{#if selectedBooking}
+		<!-- Ensure @const is the immediate child of #if -->
 		{@const displayStatus = getDisplayStatus(
 			selectedBooking.status,
 			selectedBooking.startDate,
@@ -662,7 +669,7 @@
 									? 'text-slate-500'
 									: displayStatus === 'CANCELLED'
 										? 'text-red-600'
-										: 'text-indigo-600'}"
+										: 'text-teal-600'}"
 						>
 							{displayStatus}
 						</span>
@@ -684,12 +691,7 @@
 									stroke-width="3"
 									stroke-linecap="round"
 									stroke-linejoin="round"
-									><line x1="18" y1="6" x2="6" y2="18" /><line
-										x1="6"
-										y1="6"
-										x2="18"
-										y2="18"
-									/></svg
+									><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg
 								>
 							</button>
 						{/if}
@@ -703,22 +705,28 @@
 					</h2>
 					<div class="flex items-center gap-2 mb-6">
 						<p class="text-sm font-bold text-slate-400">Listed for</p>
-						<p class="text-sm font-black text-indigo-600">
+						<p class="text-sm font-black text-teal-600">
 							Rs {selectedBooking.listing.pricePerDay} / day
 						</p>
 					</div>
 
 					<!-- Receipt / Breakdown Card -->
-					<div class="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-4 mb-6">
-						<div class="flex justify-between items-center pb-4 border-b border-slate-200 border-dashed">
+					<div class="bg-slate-50 rounded-md p-6 border border-slate-100 space-y-4 mb-6">
+						<div
+							class="flex justify-between items-center pb-4 border-b border-slate-200 border-dashed"
+						>
 							<div>
-								<p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Start Date</p>
+								<p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+									Start Date
+								</p>
 								<p class="font-bold text-slate-700">
 									{new Date(selectedBooking.startDate).toLocaleDateString('en-GB')}
 								</p>
 							</div>
 							<div class="text-right">
-								<p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">End Date</p>
+								<p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+									End Date
+								</p>
 								<p class="font-bold text-slate-700">
 									{new Date(selectedBooking.endDate).toLocaleDateString('en-GB')}
 								</p>
@@ -734,11 +742,66 @@
 
 						<div class="flex justify-between items-center pt-2">
 							<span class="text-slate-900 font-black text-lg">Total Paid</span>
-							<span class="text-indigo-600 font-black text-2xl"
-								>Rs {selectedBooking.totalPrice}</span
-							>
+							<span class="text-teal-600 font-black text-2xl">Rs {selectedBooking.totalPrice}</span>
 						</div>
 					</div>
+
+					<!-- [NEW] Review Section -->
+					{#if displayStatus === 'COMPLETED' || displayStatus === 'CONFIRMED: ONGOING'}
+						<div class="mb-6 bg-slate-50 rounded-md p-6 border border-slate-100">
+							<h3 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">
+								Rate this Item
+							</h3>
+
+							<form
+								method="POST"
+								action="?/submitReview"
+								use:enhance={() => {
+									return async ({ update }) => {
+										isReviewSubmitted = true;
+										await update();
+									};
+								}}
+								class="space-y-4"
+							>
+								<input type="hidden" name="listingId" value={selectedBooking.listing.id} />
+								<input type="hidden" name="bookingId" value={selectedBooking.id} />
+
+								<!-- Star Input -->
+								<input type="hidden" name="rating" value={reviewRating} />
+								<div class="flex gap-2 justify-center py-2">
+									{#each [1, 2, 3, 4, 5] as star}
+										<button
+											type="button"
+											onclick={() => (reviewRating = star)}
+											class="text-3xl transition-transform hover:scale-110 focus:outline-none"
+										>
+											<span class={reviewRating >= star ? 'text-yellow-400' : 'text-slate-200'}>
+												★
+											</span>
+										</button>
+									{/each}
+								</div>
+
+								<!-- Comment Input -->
+								<div>
+									<textarea
+										name="comment"
+										bind:value={reviewComment}
+										placeholder="How was your experience with this gear?"
+										class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-bold text-slate-700 placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-100 outline-none resize-none h-20"
+									></textarea>
+								</div>
+
+								<button
+									disabled={reviewRating === 0 || isReviewSubmitted}
+									class="w-full py-3 bg-teal-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+								>
+									{isReviewSubmitted ? 'Submitting...' : 'Submit Review'}
+								</button>
+							</form>
+						</div>
+					{/if}
 
 					<!-- Footer Actions -->
 					<div class="grid grid-cols-1 gap-3">
@@ -791,8 +854,8 @@
 					</div>
 					<h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Cancel Booking?</h2>
 					<p class="text-slate-500 font-medium leading-relaxed">
-						Are you sure you want to cancel your reservation for <span class="text-slate-900 font-black"
-							>"{bookingToCancel.title}"</span
+						Are you sure you want to cancel your reservation for <span
+							class="text-slate-900 font-black">"{bookingToCancel.title}"</span
 						>?
 					</p>
 				</div>
@@ -812,14 +875,14 @@
 						<input type="hidden" name="status" value="CANCELLED" />
 						<button
 							type="submit"
-							class="w-full py-4 bg-red-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-100 active:scale-[0.98]"
+							class="w-full py-4 bg-red-600 text-white rounded-md font-black text-sm uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-100 active:scale-[0.98]"
 						>
 							Yes, Cancel Booking
 						</button>
 					</form>
 					<button
 						onclick={closeCancelModal}
-						class="w-full py-4 bg-slate-50 text-slate-500 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-[0.98]"
+						class="w-full py-4 bg-slate-50 text-slate-500 rounded-md font-black text-sm uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-[0.98]"
 					>
 						No, Keep it
 					</button>
@@ -881,14 +944,14 @@
 						<input type="hidden" name="id" value={listingToDelete.id} />
 						<button
 							type="submit"
-							class="w-full py-4 bg-red-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-100 active:scale-[0.98]"
+							class="w-full py-4 bg-red-600 text-white rounded-md font-black text-sm uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-100 active:scale-[0.98]"
 						>
 							Wi, Retire Li
 						</button>
 					</form>
 					<button
 						onclick={closeDeleteModal}
-						class="w-full py-4 bg-slate-50 text-slate-500 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-[0.98]"
+						class="w-full py-4 bg-slate-50 text-slate-500 rounded-md font-black text-sm uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-[0.98]"
 					>
 						Cancel
 					</button>

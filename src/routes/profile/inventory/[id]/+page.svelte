@@ -17,7 +17,7 @@
 		<!-- Back to Profile -->
 		<a
 			href="/profile"
-			class="inline-flex items-center text-sm font-bold text-slate-500 hover:text-indigo-600 mb-8 transition-colors group"
+			class="inline-flex items-center text-sm font-bold text-slate-500 hover:text-teal-600 mb-8 transition-colors group"
 		>
 			<span class="mr-2 group-hover:-translate-x-1 transition-transform">←</span>
 			Back to Profile
@@ -30,7 +30,7 @@
 				</h1>
 				<div class="flex items-center gap-4 text-slate-500">
 					<span
-						class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest"
+						class="bg-indigo-50 text-teal-600 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest"
 						>{listing.category.replace('_', ' ')}</span
 					>
 					<span class="font-bold">Rs {listing.pricePerDay} / day</span>
@@ -40,7 +40,7 @@
 			<div class="flex gap-4">
 				<a
 					href="/listings/{listing.id}/edit"
-					class="bg-white px-6 py-3 rounded-2xl font-black text-sm border border-slate-200 shadow-sm hover:bg-slate-50 transition-all flex items-center gap-2"
+					class="bg-white px-6 py-3 rounded-md font-black text-sm border border-slate-200 shadow-sm hover:bg-slate-50 transition-all flex items-center gap-2"
 				>
 					✏️ Edit Information
 				</a>
@@ -51,7 +51,7 @@
 			<!-- Upcoming Bookings -->
 			<div class="lg:col-span-12">
 				<div
-					class="bg-white rounded-[2.5rem] shadow-2xl shadow-indigo-900/5 border border-slate-100 overflow-hidden"
+					class="bg-white rounded-[2.5rem] shadow-2xl shadow-teal-900/5 border border-slate-100 overflow-hidden"
 				>
 					<div class="p-8 border-b border-slate-50">
 						<h2 class="text-2xl font-black text-slate-900">Upcoming & Active Bookings</h2>
@@ -83,7 +83,7 @@
 												<td class="py-6">
 													<div class="flex items-center gap-3">
 														<div
-															class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center font-black text-indigo-600"
+															class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center font-black text-teal-600"
 														>
 															{booking.renter.firstName?.[0]}{booking.renter.lastName?.[0]}
 														</div>
@@ -160,7 +160,7 @@
 
 			<!-- Booking History -->
 			<div class="lg:col-span-12 mt-12">
-				<h2 class="text-2xl font-black text-slate-900 mb-8 border-l-4 border-indigo-600 pl-4">
+				<h2 class="text-2xl font-black text-slate-900 mb-8 border-l-4 border-teal-600 pl-4">
 					Booking History
 				</h2>
 

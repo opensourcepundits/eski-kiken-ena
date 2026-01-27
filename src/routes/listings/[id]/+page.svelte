@@ -42,7 +42,7 @@
 				<!-- Breadcrumbs & Header -->
 				<div>
 					<nav class="flex text-sm text-slate-500 mb-6 gap-2">
-						<a href="/listings" class="hover:text-indigo-600 font-bold">Listings</a>
+						<a href="/listings" class="hover:text-teal-600 font-bold">Listings</a>
 						<span>/</span>
 						<span class="text-slate-900 font-medium">{listing.category?.replace('_', ' ')}</span>
 					</nav>
@@ -51,7 +51,7 @@
 					</h1>
 					<div class="flex flex-wrap items-center gap-6 text-slate-600">
 						<div class="flex items-center gap-2">
-							<span class="text-indigo-600 text-xl">📍</span>
+							<span class="text-teal-600 text-xl">📍</span>
 							<span class="font-bold text-slate-900">{listing.district?.replace('_', ' ')}</span>
 						</div>
 						<div class="flex items-center gap-2">
@@ -78,7 +78,7 @@
 
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-12">
 						<div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm">
-							<div class="flex items-center gap-3 mb-6 text-indigo-600">
+							<div class="flex items-center gap-3 mb-6 text-teal-600">
 								<h3 class="font-black text-slate-900 m-0 uppercase tracking-widest text-xs">
 									🛠️ Specifications
 								</h3>
@@ -118,7 +118,7 @@
 						</div>
 
 						<div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm">
-							<div class="flex items-center gap-3 mb-6 text-indigo-600">
+							<div class="flex items-center gap-3 mb-6 text-teal-600">
 								<h3 class="font-black text-slate-900 m-0 uppercase tracking-widest text-xs">
 									🚚 Logistics
 								</h3>
@@ -157,7 +157,7 @@
 							</div>
 							{#if listing.pickupAddress}
 								<div class="mt-4 flex items-center gap-2 text-slate-600">
-									<span class="text-indigo-600">📍</span>
+									<span class="text-teal-600">📍</span>
 									<span class="font-medium">{listing.pickupAddress}</span>
 								</div>
 							{/if}
@@ -227,7 +227,7 @@
 						<!-- Price Header (Compact margin) -->
 						<div class="flex items-baseline justify-between mb-4">
 							<div class="flex items-baseline gap-1">
-								<span class="text-3xl font-black text-indigo-600">Rs {listing.pricePerDay}</span>
+								<span class="text-3xl font-black text-teal-600">Rs {listing.pricePerDay}</span>
 								<span class="text-slate-400 font-medium italic text-sm">/ day</span>
 							</div>
 						</div>
@@ -253,7 +253,7 @@
 
 							{#if totalPrice > 0}
 								<div
-									class="bg-indigo-50 p-4 rounded-2xl space-y-3 border border-indigo-100 animate-in zoom-in-95"
+									class="bg-indigo-50 p-4 rounded-md space-y-3 border border-indigo-100 animate-in zoom-in-95"
 								>
 									<div class="space-y-2 pb-2 border-b border-indigo-200/30">
 										<div
@@ -284,7 +284,7 @@
 										class="flex justify-between items-center text-sm font-bold text-slate-600 uppercase tracking-widest"
 									>
 										<span>Total to Pay</span>
-										<span class="text-indigo-600 text-xl font-black">Rs {totalPrice}</span>
+										<span class="text-teal-600 text-xl font-black">Rs {totalPrice}</span>
 									</div>
 								</div>
 							{/if}
@@ -292,7 +292,7 @@
 							<!-- Action Button (Reduced vertical padding) -->
 							<button
 								type="submit"
-								class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[1.25rem] font-black text-lg transition-all shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transform"
+								class="w-full py-4 bg-teal-600 hover:bg-indigo-700 text-white rounded-[1.25rem] font-black text-lg transition-all shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transform"
 							>
 								Request Booking
 							</button>

@@ -369,7 +369,7 @@
 				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 					{#each listings as listing}
 						<div
-							class="group bg-background rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-surface flex flex-col"
+							class="group bg-background rounded-md overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-surface flex flex-col"
 						>
 							<!-- Image Placeholder -->
 							<div class="h-48 bg-surface overflow-hidden relative">

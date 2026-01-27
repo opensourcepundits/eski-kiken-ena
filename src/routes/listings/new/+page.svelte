@@ -41,7 +41,7 @@
 
 <div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
 	<div class="max-w-3xl mx-auto">
-		<div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+		<div class="bg-white rounded-md shadow-xl overflow-hidden border border-slate-200">
 			<div class="bg-primary px-8 py-10">
 				<h1 class="text-3xl font-extrabold text-background">List Your Item</h1>
 				<p class="mt-2 text-background/70 italic">
@@ -184,7 +184,7 @@
 									<button
 										type="button"
 										onclick={() => document.getElementById('images')?.click()}
-										class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+										class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-teal-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 										disabled={selectedImages.length >= 5}
 									>
 										{selectedImages.length === 0 ? 'Select Images' : 'Add More Images'}
@@ -511,7 +511,7 @@
 					<button
 						type="submit"
 						disabled={(dispatchValue === 'PICKUP_OR_DELIVERY' && (!latValue || !lngValue)) || selectedImages.length < 1}
-						class="px-10 py-2.5 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all shadow-lg hover:shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
+						class="px-10 py-2.5 rounded-lg text-sm font-medium text-white bg-teal-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all shadow-lg hover:shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						Create Listing
 					</button>

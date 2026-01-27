@@ -208,7 +208,7 @@
 					</div>
 					<a
 						href="/listings"
-						class="mt-4 bg-secondary text-background px-10 py-4 rounded-2xl font-black shadow-xl hover:bg-accent transition-all"
+						class="mt-4 bg-secondary text-background px-10 py-4 rounded-md font-black shadow-xl hover:bg-accent transition-all"
 						>Browse all Districts</a
 					>
 				</div>

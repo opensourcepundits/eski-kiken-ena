@@ -154,7 +154,8 @@ export const bookings = pgTable('bookings', {
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
 	listings: many(listings),
-	bookings: many(bookings)
+	bookings: many(bookings),
+	ratings: many(ratings)
 }));
 
 export const listingsRelations = relations(listings, ({ one, many }) => ({
@@ -162,7 +163,8 @@ export const listingsRelations = relations(listings, ({ one, many }) => ({
 		fields: [listings.ownerId],
 		references: [users.id]
 	}),
-	bookings: many(bookings)
+	bookings: many(bookings),
+	ratings: many(ratings)
 }));
 
 export const bookingsRelations = relations(bookings, ({ one }) => ({
@@ -172,6 +174,30 @@ export const bookingsRelations = relations(bookings, ({ one }) => ({
 	}),
 	renter: one(users, {
 		fields: [bookings.renterId],
+		references: [users.id]
+	})
+}));
+
+export const ratings = pgTable('ratings', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	listingId: uuid('listing_id')
+		.notNull()
+		.references(() => listings.id, { onDelete: 'cascade' }),
+	renterId: uuid('renter_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	rating: smallint('rating').notNull(),
+	comment: text('comment'),
+	createdAt: timestamp('created_at').defaultNow()
+});
+
+export const ratingsRelations = relations(ratings, ({ one }) => ({
+	listing: one(listings, {
+		fields: [ratings.listingId],
+		references: [listings.id]
+	}),
+	renter: one(users, {
+		fields: [ratings.renterId],
 		references: [users.id]
 	})
 }));

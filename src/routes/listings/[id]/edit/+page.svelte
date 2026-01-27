@@ -33,16 +33,16 @@
 	<div class="max-w-3xl mx-auto">
 		<a
 			href="/profile"
-			class="inline-flex items-center text-sm font-bold text-slate-500 hover:text-indigo-600 mb-8 transition-colors group"
+			class="inline-flex items-center text-sm font-bold text-slate-500 hover:text-teal-600 mb-8 transition-colors group"
 		>
 			<span class="mr-2 group-hover:-translate-x-1 transition-transform">←</span>
 			Back to Profile
 		</a>
 
 		<div
-			class="bg-white rounded-[2.5rem] shadow-2xl shadow-indigo-900/5 border border-slate-100 overflow-hidden"
+			class="bg-white rounded-[2.5rem] shadow-2xl shadow-teal-900/5 border border-slate-100 overflow-hidden"
 		>
-			<div class="p-10 border-b border-slate-50 bg-indigo-600 text-white">
+			<div class="p-10 border-b border-slate-50 bg-teal-600 text-white">
 				<h1 class="text-3xl font-black tracking-tight mb-2">Edit Item</h1>
 				<p class="text-indigo-100 font-medium opacity-80 text-sm uppercase tracking-widest">
 					Update your listing information
@@ -52,7 +52,7 @@
 			<form method="POST" use:enhance class="p-10 space-y-8">
 				{#if form?.message}
 					<div
-						class="bg-red-50 text-red-600 p-4 rounded-2xl text-sm font-bold border border-red-100"
+						class="bg-red-50 text-red-600 p-4 rounded-md text-sm font-bold border border-red-100"
 					>
 						{form.message}
 					</div>
@@ -72,7 +72,7 @@
 							required
 							value={listing.title}
 							placeholder="e.g. Heavy Duty Rotary Hammer Drill"
-							class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-bold text-slate-900"
+							class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-md focus:ring-4 focus:ring-indigo-100 focus:border-teal-600 transition-all font-bold text-slate-900"
 						/>
 					</div>
 
@@ -87,7 +87,7 @@
 								id="category"
 								name="category"
 								required
-								class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-bold text-slate-900 appearance-none"
+								class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-md focus:ring-4 focus:ring-indigo-100 focus:border-teal-600 transition-all font-bold text-slate-900 appearance-none"
 							>
 								{#each categories as cat}
 									<option value={cat} selected={listing.category === cat}
@@ -109,7 +109,7 @@
 								name="pricePerDay"
 								required
 								value={listing.pricePerDay}
-								class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-bold text-slate-900"
+								class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-md focus:ring-4 focus:ring-indigo-100 focus:border-teal-600 transition-all font-bold text-slate-900"
 							/>
 						</div>
 					</div>
@@ -124,7 +124,7 @@
 							id="district"
 							name="district"
 							required
-							class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-bold text-slate-900 appearance-none"
+							class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-md focus:ring-4 focus:ring-indigo-100 focus:border-teal-600 transition-all font-bold text-slate-900 appearance-none"
 						>
 							{#each districts as dist}
 								<option value={dist} selected={listing.district === dist}
@@ -145,7 +145,7 @@
 							name="description"
 							required
 							rows="5"
-							class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-600 transition-all font-bold text-slate-900"
+							class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-md focus:ring-4 focus:ring-indigo-100 focus:border-teal-600 transition-all font-bold text-slate-900"
 							>{listing.description}</textarea
 						>
 					</div>
@@ -154,7 +154,7 @@
 				<div class="pt-6">
 					<button
 						type="submit"
-						class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all transform active:scale-[0.98]"
+						class="w-full py-5 bg-teal-600 text-white rounded-md font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all transform active:scale-[0.98]"
 					>
 						Save Changes
 					</button>

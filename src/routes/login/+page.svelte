@@ -13,7 +13,7 @@
 		<div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-10">
 			<div class="text-center mb-10">
 				<div
-					class="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center text-ocean mx-auto mb-6 shadow-sm"
+					class="w-20 h-20 bg-blue-50 rounded-md flex items-center justify-center text-ocean mx-auto mb-6 shadow-sm"
 				>
 					<!-- LogIn -->
 					<svg
