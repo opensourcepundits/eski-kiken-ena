@@ -24,6 +24,24 @@
 		const diff = new Date(end).getTime() - new Date(start).getTime();
 		return Math.ceil(diff / (1000 * 3600 * 24));
 	}
+
+	function getDisplayStatus(status: string, startDate: string | Date, endDate: string | Date) {
+		if (status === 'CANCELLED') return 'CANCELLED';
+		if (status === 'PENDING') return 'PENDING';
+
+		const now = new Date();
+		const start = new Date(startDate);
+		const end = new Date(endDate);
+
+		// Normalize time to ensure accurate day comparison
+		now.setHours(0, 0, 0, 0);
+		start.setHours(0, 0, 0, 0);
+		end.setHours(23, 59, 59, 999); // End date includes the full day
+
+		if (now > end) return 'COMPLETED';
+		if (now < start) return 'CONFIRMED: UPCOMING';
+		return 'CONFIRMED: ONGOING';
+	}
 	// -----------------------------------
 
 	// --- Cancel Booking State (Two-Step Verification) ---
@@ -140,7 +158,7 @@
 							<!-- Bookings as Renter -->
 							<section>
 								<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
-									Rental requests
+									My rentals
 									<span class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full"
 										>{userBookings.length}</span
 									>
@@ -160,6 +178,11 @@
 								{:else}
 									<div class="space-y-6">
 										{#each userBookings as booking}
+											{@const displayStatus = getDisplayStatus(
+												booking.status,
+												booking.startDate,
+												booking.endDate
+											)}
 											<button
 												type="button"
 												onclick={() => openBookingModal(booking)}
@@ -196,17 +219,21 @@
 																</h3>
 																<div class="flex items-center gap-2">
 																	<span
-																		class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded
-                                                                        {booking.status === 'CONFIRMED'
+																		class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded whitespace-nowrap
+                                                                        {displayStatus.includes(
+																			'CONFIRMED'
+																		)
 																			? 'bg-emerald-100 text-emerald-700'
-																			: booking.status === 'CANCELLED'
-																				? 'bg-red-100 text-red-700'
-																				: 'bg-indigo-100 text-indigo-700'}"
-																		>{booking.status}</span
+																			: displayStatus === 'COMPLETED'
+																				? 'bg-slate-100 text-slate-500'
+																				: displayStatus === 'CANCELLED'
+																					? 'bg-red-100 text-red-700'
+																					: 'bg-indigo-100 text-indigo-700'}"
+																		>{displayStatus}</span
 																	>
 
 																	<!-- Cancel Button (List View) -->
-																	{#if booking.status !== 'CANCELLED' && booking.status !== 'COMPLETED'}
+																	{#if displayStatus !== 'CANCELLED' && displayStatus !== 'COMPLETED'}
 																		<button
 																			onclick={(e) => openCancelModal(e, booking)}
 																			class="p-1 rounded-full text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all z-20"
@@ -281,7 +308,7 @@
 							<!-- Bookings for my Items (As Owner) -->
 							<section>
 								<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
-									Rental Requests for My Gear
+									Request for listings
 									<span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full"
 										>{ownerBookings.length}</span
 									>
@@ -296,6 +323,11 @@
 								{:else}
 									<div class="space-y-6">
 										{#each ownerBookings as booking}
+											{@const displayStatus = getDisplayStatus(
+												booking.status,
+												booking.startDate,
+												booking.endDate
+											)}
 											<div
 												class="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform"
 											>
@@ -321,14 +353,18 @@
 																{booking.listing.title}
 															</h3>
 															<span
-																class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full {booking.status ===
-																'CONFIRMED'
+																class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full whitespace-nowrap
+                                                                {displayStatus.includes(
+																	'CONFIRMED'
+																)
 																	? 'bg-emerald-50 text-emerald-600'
-																	: booking.status === 'CANCELLED'
-																		? 'bg-red-50 text-red-600'
-																		: 'bg-orange-50 text-orange-600'}"
+																	: displayStatus === 'COMPLETED'
+																		? 'bg-slate-100 text-slate-500'
+																		: displayStatus === 'CANCELLED'
+																			? 'bg-red-50 text-red-600'
+																			: 'bg-orange-50 text-orange-600'}"
 															>
-																{booking.status}
+																{displayStatus}
 															</span>
 														</div>
 													</div>
@@ -568,6 +604,11 @@
 
 	<!-- Booking Details Modal -->
 	{#if selectedBooking}
+		{@const displayStatus = getDisplayStatus(
+			selectedBooking.status,
+			selectedBooking.startDate,
+			selectedBooking.endDate
+		)}
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<div
@@ -591,8 +632,8 @@
 					{:else}
 						<div class="w-full h-full flex items-center justify-center text-6xl">📦</div>
 					{/if}
-					
-                    <!-- Close Button -->
+
+					<!-- Close Button -->
 					<button
 						onclick={closeBookingModal}
 						class="absolute top-4 right-4 bg-white/50 backdrop-blur-md p-2 rounded-full hover:bg-white text-slate-900 transition-all"
@@ -611,45 +652,47 @@
 						>
 					</button>
 
-                    <!-- Status and Cancel Button -->
+					<!-- Status and Cancel Button -->
 					<div class="absolute bottom-4 left-4 flex items-center gap-2">
 						<span
 							class="bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest shadow-sm
-                            {selectedBooking.status === 'CONFIRMED'
+                            {displayStatus.includes('CONFIRMED')
 								? 'text-emerald-600'
-								: selectedBooking.status === 'CANCELLED'
-									? 'text-red-600'
-									: 'text-indigo-600'}"
+								: displayStatus === 'COMPLETED'
+									? 'text-slate-500'
+									: displayStatus === 'CANCELLED'
+										? 'text-red-600'
+										: 'text-indigo-600'}"
 						>
-							{selectedBooking.status}
+							{displayStatus}
 						</span>
 
-                        <!-- Cancel Button (Modal View) -->
-                        {#if selectedBooking.status !== 'CANCELLED' && selectedBooking.status !== 'COMPLETED'}
-                            <button
-                                onclick={(e) => openCancelModal(e, selectedBooking)}
-                                class="bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-white transition-all shadow-sm"
-                                title="Cancel Booking"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="14"
-                                    height="14"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="3"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    ><line x1="18" y1="6" x2="6" y2="18" /><line
-                                        x1="6"
-                                        y1="6"
-                                        x2="18"
-                                        y2="18"
-                                    /></svg
-                                >
-                            </button>
-                        {/if}
+						<!-- Cancel Button (Modal View) -->
+						{#if displayStatus !== 'CANCELLED' && displayStatus !== 'COMPLETED'}
+							<button
+								onclick={(e) => openCancelModal(e, selectedBooking)}
+								class="bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-white transition-all shadow-sm"
+								title="Cancel Booking"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="14"
+									height="14"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="3"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									><line x1="18" y1="6" x2="6" y2="18" /><line
+										x1="6"
+										y1="6"
+										x2="18"
+										y2="18"
+									/></svg
+								>
+							</button>
+						{/if}
 					</div>
 				</div>
 
