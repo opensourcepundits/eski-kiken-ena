@@ -33,7 +33,6 @@
 
 <div class="min-h-screen bg-white">
 	<!-- Top Padding for UI Clarity -->
-	<div class="h-20 bg-slate-900"></div>
 
 	<main class="max-w-7xl mx-auto px-4 py-12 lg:py-20">
 		<div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -51,7 +50,6 @@
 					</h1>
 					<div class="flex flex-wrap items-center gap-6 text-slate-600">
 						<div class="flex items-center gap-2">
-							<span class="text-teal-600 text-xl">📍</span>
 							<span class="font-bold text-slate-900">{listing.district?.replace('_', ' ')}</span>
 						</div>
 						<div class="flex items-center gap-2">
@@ -157,7 +155,6 @@
 							</div>
 							{#if listing.pickupAddress}
 								<div class="mt-4 flex items-center gap-2 text-slate-600">
-									<span class="text-teal-600">📍</span>
 									<span class="font-medium">{listing.pickupAddress}</span>
 								</div>
 							{/if}

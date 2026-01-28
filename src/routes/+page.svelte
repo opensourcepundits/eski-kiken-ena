@@ -36,12 +36,6 @@
 					>weekend</span
 				>?
 			</h1>
-			<p
-				class="text-xl md:text-2xl text-background/80 font-medium max-w-2xl mx-auto leading-relaxed opacity-90 delay-150 animate-in fade-in slide-in-from-bottom-4 duration-700"
-			>
-				Mauritius' trusted peer-to-peer rental marketplace for power tools & pro equipment. Built
-				for neighbors, by neighbors.
-			</p>
 
 			<!-- Search Bar -->
 			<form
@@ -96,13 +90,17 @@
 					>
 				</div>
 			</form>
+			<p
+				class="text-xl md:text-2xl text-background/80 font-medium max-w-2xl mx-auto leading-relaxed opacity-90 delay-150 animate-in fade-in slide-in-from-bottom-4 duration-700"
+			>
+				Mauritius' trusted peer-to-peer rental marketplace for power tools & pro equipment. Built
+				for neighbors, by neighbors.
+			</p>
 		</div>
 	</header>
 
 	<!-- Features / Categories -->
 	<main class="flex-1 max-w-7xl mx-auto w-full -mt-20 px-6 pb-20 relative z-10">
-		
-
 		<div class="mt-32">
 			<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
 				<div>
@@ -165,7 +163,9 @@
 										{listing.district?.replace(/_/g, ' ') ?? 'Unknown'}
 									</div>
 
-									<div class="mt-auto pt-5 border-t border-surface flex items-center justify-between">
+									<div
+										class="mt-auto pt-5 border-t border-surface flex items-center justify-between"
+									>
 										<div>
 											<span class="text-2xl font-black text-accent">Rs {listing.pricePerDay}</span>
 											<span class="text-surface text-sm">/ day</span>
@@ -195,7 +195,8 @@
 							stroke="currentColor"
 							stroke-width="1.5"
 							stroke-linecap="round"
-							stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
+							stroke-linejoin="round"
+							><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg
 						>
 					</div>
 					<div class="text-center space-y-2">

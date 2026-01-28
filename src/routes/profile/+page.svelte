@@ -136,7 +136,7 @@
 									? 'bg-teal-600 text-white shadow-xl shadow-indigo-200'
 									: 'text-slate-500 hover:bg-slate-50'}"
 							>
-								<span class="text-xl">📅</span> My Bookings
+								My Bookings
 							</button>
 							<button
 								onclick={() => (activeTab = 'listings')}
@@ -145,7 +145,7 @@
 									? 'bg-teal-600 text-white shadow-xl shadow-indigo-200'
 									: 'text-slate-500 hover:bg-slate-50'}"
 							>
-								<span class="text-xl">🛠️</span> My Listings
+								My Listings
 							</button>
 							<button
 								onclick={() => (activeTab = 'settings')}
@@ -154,7 +154,7 @@
 									? 'bg-teal-600 text-white shadow-xl shadow-indigo-200'
 									: 'text-slate-500 hover:bg-slate-50'}"
 							>
-								<span class="text-xl">⚙️</span> Account Settings
+								Account Settings
 							</button>
 						</nav>
 					</div>
