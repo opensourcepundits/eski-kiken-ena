@@ -15,10 +15,11 @@
 			0
 		);
 		const activeCount = userListings.filter((l: any) => l.isActive).length;
+		const ratedListings = userListings.filter((l: any) => Number(l.reviewCount || 0) > 0);
 		const avgRating =
-			userListings.length > 0
-				? userListings.reduce((acc: number, l: any) => acc + Number(l.rating || 0), 0) /
-					userListings.length
+			ratedListings.length > 0
+				? ratedListings.reduce((acc: number, l: any) => acc + Number(l.rating || 0), 0) /
+					ratedListings.length
 				: 0;
 
 		return { totalEarnings, totalRentals, activeCount, avgRating };
