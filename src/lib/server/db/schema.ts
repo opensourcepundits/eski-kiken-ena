@@ -130,6 +130,9 @@ export const listings = pgTable('listings', {
 	rating: decimal('rating', { precision: 3, scale: 2 }).default('0'),
 	reviewCount: integer('review_count').default(0),
 	count: integer('count').default(0),
+	avgDays: decimal('avg_days', { precision: 10, scale: 1 }).default('0'),
+	totalEarnings: decimal('total_earnings', { precision: 10, scale: 2 }).default('0'),
+	avgEarnings: decimal('avg_earnings', { precision: 10, scale: 2 }).default('0'),
 	isActive: boolean('is_active').default(true),
 
 	createdAt: timestamp('created_at').defaultNow(),

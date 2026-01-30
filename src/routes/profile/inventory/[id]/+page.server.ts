@@ -59,14 +59,40 @@ export const actions: Actions = {
 				.update(bookings)
 				.set({ status })
 				.where(and(eq(bookings.id, bookingId), eq(bookings.listingId, params.id)));
-			
-			// If a booking is confirmed, increment the listing's count
-			if (status === 'CONFIRMED') {
-				await db
-					.update(listings)
-					.set({ count: sql`${listings.count} + 1` })
-					.where(eq(listings.id, params.id));
+
+			// Fetch all confirmed/completed bookings for stats
+			const validBookings = await db.query.bookings.findMany({
+				where: and(
+					eq(bookings.listingId, params.id),
+					sql`${bookings.status} IN ('CONFIRMED', 'COMPLETED', 'ACTIVE', 'PAID')`
+				)
+			});
+
+			let totalEarnings = 0;
+			let totalDays = 0;
+			const count = validBookings.length;
+
+			for (const b of validBookings) {
+				totalEarnings += Number(b.totalPrice);
+				const start = new Date(b.startDate);
+				const end = new Date(b.endDate);
+				const diff = end.getTime() - start.getTime();
+				const days = Math.ceil(diff / (1000 * 3600 * 24));
+				totalDays += days;
 			}
+
+			const avgEarnings = count > 0 ? totalEarnings / count : 0;
+			const avgDays = count > 0 ? totalDays / count : 0;
+
+			await db
+				.update(listings)
+				.set({
+					count,
+					totalEarnings: totalEarnings.toFixed(2),
+					avgEarnings: avgEarnings.toFixed(2),
+					avgDays: avgDays.toFixed(1)
+				})
+				.where(eq(listings.id, params.id));
 		} catch (e) {
 			console.error('Database update failed:', e);
 			return fail(500, { message: 'Failed to update status' });

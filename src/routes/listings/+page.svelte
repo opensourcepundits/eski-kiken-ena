@@ -99,6 +99,7 @@
 
 			<!-- Search Bar -->
 			<form
+				id="big-search-bar"
 				onsubmit={(e) => {
 					e.preventDefault();
 					handleSearch();
@@ -165,7 +166,9 @@
 										onchange={updateFilters}
 										class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
 									/>
-									<span class="text-sm text-slate-700 group-hover:text-accent">{cat.replace(/_/g, ' ')}</span>
+									<span class="text-sm text-slate-700 group-hover:text-accent"
+										>{cat.replace(/_/g, ' ')}</span
+									>
 								</label>
 							{/each}
 						</div>
@@ -173,7 +176,9 @@
 
 					<!-- Condition Filter -->
 					<div>
-						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">Condition</h3>
+						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">
+							Condition
+						</h3>
 						<div class="space-y-2">
 							<label class="flex items-center gap-2 cursor-pointer group">
 								<input
@@ -196,7 +201,9 @@
 										onchange={updateFilters}
 										class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
 									/>
-									<span class="text-sm text-slate-700 group-hover:text-accent">{cond.replace(/_/g, ' ')}</span>
+									<span class="text-sm text-slate-700 group-hover:text-accent"
+										>{cond.replace(/_/g, ' ')}</span
+									>
 								</label>
 							{/each}
 						</div>
@@ -204,7 +211,9 @@
 
 					<!-- Power Source Filter -->
 					<div>
-						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">Power Source</h3>
+						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">
+							Power Source
+						</h3>
 						<div class="space-y-2">
 							<label class="flex items-center gap-2 cursor-pointer group">
 								<input
@@ -227,7 +236,9 @@
 										onchange={updateFilters}
 										class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
 									/>
-									<span class="text-sm text-slate-700 group-hover:text-accent">{source.replace(/_/g, ' ')}</span>
+									<span class="text-sm text-slate-700 group-hover:text-accent"
+										>{source.replace(/_/g, ' ')}</span
+									>
 								</label>
 							{/each}
 						</div>
@@ -258,7 +269,9 @@
 										onchange={updateFilters}
 										class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
 									/>
-									<span class="text-sm text-slate-700 group-hover:text-accent">{dist.replace(/_/g, ' ')}</span>
+									<span class="text-sm text-slate-700 group-hover:text-accent"
+										>{dist.replace(/_/g, ' ')}</span
+									>
 								</label>
 							{/each}
 						</div>
@@ -266,7 +279,9 @@
 
 					<!-- Transport Size Filter -->
 					<div>
-						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">Transport Size</h3>
+						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">
+							Transport Size
+						</h3>
 						<div class="space-y-2">
 							<label class="flex items-center gap-2 cursor-pointer group">
 								<input
@@ -289,7 +304,9 @@
 										onchange={updateFilters}
 										class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
 									/>
-									<span class="text-sm text-slate-700 group-hover:text-accent">{size.replace(/_/g, ' ')}</span>
+									<span class="text-sm text-slate-700 group-hover:text-accent"
+										>{size.replace(/_/g, ' ')}</span
+									>
 								</label>
 							{/each}
 						</div>
@@ -297,7 +314,9 @@
 
 					<!-- Price Range Filter -->
 					<div>
-						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">Price Range</h3>
+						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">
+							Price Range
+						</h3>
 						<div class="space-y-3">
 							<div>
 								<label for="minPrice" class="block text-xs text-slate-600 mb-1"
@@ -354,7 +373,7 @@
 					</div>
 					<a
 						href="/listings/new"
-						class="flex items-center gap-2 rounded-md bg-accent hover:bg-surface text-background px-6 py-3 rounded-full font-bold shadow-lg shadow-accent/30 transition-all hover:scale-105 active:scale-95"
+						class="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-teal-600/30 transition-all hover:scale-105 active:scale-95"
 					>
 						List Your Gear
 					</a>
@@ -362,7 +381,9 @@
 
 				<!-- Results Count -->
 				<div class="mb-6 text-sm text-slate-600">
-					<span class="font-semibold">{listings.length}</span> listing{listings.length !== 1 ? 's' : ''} found
+					<span class="font-semibold">{listings.length}</span> listing{listings.length !== 1
+						? 's'
+						: ''} found
 				</div>
 
 				<!-- Grid -->
@@ -407,8 +428,15 @@
 									<div class="text-xs font-black text-slate-500">{formatRating(listing)}</div>
 								</div>
 
-								<div class="flex items-center gap-1.5 text-surface text-sm mb-4">
+								<div class="flex items-center justify-between text-surface text-sm mb-4">
 									<span>{listing.district?.replace(/_/g, ' ') ?? 'Unknown'}</span>
+									{#if Number(listing.avgDays ?? 0) > 0}
+										<div
+											class="flex items-center gap-1 text-indigo-600 text-[10px] uppercase font-black tracking-wider"
+										>
+											<span>Avg. {listing.avgDays} days</span>
+										</div>
+									{/if}
 								</div>
 
 								<div class="mt-auto pt-4 border-t border-surface flex items-center justify-between">
@@ -418,9 +446,9 @@
 									</div>
 									<a
 										href="/listings/{listing.id}"
-										class="w-10 h-10 rounded-full rounded-md bg-surface flex items-center justify-center text-secondary hover:bg-accent hover:text-background transition-all"
+										class="relative z-20 w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center text-white hover:bg-teal-700 transition-all shadow-sm shadow-teal-600/20"
 									>
-										→
+										<span class="text-lg leading-none">→</span>
 									</a>
 								</div>
 							</div>

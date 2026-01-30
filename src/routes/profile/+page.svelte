@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import DashboardTab from './DashboardTab.svelte';
 
 	let { data } = $props();
 	let user = $derived(data.user);
@@ -86,18 +87,6 @@
 		<!-- Profile Header -->
 		<div class="bg-teal-900 pt-32 pb-48 px-4 text-white">
 			<div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-8">
-				<div class="relative group">
-					<div
-						class="w-32 h-32 md:w-40 md:h-40 rounded-full bg-white/10 border-4 border-white/20 flex items-center justify-center text-6xl shadow-2xl relative overflow-hidden group-hover:border-sunset/50 transition-all"
-					>
-						👤
-						<button
-							class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-						>
-							<span class="text-xs font-black uppercase tracking-widest">Change</span>
-						</button>
-					</div>
-				</div>
 				<div class="text-center md:text-left">
 					<h1 class="text-4xl md:text-5xl font-black tracking-tight mb-2">
 						{user.firstName}
@@ -148,6 +137,15 @@
 								My Listings
 							</button>
 							<button
+								onclick={() => (activeTab = 'dashboard')}
+								class="w-full text-left px-6 py-4 rounded-md font-black text-sm transition-all flex items-center gap-3 {activeTab ===
+								'dashboard'
+									? 'bg-teal-600 text-white shadow-xl shadow-indigo-200'
+									: 'text-slate-500 hover:bg-slate-50'}"
+							>
+								Dashboard
+							</button>
+							<button
 								onclick={() => (activeTab = 'settings')}
 								class="w-full text-left px-6 py-4 rounded-md font-black text-sm transition-all flex items-center gap-3 {activeTab ===
 								'settings'
@@ -166,7 +164,7 @@
 						<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 							<!-- Bookings as Renter -->
 							<section>
-								<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+								<h2 class="text-2xl font-black text-teal-50 mb-6 flex items-center gap-3">
 									My rentals
 									<span class="text-xs bg-indigo-100 text-teal-600 px-3 py-1 rounded-full"
 										>{userBookings.length}</span
@@ -188,13 +186,15 @@
 									<div class="space-y-6">
 										{#each userBookings as booking}
 											{@const displayStatus = getDisplayStatus(
-												booking.status,
+												booking.status ?? 'PENDING',
 												booking.startDate,
 												booking.endDate
 											)}
-											<button
-												type="button"
+											<div
+												role="button"
+												tabindex="0"
 												onclick={() => openBookingModal(booking)}
+												onkeydown={(e) => e.key === 'Enter' && openBookingModal(booking)}
 												class="w-full text-left bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform cursor-pointer relative overflow-hidden"
 											>
 												<!-- Hover Highlight -->
@@ -307,7 +307,7 @@
 														</div>
 													</div>
 												</div>
-											</button>
+											</div>
 										{/each}
 									</div>
 								{/if}
@@ -315,7 +315,7 @@
 
 							<!-- Bookings for my Items (As Owner) -->
 							<section>
-								<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+								<h2 class="text-2xl font-black text-teal-50 mb-6 flex items-center gap-3">
 									Request for listings
 									<span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full"
 										>{ownerBookings.length}</span
@@ -332,7 +332,7 @@
 									<div class="space-y-6">
 										{#each ownerBookings as booking}
 											{@const displayStatus = getDisplayStatus(
-												booking.status,
+												booking.status ?? 'PENDING',
 												booking.startDate,
 												booking.endDate
 											)}
@@ -437,7 +437,7 @@
 					{:else if activeTab === 'listings'}
 						<section>
 							<div class="flex justify-between items-center mb-8">
-								<h2 class="text-2xl font-black text-slate-900 flex items-center gap-3">
+								<h2 class="text-2xl font-black text-teal-50 flex items-center gap-3">
 									My Gear
 									<span class="text-xs bg-indigo-100 text-teal-600 px-3 py-1 rounded-full"
 										>{userListings.length}</span
@@ -507,24 +507,36 @@
 												</div>
 
 												<div class="space-y-4">
-													<div class="flex gap-3">
-														<div class="flex-1 bg-slate-50 p-4 rounded-md text-center">
+													<div class="grid grid-cols-3 gap-2">
+														<div class="bg-slate-50 p-3 rounded-md text-center">
 															<p
-																class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1"
+																class="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1"
 															>
 																Status
 															</p>
-															<p class="text-xs font-black text-emerald-600">
+															<p class="text-[10px] font-black text-emerald-600">
 																{listing.isActive ? 'Active' : 'Inactive'}
 															</p>
 														</div>
-														<div class="flex-1 bg-slate-50 p-4 rounded-md text-center">
+														<div class="bg-slate-50 p-3 rounded-md text-center">
 															<p
-																class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1"
+																class="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1"
 															>
 																Earned
 															</p>
-															<p class="text-xs font-black text-slate-900">Rs 0</p>
+															<p class="text-[10px] font-black text-slate-900">
+																Rs {listing.totalEarnings || 0}
+															</p>
+														</div>
+														<div class="bg-slate-50 p-3 rounded-md text-center">
+															<p
+																class="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1"
+															>
+																Avg. Days
+															</p>
+															<p class="text-[10px] font-black text-indigo-600">
+																{listing.avgDays || 0}
+															</p>
 														</div>
 													</div>
 
@@ -541,9 +553,11 @@
 								</div>
 							{/if}
 						</section>
+					{:else if activeTab === 'dashboard'}
+						<DashboardTab {userListings} {ownerBookings} />
 					{:else if activeTab === 'settings'}
 						<section class="max-w-2xl">
-							<h2 class="text-2xl font-black text-slate-900 mb-8">Account Settings</h2>
+							<h2 class="text-2xl font-black text-teal-50 mb-8">Account Settings</h2>
 
 							<form
 								class="bg-white rounded-[2.5rem] shadow-2xl shadow-teal-900/5 border border-slate-100 p-10 space-y-8"
@@ -612,7 +626,7 @@
 	{#if selectedBooking}
 		<!-- Ensure @const is the immediate child of #if -->
 		{@const displayStatus = getDisplayStatus(
-			selectedBooking.status,
+			selectedBooking.status ?? 'PENDING',
 			selectedBooking.startDate,
 			selectedBooking.endDate
 		)}
@@ -700,7 +714,7 @@
 
 				<!-- Modal Content -->
 				<div class="p-8 overflow-y-auto">
-					<h2 class="text-2xl font-black text-slate-900 mb-2 leading-tight">
+					<h2 class="text-2xl font-black text-teal-50 mb-2 leading-tight">
 						{selectedBooking.listing.title}
 					</h2>
 					<div class="flex items-center gap-2 mb-6">
@@ -852,7 +866,7 @@
 							/></svg
 						>
 					</div>
-					<h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Cancel Booking?</h2>
+					<h2 class="text-2xl font-black text-teal-50 mb-2 tracking-tight">Cancel Booking?</h2>
 					<p class="text-slate-500 font-medium leading-relaxed">
 						Are you sure you want to cancel your reservation for <span
 							class="text-slate-900 font-black">"{bookingToCancel.title}"</span
@@ -923,7 +937,7 @@
 							/></svg
 						>
 					</div>
-					<h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Eski ou sir?</h2>
+					<h2 class="text-2xl font-black text-teal-50 mb-2 tracking-tight">Eski ou sir?</h2>
 					<p class="text-slate-500 font-medium leading-relaxed">
 						Ou pe al retire <span class="text-slate-900 font-black">"{listingToDelete.title}"</span> depi
 						ou inventory. Sa aksion la pa kapav sanze apre.

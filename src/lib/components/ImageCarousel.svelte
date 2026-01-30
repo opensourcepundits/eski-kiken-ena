@@ -51,31 +51,37 @@
 	aria-roledescription={hasMany ? 'carousel' : undefined}
 >
 	{#if images?.length > 0}
-		<img src={currentSrc} alt={alt} class={imageClass} />
+		<img src={currentSrc} {alt} class={imageClass} />
 
 		{#if hasMany && showArrows}
 			<button
 				type="button"
 				aria-label="Previous image"
-				onclick={prev}
-				class={`absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/55 text-white w-10 h-10 grid place-items-center backdrop-blur transition-opacity ${
+				onclick={(e) => {
+					e.stopPropagation(); // Prevents the card link from firing
+					prev();
+				}}
+				class={`absolute left-3 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/55 text-white w-10 h-10 grid place-items-center backdrop-blur transition-opacity ${
 					controlsOnHover ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'
 				}`}
 			>
 				<span class="text-xl leading-none select-none">‹</span>
 			</button>
+
 			<button
 				type="button"
 				aria-label="Next image"
-				onclick={next}
-				class={`absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/55 text-white w-10 h-10 grid place-items-center backdrop-blur transition-opacity ${
+				onclick={(e) => {
+					e.stopPropagation(); // Prevents the card link from firing
+					next();
+				}}
+				class={`absolute right-3 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/55 text-white w-10 h-10 grid place-items-center backdrop-blur transition-opacity ${
 					controlsOnHover ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'
 				}`}
 			>
 				<span class="text-xl leading-none select-none">›</span>
 			</button>
 		{/if}
-
 		{#if hasMany && showDots}
 			<div
 				class={`absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-black/35 px-3 py-2 backdrop-blur transition-opacity ${

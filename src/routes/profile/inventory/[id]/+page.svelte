@@ -34,6 +34,24 @@
 						>{listing.category.replace('_', ' ')}</span
 					>
 					<span class="font-bold">Rs {listing.pricePerDay} / day</span>
+					<div class="h-4 w-px bg-slate-200"></div>
+					<div class="flex flex-col md:flex-row gap-4 md:gap-8 bg-slate-100 px-4 py-2 rounded-xl">
+						<span class="text-sm font-bold text-slate-600"
+							>Avg. Booking: <span class="font-black text-indigo-600"
+								>{listing.avgDays || 0} days</span
+							></span
+						>
+						<span class="text-sm font-bold text-slate-600"
+							>Total Earned: <span class="font-black text-emerald-600"
+								>Rs {listing.totalEarnings || 0}</span
+							></span
+						>
+						<span class="text-sm font-bold text-slate-600"
+							>Avg. / Rental: <span class="font-black text-emerald-600"
+								>Rs {listing.avgEarnings || 0}</span
+							></span
+						>
+					</div>
 				</div>
 			</div>
 
@@ -54,7 +72,7 @@
 					class="bg-white rounded-[2.5rem] shadow-2xl shadow-teal-900/5 border border-slate-100 overflow-hidden"
 				>
 					<div class="p-8 border-b border-slate-50">
-						<h2 class="text-2xl font-black text-slate-900">Upcoming & Active Bookings</h2>
+						<h2 class="text-2xl font-black text-teal-50">Upcoming & Active Bookings</h2>
 						<p class="text-slate-400 font-bold text-sm uppercase tracking-widest mt-1">
 							Direct from your schedule
 						</p>
@@ -160,7 +178,7 @@
 
 			<!-- Booking History -->
 			<div class="lg:col-span-12 mt-12">
-				<h2 class="text-2xl font-black text-slate-900 mb-8 border-l-4 border-teal-600 pl-4">
+				<h2 class="text-2xl font-black text-teal-50 mb-8 border-l-4 border-teal-600 pl-4">
 					Booking History
 				</h2>
 

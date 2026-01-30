@@ -3,8 +3,45 @@
 	import { enhance } from '$app/forms';
 
 	import { Search, LogOut, Menu } from 'lucide-svelte';
+	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 
 	let { data, children } = $props();
+
+	let showNavbarSearch = $state(true);
+
+	let observer: IntersectionObserver | null = null;
+
+	onMount(() => {
+		observer = new IntersectionObserver(
+			([entry]) => {
+				showNavbarSearch = !entry.isIntersecting;
+			},
+			{ threshold: 0 }
+		);
+
+		return () => observer?.disconnect();
+	});
+
+	// Re-run observer logic when page changes
+	$effect(() => {
+		// This will trigger on navigation
+		const _ = page.url.pathname;
+
+		// Wait for the DOM to update
+		setTimeout(() => {
+			if (observer) {
+				observer.disconnect();
+				const bigSearch = document.getElementById('big-search-bar');
+				if (bigSearch) {
+					showNavbarSearch = false; // Initially hide if it exists
+					observer.observe(bigSearch);
+				} else {
+					showNavbarSearch = true;
+				}
+			}
+		}, 100);
+	});
 </script>
 
 <div class="min-h-screen flex flex-col font-sans text-secondary bg-background">
@@ -24,22 +61,30 @@
 			</a>
 
 			<!-- Search Bar -->
-			<form action="/listings" method="GET" class="hidden sm:flex flex-1 max-w-md mx-4">
-				<div class="relative w-full group">
-					<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-						<Search
-							size={16}
-							class="text-background/40 group-focus-within:text-primary transition-colors"
+			{#if showNavbarSearch}
+				<form
+					action="/listings"
+					method="GET"
+					class="hidden sm:flex flex-1 max-w-md mx-4 animate-in fade-in zoom-in-95 duration-200"
+				>
+					<div class="relative w-full group">
+						<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+							<Search
+								size={16}
+								class="text-background/40 group-focus-within:text-primary transition-colors"
+							/>
+						</div>
+						<input
+							type="text"
+							name="q"
+							placeholder="Search for gear..."
+							class="block w-full pl-9 pr-4 py-1.5 bg-background/5 border border-background/10 rounded-full text-sm text-background placeholder:text-background/30 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:bg-background/10 transition-all border-none bg-white/5"
 						/>
 					</div>
-					<input
-						type="text"
-						name="q"
-						placeholder="Search for gear..."
-						class="block w-full pl-9 pr-4 py-1.5 bg-background/5 border border-background/10 rounded-full text-sm text-background placeholder:text-background/30 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:bg-background/10 transition-all border-none bg-white/5"
-					/>
-				</div>
-			</form>
+				</form>
+			{:else}
+				<div class="flex-1 max-w-md mx-4"></div>
+			{/if}
 
 			<!-- Desktop Links & Auth -->
 			<div class="hidden md:flex items-center gap-6">

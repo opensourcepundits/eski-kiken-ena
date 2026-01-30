@@ -1,9 +1,25 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { onMount } from 'svelte';
+	import { fly } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 
 	let { data } = $props();
 
 	const recentListings = $derived((data?.recentListings ?? []) as any[]);
+
+	let changingText = $state('weekend');
+	const textOptions = ['weekend', 'day', 'next few weeks', 'next few months'];
+	let textIndex = 0;
+
+	onMount(() => {
+		const interval = setInterval(() => {
+			textIndex = (textIndex + 1) % textOptions.length;
+			changingText = textOptions[textIndex];
+		}, 3000);
+
+		return () => clearInterval(interval);
+	});
 
 	function formatRating(listing: any) {
 		const rating = Number(listing?.rating ?? 0);
@@ -32,13 +48,26 @@
 			<h1
 				class="text-5xl md:text-8xl font-black tracking-tighter leading-none drop-shadow-xl animate-in fade-in slide-in-from-bottom-8 duration-700"
 			>
-				Need a tool for the <span class="text-primary underline decoration-4 underline-offset-8"
-					>weekend</span
-				>?
+				Need a tool for the
+				<span
+					class="relative inline-block text-left min-w-[3ch] overflow-hidden align-bottom h-[1em]"
+				>
+					<span class="invisible">{changingText}</span>
+					{#key changingText}
+						<span
+							in:fly={{ y: 100, duration: 600, delay: 0, easing: quintOut }}
+							out:fly={{ y: -100, duration: 600, easing: quintOut }}
+							class="absolute top-0 left-0 w-full text-primary underline decoration-4 underline-offset-8"
+						>
+							{changingText}
+						</span>
+					{/key}
+				</span>?
 			</h1>
 
 			<!-- Search Bar -->
 			<form
+				id="big-search-bar"
 				action="/listings"
 				method="GET"
 				class="mt-12 relative max-w-2xl mx-auto group delay-300 animate-in fade-in slide-in-from-bottom-2 duration-700"
@@ -73,19 +102,21 @@
 						Search
 					</button>
 				</div>
-				<div class="mt-4 flex flex-wrap justify-center gap-2 text-sm text-background/80 font-bold">
-					<span>Popular:</span>
+				<div class="mt-6 flex flex-wrap justify-center items-center gap-3">
+					<span class="text-sm font-bold text-background/80 mr-1">Popular:</span>
 					<a
 						href="/listings?q=drill"
-						class="hover:text-background underline decoration-accent underline-offset-4">Drills</a
+						class="px-4 py-2 bg-white/10 hover:bg-white/20 hover:scale-105 active:scale-95 text-sm font-bold text-white rounded-full backdrop-blur-sm border border-white/10 transition-all duration-300 shadow-sm"
+						>Drills</a
 					>
 					<a
 						href="/listings?q=ladder"
-						class="hover:text-background underline decoration-accent underline-offset-4">Ladders</a
+						class="px-4 py-2 bg-white/10 hover:bg-white/20 hover:scale-105 active:scale-95 text-sm font-bold text-white rounded-full backdrop-blur-sm border border-white/10 transition-all duration-300 shadow-sm"
+						>Ladders</a
 					>
 					<a
 						href="/listings?q=generator"
-						class="hover:text-background underline decoration-accent underline-offset-4"
+						class="px-4 py-2 bg-white/10 hover:bg-white/20 hover:scale-105 active:scale-95 text-sm font-bold text-white rounded-full backdrop-blur-sm border border-white/10 transition-all duration-300 shadow-sm"
 						>Generators</a
 					>
 				</div>
@@ -159,8 +190,17 @@
 										<div class="text-[11px] font-black text-slate-500">{formatRating(listing)}</div>
 									</div>
 
-									<div class="mt-3 text-sm font-bold text-slate-600">
-										{listing.district?.replace(/_/g, ' ') ?? 'Unknown'}
+									<div
+										class="mt-3 flex items-center justify-between text-sm font-bold text-slate-600"
+									>
+										<span>{listing.district?.replace(/_/g, ' ') ?? 'Unknown'}</span>
+										{#if Number(listing.avgDays ?? 0) > 0}
+											<div
+												class="flex items-center gap-1 text-indigo-600 text-[10px] uppercase tracking-wider"
+											>
+												<span>Avg. {listing.avgDays} days</span>
+											</div>
+										{/if}
 									</div>
 
 									<div
@@ -171,7 +211,7 @@
 											<span class="text-surface text-sm">/ day</span>
 										</div>
 										<div
-											class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-secondary group-hover:bg-accent group-hover:text-background transition-all"
+											class="relative z-20 w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center text-white hover:bg-teal-700 transition-all shadow-sm shadow-teal-600/20"
 										>
 											→
 										</div>

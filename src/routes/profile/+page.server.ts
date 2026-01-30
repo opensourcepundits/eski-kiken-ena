@@ -11,6 +11,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const userListings = await db.query.listings.findMany({
 		where: eq(listings.ownerId, locals.user.id),
+		with: {
+			bookings: true
+		},
 		orderBy: [desc(listings.createdAt)]
 	});
 
@@ -104,11 +107,43 @@ export const actions: Actions = {
 			console.log(`Updating booking ${bookingId} to ${status}`);
 			await db.update(bookings).set({ status }).where(eq(bookings.id, bookingId));
 			// If a booking is confirmed, increment the listing's count
-			if (status === 'CONFIRMED') {
+			if (status === 'CONFIRMED' || status === 'CANCELLED') {
 				const listingIdForCount = booking.listingId;
+
+				// Fetch all confirmed/completed bookings for stats
+				// We exclude CANCELLED for earnings/days stats, but we might want to track them separately if needed.
+				// For now, let's assume stats are based on valid (CONFIRMED/COMPLETED) bookings.
+				const validBookings = await db.query.bookings.findMany({
+					where: and(
+						eq(bookings.listingId, listingIdForCount),
+						sql`${bookings.status} IN ('CONFIRMED', 'COMPLETED', 'ACTIVE', 'PAID')`
+					)
+				});
+
+				let totalEarnings = 0;
+				let totalDays = 0;
+				const count = validBookings.length;
+
+				for (const b of validBookings) {
+					totalEarnings += Number(b.totalPrice);
+					const start = new Date(b.startDate);
+					const end = new Date(b.endDate);
+					const diff = end.getTime() - start.getTime();
+					const days = Math.ceil(diff / (1000 * 3600 * 24));
+					totalDays += days;
+				}
+
+				const avgEarnings = count > 0 ? totalEarnings / count : 0;
+				const avgDays = count > 0 ? totalDays / count : 0;
+
 				await db
 					.update(listings)
-					.set({ count: sql`${listings.count} + 1` })
+					.set({
+						count,
+						totalEarnings: totalEarnings.toFixed(2),
+						avgEarnings: avgEarnings.toFixed(2),
+						avgDays: avgDays.toFixed(1)
+					})
 					.where(eq(listings.id, listingIdForCount));
 			}
 			console.log('Update successful');
