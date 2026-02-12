@@ -3,6 +3,10 @@ import { bookings, listings, ratings } from '$lib/server/db/schema';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { desc, eq, and, sql } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
+import {
+	sendLoanStatusChangedEmail,
+	sendLoanCancelledByRenterEmail
+} from '$lib/server/email';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
@@ -91,21 +95,60 @@ export const actions: Actions = {
 			return fail(400, { message: 'Missing data' });
 		}
 
-		// Verify the user owns the listing for this booking
+		// Verify the user owns the listing for this booking OR is the renter
 		const booking = await db.query.bookings.findFirst({
 			where: eq(bookings.id, bookingId),
 			with: {
-				listing: true
+				listing: {
+					with: {
+						owner: true
+					}
+				},
+				renter: true
 			}
 		});
 
-		if (!booking || booking.listing.ownerId !== locals.user.id) {
+		if (!booking) {
+			return fail(404, { message: 'Booking not found' });
+		}
+
+		const isOwner = booking.listing.ownerId === locals.user.id;
+		const isRenter = booking.renterId === locals.user.id;
+
+		if (!isOwner && !isRenter) {
 			return fail(403, { message: 'Forbidden' });
+		}
+
+		// Renter can only CANCEL
+		if (isRenter && status !== 'CANCELLED') {
+			return fail(403, { message: 'Renters can only cancel bookings' });
 		}
 
 		try {
 			console.log(`Updating booking ${bookingId} to ${status}`);
 			await db.update(bookings).set({ status }).where(eq(bookings.id, bookingId));
+
+			// EMAIL NOTIFICATIONS
+			if (isOwner) {
+				// Owner updated status (CONFIRMED or CANCELLED/DECLINED)
+				if (status === 'CONFIRMED' || status === 'CANCELLED') {
+					await sendLoanStatusChangedEmail({
+						renterEmail: booking.renter.email,
+						renterName: booking.renter.firstName,
+						listingTitle: booking.listing.title,
+						status
+					});
+				}
+			} else if (isRenter && status === 'CANCELLED') {
+				// Renter cancelled
+				await sendLoanCancelledByRenterEmail({
+					ownerEmail: booking.listing.owner.email,
+					ownerName: booking.listing.owner.firstName,
+					renterName: booking.renter.firstName,
+					listingTitle: booking.listing.title
+				});
+			}
+
 			// If a booking is confirmed, increment the listing's count
 			if (status === 'CONFIRMED' || status === 'CANCELLED') {
 				const listingIdForCount = booking.listingId;

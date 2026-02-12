@@ -3,6 +3,7 @@ import { db } from '$lib/server/db';
 import { listings, bookings } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
+import { sendLoanRequestEmail } from '$lib/server/email';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const listing = await db.query.listings.findFirst({
@@ -56,7 +57,10 @@ export const actions: Actions = {
 		}
 
 		const listing = await db.query.listings.findFirst({
-			where: eq(listings.id, params.id)
+			where: eq(listings.id, params.id),
+			with: {
+				owner: true
+			}
 		});
 
 		if (!listing) {
@@ -94,6 +98,18 @@ export const actions: Actions = {
 				endDate: end,
 				totalPrice: totalPrice,
 				status: 'PENDING'
+			});
+
+			await sendLoanRequestEmail({
+				ownerEmail: listing.owner.email,
+				ownerName: listing.owner.firstName,
+				renterName: locals.user.firstName,
+				listingTitle: listing.title,
+				bookingDetails: {
+					startDate: start,
+					endDate: end,
+					totalPrice
+				}
 			});
 		} catch (e) {
 			console.error(e);
