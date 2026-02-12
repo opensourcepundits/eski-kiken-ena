@@ -119,13 +119,13 @@ export const actions: Actions = {
 			return fail(403, { message: 'Forbidden' });
 		}
 
-		// Renter can only CANCEL
-		if (isRenter && status !== 'CANCELLED') {
+		// Renter can only CANCEL (unless they are also the owner testing their own item)
+		if (isRenter && !isOwner && status !== 'CANCELLED') {
 			return fail(403, { message: 'Renters can only cancel bookings' });
 		}
 
 		try {
-			console.log(`Updating booking ${bookingId} to ${status}`);
+			console.log(`Updating booking ${bookingId} to ${status} (User is Owner: ${isOwner}, Renter: ${isRenter})`);
 			await db.update(bookings).set({ status }).where(eq(bookings.id, bookingId));
 
 			// EMAIL NOTIFICATIONS
@@ -154,8 +154,6 @@ export const actions: Actions = {
 				const listingIdForCount = booking.listingId;
 
 				// Fetch all confirmed/completed bookings for stats
-				// We exclude CANCELLED for earnings/days stats, but we might want to track them separately if needed.
-				// For now, let's assume stats are based on valid (CONFIRMED/COMPLETED) bookings.
 				const validBookings = await db.query.bookings.findMany({
 					where: and(
 						eq(bookings.listingId, listingIdForCount),
@@ -190,6 +188,7 @@ export const actions: Actions = {
 					.where(eq(listings.id, listingIdForCount));
 			}
 			console.log('Update successful');
+			return { success: true };
 		} catch (e) {
 			console.error('Update failed:', e);
 			return fail(500, { message: 'Failed to update status' });
