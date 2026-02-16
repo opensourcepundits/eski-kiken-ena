@@ -33,7 +33,8 @@ export const bookingStatusEnum = pgEnum('booking_status', [
 	'ACTIVE',
 	'COMPLETED',
 	'CANCELLED',
-	'DISPUTED'
+	'DISPUTED',
+	'EXPIRED'
 ]);
 export const kycStatusEnum = pgEnum('kyc_status', ['PENDING', 'VERIFIED', 'REJECTED', 'NONE']);
 
@@ -133,6 +134,7 @@ export const listings = pgTable('listings', {
 	avgDays: decimal('avg_days', { precision: 10, scale: 1 }).default('0'),
 	totalEarnings: decimal('total_earnings', { precision: 10, scale: 2 }).default('0'),
 	avgEarnings: decimal('avg_earnings', { precision: 10, scale: 2 }).default('0'),
+	operatingHours: jsonb('operating_hours').default({ start: '09:00', end: '17:00' }), // Default 9-5
 	isActive: boolean('is_active').default(true),
 
 	createdAt: timestamp('created_at').defaultNow(),
@@ -151,6 +153,9 @@ export const bookings = pgTable('bookings', {
 	endDate: timestamp('end_date').notNull(),
 	totalPrice: decimal('total_price', { precision: 10, scale: 2 }).notNull(),
 	status: bookingStatusEnum('status').default('PENDING'),
+	pickupTime: text('pickup_time'), // HH:mm format
+	returnTime: text('return_time'), // HH:mm format
+	expiresAt: timestamp('expires_at'),
 	createdAt: timestamp('created_at').defaultNow()
 });
 

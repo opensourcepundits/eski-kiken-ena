@@ -8,7 +8,7 @@
 	let userBookings = $derived(data.userBookings);
 	let ownerBookings = $derived(data.ownerBookings);
 
-	let activeTab = $state('bookings'); // 'bookings', 'listings', 'settings'
+	let activeTab = $state('requests'); // 'requests', 'rentals', 'listings', 'settings'
 
 	// --- Booking Details Modal State ---
 	let selectedBooking = $state<any>(null);
@@ -119,13 +119,22 @@
 					>
 						<nav class="space-y-1">
 							<button
-								onclick={() => (activeTab = 'bookings')}
+								onclick={() => (activeTab = 'requests')}
 								class="w-full text-left px-6 py-4 rounded-md font-black text-sm transition-all flex items-center gap-3 {activeTab ===
-								'bookings'
+								'requests'
 									? 'bg-teal-600 text-white shadow-xl shadow-indigo-200'
 									: 'text-slate-500 hover:bg-slate-50'}"
 							>
-								My Bookings
+								Requests
+							</button>
+							<button
+								onclick={() => (activeTab = 'rentals')}
+								class="w-full text-left px-6 py-4 rounded-md font-black text-sm transition-all flex items-center gap-3 {activeTab ===
+								'rentals'
+									? 'bg-teal-600 text-white shadow-xl shadow-indigo-200'
+									: 'text-slate-500 hover:bg-slate-50'}"
+							>
+								My Rentals
 							</button>
 							<button
 								onclick={() => (activeTab = 'listings')}
@@ -160,187 +169,50 @@
 
 				<!-- Tabs View -->
 				<div class="lg:col-span-9 space-y-8">
-					{#if activeTab === 'bookings'}
-						<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-							<!-- Bookings as Renter -->
-							<section>
-								<h2 class="text-2xl font-black text-teal-50 mb-6 flex items-center gap-3">
-									My rentals
-									<span class="text-xs bg-indigo-100 text-teal-600 px-3 py-1 rounded-full"
-										>{userBookings.length}</span
-									>
-								</h2>
+					{#if activeTab === 'rentals'}
+						<!-- Bookings as Renter -->
+						<section>
+							<h2 class="text-2xl font-black text-teal-50 mb-6 flex items-center gap-3">
+								My rentals
+								<span class="text-xs bg-indigo-100 text-teal-600 px-3 py-1 rounded-full"
+									>{userBookings.length}</span
+								>
+							</h2>
 
-								{#if userBookings.length === 0}
-									<div
-										class="bg-white rounded-3xl p-12 text-center border-2 border-dashed border-slate-200"
+							{#if userBookings.length === 0}
+								<div
+									class="bg-white rounded-3xl p-12 text-center border-2 border-dashed border-slate-200"
+								>
+									<p class="text-slate-400 font-bold italic">You haven't rented any items yet.</p>
+									<a
+										href="/listings"
+										class="mt-4 inline-block text-teal-600 font-black hover:underline"
+										>Explore Marketplace</a
 									>
-										<p class="text-slate-400 font-bold italic">You haven't rented any items yet.</p>
-										<a
-											href="/listings"
-											class="mt-4 inline-block text-teal-600 font-black hover:underline"
-											>Explore Marketplace</a
+								</div>
+							{:else}
+								<div class="space-y-6">
+									{#each userBookings as booking}
+										{@const displayStatus = getDisplayStatus(
+											booking.status ?? 'PENDING',
+											booking.startDate,
+											booking.endDate
+										)}
+										<div
+											role="button"
+											tabindex="0"
+											onclick={() => openBookingModal(booking)}
+											onkeydown={(e) => e.key === 'Enter' && openBookingModal(booking)}
+											class="w-full text-left bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform cursor-pointer relative overflow-hidden"
 										>
-									</div>
-								{:else}
-									<div class="space-y-6">
-										{#each userBookings as booking}
-											{@const displayStatus = getDisplayStatus(
-												booking.status ?? 'PENDING',
-												booking.startDate,
-												booking.endDate
-											)}
+											<!-- Hover Highlight -->
 											<div
-												role="button"
-												tabindex="0"
-												onclick={() => openBookingModal(booking)}
-												onkeydown={(e) => e.key === 'Enter' && openBookingModal(booking)}
-												class="w-full text-left bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform cursor-pointer relative overflow-hidden"
-											>
-												<!-- Hover Highlight -->
+												class="absolute inset-0 bg-indigo-50 opacity-0 group-hover:opacity-50 transition-opacity"
+											></div>
+
+											<div class="relative z-10 flex gap-6 w-full">
 												<div
-													class="absolute inset-0 bg-indigo-50 opacity-0 group-hover:opacity-50 transition-opacity"
-												></div>
-
-												<div class="relative z-10 flex gap-6 w-full">
-													<div
-														class="w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0 shadow-inner"
-													>
-														{#if (booking.listing.images as string[])?.length > 0}
-															<img
-																src={(booking.listing.images as string[])[0]}
-																alt=""
-																class="w-full h-full object-cover"
-															/>
-														{:else}
-															<div class="w-full h-full flex items-center justify-center text-2xl">
-																📦
-															</div>
-														{/if}
-													</div>
-													<div class="flex-grow">
-														<div class="flex justify-between items-start">
-															<div>
-																<h3
-																	class="font-black text-slate-900 leading-tight mb-1 group-hover:text-indigo-700 transition-colors"
-																>
-																	{booking.listing.title}
-																</h3>
-																<div class="flex items-center gap-2">
-																	<span
-																		class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded whitespace-nowrap
-                                                                        {displayStatus.includes(
-																			'CONFIRMED'
-																		)
-																			? 'bg-emerald-100 text-emerald-700'
-																			: displayStatus === 'COMPLETED'
-																				? 'bg-slate-100 text-slate-500'
-																				: displayStatus === 'CANCELLED'
-																					? 'bg-red-100 text-red-700'
-																					: 'bg-indigo-100 text-indigo-700'}">{displayStatus}</span
-																	>
-
-																	<!-- Cancel Button (List View) -->
-																	{#if displayStatus !== 'CANCELLED' && displayStatus !== 'COMPLETED'}
-																		<button
-																			onclick={(e) => openCancelModal(e, booking)}
-																			class="p-1 rounded-full text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all z-20"
-																			title="Cancel Booking"
-																		>
-																			<svg
-																				xmlns="http://www.w3.org/2000/svg"
-																				width="14"
-																				height="14"
-																				viewBox="0 0 24 24"
-																				fill="none"
-																				stroke="currentColor"
-																				stroke-width="3"
-																				stroke-linecap="round"
-																				stroke-linejoin="round"
-																				><line x1="18" y1="6" x2="6" y2="18" /><line
-																					x1="6"
-																					y1="6"
-																					x2="18"
-																					y2="18"
-																				/></svg
-																			>
-																		</button>
-																	{/if}
-																</div>
-															</div>
-															<div class="text-slate-300 group-hover:text-indigo-400">
-																<!-- Info Icon -->
-																<svg
-																	xmlns="http://www.w3.org/2000/svg"
-																	width="20"
-																	height="20"
-																	viewBox="0 0 24 24"
-																	fill="none"
-																	stroke="currentColor"
-																	stroke-width="2"
-																	stroke-linecap="round"
-																	stroke-linejoin="round"
-																	><circle cx="12" cy="12" r="10" /><line
-																		x1="12"
-																		y1="16"
-																		x2="12"
-																		y2="12"
-																	/><line x1="12" y1="8" x2="12.01" y2="8" /></svg
-																>
-															</div>
-														</div>
-														<div
-															class="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-500 font-bold"
-														>
-															<div>
-																<p class="uppercase text-[9px] opacity-60">Total Paid</p>
-																<p class="text-slate-900 text-base">Rs {booking.totalPrice}</p>
-															</div>
-															<div>
-																<p class="uppercase text-[9px] opacity-60">Date Range</p>
-																<p class="text-slate-900">
-																	{new Date(booking.startDate).toLocaleDateString('en-GB')} - {new Date(
-																		booking.endDate
-																	).toLocaleDateString('en-GB')}
-																</p>
-															</div>
-														</div>
-													</div>
-												</div>
-											</div>
-										{/each}
-									</div>
-								{/if}
-							</section>
-
-							<!-- Bookings for my Items (As Owner) -->
-							<section>
-								<h2 class="text-2xl font-black text-teal-50 mb-6 flex items-center gap-3">
-									Request for listings
-									<span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full"
-										>{ownerBookings.length}</span
-									>
-								</h2>
-
-								{#if ownerBookings.length === 0}
-									<div
-										class="bg-white rounded-3xl p-12 text-center border-2 border-dashed border-slate-200"
-									>
-										<p class="text-slate-400 font-bold italic">No requests for your items yet.</p>
-									</div>
-								{:else}
-									<div class="space-y-6">
-										{#each ownerBookings as booking}
-											{@const displayStatus = getDisplayStatus(
-												booking.status ?? 'PENDING',
-												booking.startDate,
-												booking.endDate
-											)}
-											<div
-												class="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform"
-											>
-												<div
-													class="w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0"
+													class="w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0 shadow-inner"
 												>
 													{#if (booking.listing.images as string[])?.length > 0}
 														<img
@@ -357,83 +229,214 @@
 												<div class="flex-grow">
 													<div class="flex justify-between items-start">
 														<div>
-															<h3 class="font-black text-slate-900 leading-tight mb-1">
+															<h3
+																class="font-black text-slate-900 leading-tight mb-1 group-hover:text-indigo-700 transition-colors"
+															>
 																{booking.listing.title}
 															</h3>
-															<span
-																class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full whitespace-nowrap
-                                                                {displayStatus.includes('CONFIRMED')
-																	? 'bg-emerald-50 text-emerald-600'
-																	: displayStatus === 'COMPLETED'
-																		? 'bg-slate-100 text-slate-500'
-																		: displayStatus === 'CANCELLED'
-																			? 'bg-red-50 text-red-600'
-																			: 'bg-orange-50 text-orange-600'}"
+															<div class="flex items-center gap-2">
+																<span
+																	class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded whitespace-nowrap
+                                                                    {displayStatus.includes(
+																		'CONFIRMED'
+																	)
+																		? 'bg-emerald-100 text-emerald-700'
+																		: displayStatus === 'COMPLETED'
+																			? 'bg-slate-100 text-slate-500'
+																			: displayStatus === 'CANCELLED'
+																				? 'bg-red-100 text-red-700'
+																				: 'bg-indigo-100 text-indigo-700'}">{displayStatus}</span
+																>
+
+																<!-- Cancel Button (List View) -->
+																{#if displayStatus !== 'CANCELLED' && displayStatus !== 'COMPLETED'}
+																	<button
+																		onclick={(e) => openCancelModal(e, booking)}
+																		class="p-1 rounded-full text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all z-20"
+																		title="Cancel Booking"
+																	>
+																		<svg
+																			xmlns="http://www.w3.org/2000/svg"
+																			width="14"
+																			height="14"
+																			viewBox="0 0 24 24"
+																			fill="none"
+																			stroke="currentColor"
+																			stroke-width="3"
+																			stroke-linecap="round"
+																			stroke-linejoin="round"
+																			><line x1="18" y1="6" x2="6" y2="18" /><line
+																				x1="6"
+																				y1="6"
+																				x2="18"
+																				y2="18"
+																			/></svg
+																		>
+																	</button>
+																{/if}
+															</div>
+														</div>
+														<div class="text-slate-300 group-hover:text-indigo-400">
+															<!-- Info Icon -->
+															<svg
+																xmlns="http://www.w3.org/2000/svg"
+																width="20"
+																height="20"
+																viewBox="0 0 24 24"
+																fill="none"
+																stroke="currentColor"
+																stroke-width="2"
+																stroke-linecap="round"
+																stroke-linejoin="round"
+																><circle cx="12" cy="12" r="10" /><line
+																	x1="12"
+																	y1="16"
+																	x2="12"
+																	y2="12"
+																/><line x1="12" y1="8" x2="12.01" y2="8" /></svg
 															>
-																{displayStatus}
-															</span>
 														</div>
 													</div>
-													<p class="mt-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-														Renter: <span class="text-slate-900"
-															>{booking.renter?.firstName} {booking.renter?.lastName}</span
-														>
-													</p>
-													<div class="mt-2 text-xs text-slate-500 font-bold">
-														<p class="uppercase text-[9px] opacity-60">Dates</p>
-														<p class="text-slate-900">
-															{new Date(booking.startDate).toLocaleDateString('en-GB')} - {new Date(
-																booking.endDate
-															).toLocaleDateString('en-GB')}
-														</p>
-													</div>
-													{#if booking.status === 'PENDING'}
-														<div class="mt-4 flex gap-2">
-															<form
-																method="POST"
-																action="?/updateBookingStatus"
-																use:enhance
-																class="flex-1"
-															>
-																<input type="hidden" name="bookingId" value={booking.id} />
-																<input type="hidden" name="status" value="CONFIRMED" />
-																<button
-																	class="w-full py-2 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-colors shadow-sm"
-																	>Approve</button
-																>
-															</form>
-															<form
-																method="POST"
-																action="?/updateBookingStatus"
-																use:enhance
-																class="flex-1"
-															>
-																<input type="hidden" name="bookingId" value={booking.id} />
-																<input type="hidden" name="status" value="CANCELLED" />
-																<button
-																	class="w-full py-2 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors"
-																	>Decline</button
-																>
-															</form>
+													<div class="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-500 font-bold">
+														<div>
+															<p class="uppercase text-[9px] opacity-60">Total Paid</p>
+															<p class="text-slate-900 text-base">Rs {booking.totalPrice}</p>
 														</div>
-													{:else}
-														<div class="mt-4 pt-4 border-t border-slate-50">
-															<p
-																class="text-[9px] font-black text-slate-400 uppercase tracking-widest italic"
-															>
-																Processed on {new Date(
-																	booking.createdAt ?? new Date()
+														<div>
+															<p class="uppercase text-[9px] opacity-60">Date Range</p>
+															<p class="text-slate-900">
+																{new Date(booking.startDate).toLocaleDateString('en-GB')} - {new Date(
+																	booking.endDate
 																).toLocaleDateString('en-GB')}
 															</p>
 														</div>
-													{/if}
+													</div>
 												</div>
 											</div>
-										{/each}
-									</div>
-								{/if}
-							</section>
-						</div>
+										</div>
+									{/each}
+								</div>
+							{/if}
+						</section>
+					{:else if activeTab === 'requests'}
+						<!-- Bookings for my Items (As Owner) -->
+						<section>
+							<h2 class="text-2xl font-black text-teal-50 mb-6 flex items-center gap-3">
+								Request for listings
+								<span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full"
+									>{ownerBookings.length}</span
+								>
+							</h2>
+
+							{#if ownerBookings.length === 0}
+								<div
+									class="bg-white rounded-3xl p-12 text-center border-2 border-dashed border-slate-200"
+								>
+									<p class="text-slate-400 font-bold italic">No requests for your items yet.</p>
+								</div>
+							{:else}
+								<div class="space-y-6">
+									{#each ownerBookings as booking}
+										{@const displayStatus = getDisplayStatus(
+											booking.status ?? 'PENDING',
+											booking.startDate,
+											booking.endDate
+										)}
+										<div
+											class="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform"
+										>
+											<div class="w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0">
+												{#if (booking.listing.images as string[])?.length > 0}
+													<img
+														src={(booking.listing.images as string[])[0]}
+														alt=""
+														class="w-full h-full object-cover"
+													/>
+												{:else}
+													<div class="w-full h-full flex items-center justify-center text-2xl">
+														📦
+													</div>
+												{/if}
+											</div>
+											<div class="flex-grow">
+												<div class="flex justify-between items-start">
+													<div>
+														<h3 class="font-black text-slate-900 leading-tight mb-1">
+															{booking.listing.title}
+														</h3>
+														<span
+															class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full whitespace-nowrap
+                                                            {displayStatus.includes('CONFIRMED')
+																? 'bg-emerald-50 text-emerald-600'
+																: displayStatus === 'COMPLETED'
+																	? 'bg-slate-100 text-slate-500'
+																	: displayStatus === 'CANCELLED'
+																		? 'bg-red-50 text-red-600'
+																		: 'bg-orange-50 text-orange-600'}"
+														>
+															{displayStatus}
+														</span>
+													</div>
+												</div>
+												<p class="mt-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+													Renter: <span class="text-slate-900"
+														>{booking.renter?.firstName} {booking.renter?.lastName}</span
+													>
+												</p>
+												<div class="mt-2 text-xs text-slate-500 font-bold">
+													<p class="uppercase text-[9px] opacity-60">Dates</p>
+													<p class="text-slate-900">
+														{new Date(booking.startDate).toLocaleDateString('en-GB')} - {new Date(
+															booking.endDate
+														).toLocaleDateString('en-GB')}
+													</p>
+												</div>
+												{#if booking.status === 'PENDING'}
+													<div class="mt-4 flex gap-2">
+														<form
+															method="POST"
+															action="?/updateBookingStatus"
+															use:enhance
+															class="flex-1"
+														>
+															<input type="hidden" name="bookingId" value={booking.id} />
+															<input type="hidden" name="status" value="CONFIRMED" />
+															<button
+																class="w-full py-2 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-colors shadow-sm"
+																>Approve</button
+															>
+														</form>
+														<form
+															method="POST"
+															action="?/updateBookingStatus"
+															use:enhance
+															class="flex-1"
+														>
+															<input type="hidden" name="bookingId" value={booking.id} />
+															<input type="hidden" name="status" value="CANCELLED" />
+															<button
+																class="w-full py-2 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors"
+																>Decline</button
+															>
+														</form>
+													</div>
+												{:else}
+													<div class="mt-4 pt-4 border-t border-slate-50">
+														<p
+															class="text-[9px] font-black text-slate-400 uppercase tracking-widest italic"
+														>
+															Processed on {new Date(
+																booking.createdAt ?? new Date()
+															).toLocaleDateString('en-GB')}
+														</p>
+													</div>
+												{/if}
+											</div>
+										</div>
+									{/each}
+								</div>
+							{/if}
+						</section>
 					{:else if activeTab === 'listings'}
 						<section>
 							<div class="flex justify-between items-center mb-8">
@@ -641,6 +644,7 @@
 				class="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]"
 				onclick={(e) => e.stopPropagation()}
 				role="dialog"
+				tabindex="-1"
 			>
 				<!-- Modal Header / Image -->
 				<div class="relative h-48 bg-slate-100 flex-shrink-0">
@@ -657,6 +661,7 @@
 					<!-- Close Button -->
 					<button
 						onclick={closeBookingModal}
+						aria-label="Close"
 						class="absolute top-4 right-4 bg-white/50 backdrop-blur-md p-2 rounded-full hover:bg-white text-slate-900 transition-all"
 					>
 						<svg
