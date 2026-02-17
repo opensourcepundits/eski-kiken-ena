@@ -39,6 +39,7 @@
 		if (status === 'CANCELLED') return 'CANCELLED';
 		if (status === 'PENDING') return 'PENDING';
 
+		if (status === 'AMENDMENT_REQUESTED') return 'ACTION REQUIRED';
 		const now = new Date();
 		const start = new Date(startDate);
 		const end = new Date(endDate);
@@ -64,6 +65,25 @@
 
 	function closeCancelModal() {
 		bookingToCancel = null;
+	}
+	// --- Respond to Booking State ---
+	let bookingToRespond = $state<any>(null);
+	let responseMessage = $state('');
+	let responsePickupTime = $state('');
+	let responseReturnTime = $state('');
+
+	function openRespondModal(booking: any) {
+		bookingToRespond = booking;
+		responseMessage = '';
+		responsePickupTime = '';
+		responseReturnTime = '';
+	}
+
+	function closeRespondModal() {
+		bookingToRespond = null;
+		responseMessage = '';
+		responsePickupTime = '';
+		responseReturnTime = '';
 	}
 	// ----------------------------------------------------
 
@@ -391,34 +411,24 @@
 														).toLocaleDateString('en-GB')}
 													</p>
 												</div>
+												<div class="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-500 font-bold">
+													<div>
+														<p class="uppercase text-[9px] opacity-60">Pickup</p>
+														<p class="text-slate-900 font-black">{booking.pickupTime || 'N/A'}</p>
+													</div>
+													<div>
+														<p class="uppercase text-[9px] opacity-60">Return</p>
+														<p class="text-slate-900 font-black">{booking.returnTime || 'N/A'}</p>
+													</div>
+												</div>
 												{#if booking.status === 'PENDING'}
-													<div class="mt-4 flex gap-2">
-														<form
-															method="POST"
-															action="?/updateBookingStatus"
-															use:enhance
-															class="flex-1"
+													<div class="mt-4">
+														<button
+															onclick={() => openRespondModal(booking)}
+															class="w-full py-2.5 bg-teal-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98]"
 														>
-															<input type="hidden" name="bookingId" value={booking.id} />
-															<input type="hidden" name="status" value="CONFIRMED" />
-															<button
-																class="w-full py-2 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-colors shadow-sm"
-																>Approve</button
-															>
-														</form>
-														<form
-															method="POST"
-															action="?/updateBookingStatus"
-															use:enhance
-															class="flex-1"
-														>
-															<input type="hidden" name="bookingId" value={booking.id} />
-															<input type="hidden" name="status" value="CANCELLED" />
-															<button
-																class="w-full py-2 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-colors"
-																>Decline</button
-															>
-														</form>
+															Respond
+														</button>
 													</div>
 												{:else}
 													<div class="mt-4 pt-4 border-t border-slate-50">
@@ -688,7 +698,9 @@
 									? 'text-slate-500'
 									: displayStatus === 'CANCELLED'
 										? 'text-red-600'
-										: 'text-teal-600'}"
+										: displayStatus === 'ACTION REQUIRED'
+											? 'text-orange-600'
+											: 'text-teal-600'}"
 						>
 							{displayStatus}
 						</span>
@@ -751,6 +763,29 @@
 								</p>
 							</div>
 						</div>
+
+						{#if selectedBooking.pickupTime || selectedBooking.returnTime}
+							<div
+								class="flex justify-between items-center pb-4 border-b border-slate-200 border-dashed"
+							>
+								<div>
+									<p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+										Pickup Time
+									</p>
+									<p class="font-bold text-slate-700">
+										{selectedBooking.pickupTime || 'Pending'}
+									</p>
+								</div>
+								<div class="text-right">
+									<p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+										Return Time
+									</p>
+									<p class="font-bold text-slate-700">
+										{selectedBooking.returnTime || 'Pending'}
+									</p>
+								</div>
+							</div>
+						{/if}
 
 						<div class="flex justify-between items-center text-sm">
 							<span class="text-slate-500 font-medium">Duration</span>
@@ -824,7 +859,81 @@
 
 					<!-- Footer Actions -->
 					<div class="grid grid-cols-1 gap-3">
-						{#if selectedBooking.status === 'PENDING'}
+						{#if displayStatus === 'ACTION REQUIRED'}
+							{@const fields = selectedBooking.amendmentRequests?.fields || []}
+							<div class="bg-orange-50 border border-orange-100 p-4 rounded-xl space-y-4">
+								<h3 class="text-sm font-black text-orange-600 uppercase tracking-widest">
+									Owner Requested Changes
+								</h3>
+								{#if selectedBooking.amendmentRequests?.message}
+									<p class="text-sm font-bold text-slate-700 italic">
+										"{selectedBooking.amendmentRequests.message}"
+									</p>
+								{/if}
+								<!-- Always show form if action required -->
+								<div class="pt-2 border-t border-orange-100/50">
+									<p class="text-xs font-bold text-slate-500 mb-3">
+										{fields.length > 0
+											? `Please update: ${fields.join(', ')}`
+											: 'Please review and update your booking details:'}
+									</p>
+
+									<form
+										method="POST"
+										action="?/updateBooking"
+										use:enhance={() => {
+											return async ({ update }) => {
+												await update();
+												closeBookingModal();
+											};
+										}}
+										class="space-y-3"
+									>
+										<input type="hidden" name="bookingId" value={selectedBooking.id} />
+
+										{#if fields.length === 0 || fields.includes('Pickup Time')}
+											<div>
+												<label
+													for="pickupTime"
+													class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1"
+													>New Pickup Time</label
+												>
+												<input
+													type="time"
+													name="pickupTime"
+													value={selectedBooking.pickupTime}
+													required
+													class="w-full rounded-lg border-slate-200 text-sm font-bold"
+												/>
+											</div>
+										{/if}
+										{#if fields.length === 0 || fields.includes('Return Time')}
+											<div>
+												<label
+													for="returnTime"
+													class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1"
+													>New Return Time</label
+												>
+												<input
+													type="time"
+													name="returnTime"
+													value={selectedBooking.returnTime}
+													required
+													class="w-full rounded-lg border-slate-200 text-sm font-bold"
+												/>
+											</div>
+										{/if}
+
+										<button
+											type="submit"
+											class="w-full py-3 bg-teal-600 text-white rounded-lg font-black text-xs uppercase tracking-widest hover:bg-teal-700 shadow-md shadow-teal-900/10 active:scale-[0.98] transition-all"
+										>
+											Update & Resubmit
+										</button>
+									</form>
+								</div>
+							</div>
+						{:else if selectedBooking.status === 'PENDING'}
 							<p class="text-center text-xs text-orange-500 font-bold bg-orange-50 py-3 rounded-xl">
 								Waiting for owner approval
 							</p>
@@ -974,6 +1083,203 @@
 					>
 						Cancel
 					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
+
+	<!-- Respond to Booking Modal -->
+	{#if bookingToRespond}
+		<div
+			class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+		>
+			<div
+				class="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]"
+			>
+				<!-- Modal Header -->
+				<div class="p-8 border-b border-slate-100 flex-shrink-0">
+					<div class="flex justify-between items-start mb-4">
+						<h2 class="text-2xl font-black text-teal-50 leading-tight">Respond to Request</h2>
+						<button
+							onclick={closeRespondModal}
+							class="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition-all"
+							aria-label="Close"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg
+							>
+						</button>
+					</div>
+					<div class="flex gap-4 items-center">
+						<div class="w-16 h-16 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0">
+							{#if (bookingToRespond.listing.images as string[])?.length > 0}
+								<img
+									src={(bookingToRespond.listing.images as string[])[0]}
+									alt=""
+									class="w-full h-full object-cover"
+								/>
+							{:else}
+								<div class="w-full h-full flex items-center justify-center text-2xl">📦</div>
+							{/if}
+						</div>
+						<div>
+							<h3 class="font-black text-slate-900 leading-tight">
+								{bookingToRespond.listing.title}
+							</h3>
+							<p class="text-xs font-bold text-slate-500 uppercase mt-1">
+								From: <span class="text-teal-600"
+									>{bookingToRespond.renter?.firstName} {bookingToRespond.renter?.lastName}</span
+								>
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Modal Body -->
+				<div class="p-8 overflow-y-auto space-y-6">
+					<!-- Renter Message -->
+					{#if bookingToRespond.renterMessage}
+						<div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+							<p class="text-[10px] font-black uppercase text-indigo-400 tracking-widest mb-2">
+								Message from Renter
+							</p>
+							<p class="text-sm font-bold text-slate-700 italic">
+								"{bookingToRespond.renterMessage}"
+							</p>
+						</div>
+					{/if}
+
+					<!-- Request Details -->
+					<div class="grid grid-cols-1 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+						<div>
+							<p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">
+								Requested Dates
+							</p>
+							<p class="text-sm font-bold text-slate-800">
+								{new Date(bookingToRespond.startDate).toLocaleDateString('en-GB')} - {new Date(
+									bookingToRespond.endDate
+								).toLocaleDateString('en-GB')}
+							</p>
+						</div>
+
+						<div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200/50">
+							<div>
+								<label
+									for="respPickupTime"
+									class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
+									>Pickup Time</label
+								>
+								<input
+									type="time"
+									id="respPickupTime"
+									bind:value={responsePickupTime}
+									required
+									class="w-full rounded-lg border-slate-200 text-sm font-bold focus:ring-teal-500 focus:border-teal-500"
+								/>
+							</div>
+							<div>
+								<label
+									for="respReturnTime"
+									class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
+									>Return Time</label
+								>
+								<input
+									type="time"
+									id="respReturnTime"
+									bind:value={responseReturnTime}
+									required
+									class="w-full rounded-lg border-slate-200 text-sm font-bold focus:ring-teal-500 focus:border-teal-500"
+								/>
+							</div>
+						</div>
+
+						<div class="pt-4 border-t border-slate-200/50">
+							<p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">
+								Total Earnings
+							</p>
+							<p class="text-xl font-black text-teal-600">Rs {bookingToRespond.totalPrice}</p>
+						</div>
+					</div>
+
+					<!-- Instruction Textbox -->
+					<div class="space-y-2">
+						<label
+							for="ownerMessage"
+							class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1"
+							>Add Mandatory Instructions or Message (Sent to Renter)</label
+						>
+						<textarea
+							id="ownerMessage"
+							bind:value={responseMessage}
+							placeholder="e.g. Please pick up at the main gate. Bring your NIC for verification."
+							class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-bold text-slate-700 placeholder:text-slate-400 focus:ring-4 focus:ring-teal-100 outline-none resize-none h-32 transition-all"
+						></textarea>
+					</div>
+				</div>
+
+				<!-- Modal Footer -->
+				<!-- Modal Footer -->
+				<div class="p-8 bg-slate-50 border-t border-slate-100 flex flex-col gap-3">
+					<div class="flex gap-3">
+						<!-- Decline Form -->
+						<form
+							method="POST"
+							action="?/updateBookingStatus"
+							use:enhance={() => {
+								return async ({ update }) => {
+									await update();
+									closeRespondModal();
+								};
+							}}
+							class="flex-1"
+						>
+							<input type="hidden" name="bookingId" value={bookingToRespond.id} />
+							<input type="hidden" name="status" value="CANCELLED" />
+							<input type="hidden" name="message" value={responseMessage} />
+							<button
+								type="submit"
+								class="w-full py-4 bg-white text-slate-500 border border-slate-200 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-[0.98]"
+							>
+								Decline Request
+							</button>
+						</form>
+
+						<!-- Approve Form -->
+						<form
+							method="POST"
+							action="?/updateBookingStatus"
+							use:enhance={() => {
+								return async ({ update }) => {
+									await update();
+									closeRespondModal();
+								};
+							}}
+							class="flex-[2]"
+						>
+							<input type="hidden" name="bookingId" value={bookingToRespond.id} />
+							<input type="hidden" name="status" value="CONFIRMED" />
+							<input type="hidden" name="message" value={responseMessage} />
+							<input type="hidden" name="pickupTime" value={responsePickupTime} />
+							<input type="hidden" name="returnTime" value={responseReturnTime} />
+
+							<button
+								type="submit"
+								disabled={!responseMessage || !responsePickupTime || !responseReturnTime}
+								class="w-full py-4 bg-teal-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-teal-700 shadow-lg shadow-teal-900/10 transition-all active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:scale-100"
+							>
+								Confirm & Set Times
+							</button>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>

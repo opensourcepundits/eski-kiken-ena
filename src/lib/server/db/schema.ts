@@ -34,7 +34,8 @@ export const bookingStatusEnum = pgEnum('booking_status', [
 	'COMPLETED',
 	'CANCELLED',
 	'DISPUTED',
-	'EXPIRED'
+	'EXPIRED',
+	'AMENDMENT_REQUESTED'
 ]);
 export const kycStatusEnum = pgEnum('kyc_status', ['PENDING', 'VERIFIED', 'REJECTED', 'NONE']);
 
@@ -155,8 +156,10 @@ export const bookings = pgTable('bookings', {
 	status: bookingStatusEnum('status').default('PENDING'),
 	pickupTime: text('pickup_time'), // HH:mm format
 	returnTime: text('return_time'), // HH:mm format
+	renterMessage: text('renter_message'),
 	expiresAt: timestamp('expires_at'),
-	createdAt: timestamp('created_at').defaultNow()
+	createdAt: timestamp('created_at').defaultNow(),
+	amendmentRequests: jsonb('amendment_requests').default({}) // Stores { fields: ['pickupTime', 'returnTime'], message: string, from: 'OWNER' | 'RENTER' }
 });
 
 // Relations

@@ -5,7 +5,9 @@ import { desc, eq, and, sql } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import {
 	sendLoanStatusChangedEmail,
-	sendLoanCancelledByRenterEmail
+	sendLoanCancelledByRenterEmail,
+	sendAmendmentRequestedEmail,
+	sendBookingUpdatedByRenterEmail
 } from '$lib/server/email';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -90,6 +92,9 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const bookingId = formData.get('bookingId') as string;
 		const status = formData.get('status') as any;
+		const ownerMessage = formData.get('message') as string;
+		const pickupTime = formData.get('pickupTime') as string;
+		const returnTime = formData.get('returnTime') as string;
 
 		if (!bookingId || !status) {
 			return fail(400, { message: 'Missing data' });
@@ -126,7 +131,14 @@ export const actions: Actions = {
 
 		try {
 			console.log(`Updating booking ${bookingId} to ${status} (User is Owner: ${isOwner}, Renter: ${isRenter})`);
-			await db.update(bookings).set({ status }).where(eq(bookings.id, bookingId));
+
+			const updateData: any = { status };
+			if (isOwner && status === 'CONFIRMED') {
+				if (pickupTime) updateData.pickupTime = pickupTime;
+				if (returnTime) updateData.returnTime = returnTime;
+			}
+
+			await db.update(bookings).set(updateData).where(eq(bookings.id, bookingId));
 
 			// EMAIL NOTIFICATIONS
 			if (isOwner) {
@@ -136,7 +148,10 @@ export const actions: Actions = {
 						renterEmail: booking.renter.email,
 						renterName: booking.renter.firstName,
 						listingTitle: booking.listing.title,
-						status
+						status,
+						ownerMessage,
+						pickupTime,
+						returnTime
 					});
 				}
 			} else if (isRenter && status === 'CANCELLED') {
@@ -253,6 +268,134 @@ export const actions: Actions = {
 		} catch (e) {
 			console.error('Review submission failed:', e);
 			return fail(500, { message: 'Failed to submit review' });
+		}
+
+		return { success: true };
+	},
+	requestAmendment: async ({ request, locals }) => {
+		if (!locals.user) {
+			return fail(401, { message: 'Unauthorized' });
+		}
+
+		const formData = await request.formData();
+		const bookingId = formData.get('bookingId') as string;
+		const message = formData.get('message') as string;
+		const changes = formData.getAll('changes') as string[];
+
+		if (!bookingId) {
+			return fail(400, { message: 'Missing booking ID' });
+		}
+
+		const booking = await db.query.bookings.findFirst({
+			where: eq(bookings.id, bookingId),
+			with: {
+				renter: true,
+				listing: {
+					with: {
+						owner: true
+					}
+				}
+			}
+		});
+
+		if (!booking) {
+			return fail(404, { message: 'Booking not found' });
+		}
+
+		if (booking.listing.ownerId !== locals.user.id) {
+			return fail(403, { message: 'Forbidden' });
+		}
+
+		try {
+			// Update booking status
+			await db
+				.update(bookings)
+				.set({
+					status: 'AMENDMENT_REQUESTED',
+					amendmentRequests: { fields: changes, message, from: 'OWNER' }
+				})
+				.where(eq(bookings.id, bookingId));
+
+			// Send Email
+			await sendAmendmentRequestedEmail({
+				toEmail: booking.renter.email,
+				toName: booking.renter.firstName,
+				listingTitle: booking.listing.title,
+				requestedBy: `${booking.listing.owner.firstName} (Owner)`,
+				changes: changes.map((c) => c.replace(/([A-Z])/g, ' $1').trim()), // Format camelCase to readable
+				message,
+				bookingUrl: `${process.env.ORIGIN || 'http://localhost:5173'}/profile`
+			});
+		} catch (e) {
+			console.error('Failed to request amendment:', e);
+			return fail(500, { message: 'Failed to request amendment' });
+		}
+
+		return { success: true };
+	},
+	updateBooking: async ({ request, locals }) => {
+		if (!locals.user) {
+			return fail(401, { message: 'Unauthorized' });
+		}
+
+		const formData = await request.formData();
+		const bookingId = formData.get('bookingId') as string;
+		const pickupTime = formData.get('pickupTime') as string;
+		const returnTime = formData.get('returnTime') as string;
+
+		if (!bookingId) {
+			return fail(400, { message: 'Missing booking ID' });
+		}
+
+		const booking = await db.query.bookings.findFirst({
+			where: eq(bookings.id, bookingId),
+			with: {
+				listing: {
+					with: {
+						owner: true
+					}
+				},
+				renter: true
+			}
+		});
+
+		if (!booking) {
+			return fail(404, { message: 'Booking not found' });
+		}
+
+		if (booking.renterId !== locals.user.id) {
+			return fail(403, { message: 'Forbidden' });
+		}
+
+		try {
+			const updateData: any = {
+				status: 'PENDING', // Reset to PENDING for owner approval
+				amendmentRequests: null // Clear amendment request
+			};
+			const updatedFields: string[] = [];
+
+			if (pickupTime) {
+				updateData.pickupTime = pickupTime;
+				updatedFields.push('Pickup Time');
+			}
+			if (returnTime) {
+				updateData.returnTime = returnTime;
+				updatedFields.push('Return Time');
+			}
+
+			await db.update(bookings).set(updateData).where(eq(bookings.id, bookingId));
+
+			// Send Email Notification to Owner
+			await sendBookingUpdatedByRenterEmail({
+				ownerEmail: booking.listing.owner.email,
+				ownerName: booking.listing.owner.firstName,
+				renterName: booking.renter.firstName,
+				listingTitle: booking.listing.title,
+				updatedFields
+			});
+		} catch (e) {
+			console.error('Failed to update booking:', e);
+			return fail(500, { message: 'Failed to update booking' });
 		}
 
 		return { success: true };

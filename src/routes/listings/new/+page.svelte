@@ -9,7 +9,7 @@
 	let pickupAddressValue = $state<string>('');
 	let dispatchValue = $state<string>('PICKUP_ONLY');
 	let deliveryAreasValue = $state<string>('Quatre Bornes, Rose Hill, Trianon, ...');
-	
+
 	// Image upload state
 	let selectedImages = $state<File[]>([]);
 	let imagePreviews = $state<string[]>([]);
@@ -49,27 +49,33 @@
 				</p>
 			</div>
 
-			<form method="POST" action="/listings/new" use:enhance={({ formData, cancel }) => {
-				// Validate images before submission
-				if (selectedImages.length < 1) {
-					cancel();
-					imageError = 'At least 1 image is required';
-					return;
-				}
-				
-				// Add images to formData
-				selectedImages.forEach((file, index) => {
-					formData.append(`image_${index}`, file);
-				});
-				formData.append('imageCount', selectedImages.length.toString());
-				
-				return async ({ result, update }) => {
-					if (result.type === 'failure' && result.data?.message) {
-						imageError = result.data.message;
+			<form
+				method="POST"
+				action="/listings/new"
+				use:enhance={({ formData, cancel }) => {
+					// Validate images before submission
+					if (selectedImages.length < 1) {
+						cancel();
+						imageError = 'At least 1 image is required';
+						return;
 					}
-					update();
-				};
-			}} enctype="multipart/form-data" class="p-8 space-y-8">
+
+					// Add images to formData
+					selectedImages.forEach((file, index) => {
+						formData.append(`image_${index}`, file);
+					});
+					formData.append('imageCount', selectedImages.length.toString());
+
+					return async ({ result, update }) => {
+						if (result.type === 'failure' && result.data?.message) {
+							imageError = result.data.message as string;
+						}
+						update();
+					};
+				}}
+				enctype="multipart/form-data"
+				class="p-8 space-y-8"
+			>
 				{#if form?.message}
 					<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
 						{form.message}
@@ -151,7 +157,7 @@
 										return;
 									}
 									imageError = '';
-									
+
 									// Validate file types and sizes
 									const validFiles: File[] = [];
 									for (const file of files) {
@@ -159,13 +165,14 @@
 											imageError = 'Only image files are allowed';
 											continue;
 										}
-										if (file.size > 5 * 1024 * 1024) { // 5MB limit
+										if (file.size > 5 * 1024 * 1024) {
+											// 5MB limit
 											imageError = 'Images must be less than 5MB';
 											continue;
 										}
 										validFiles.push(file);
 									}
-									
+
 									if (validFiles.length > 0) {
 										selectedImages = [...selectedImages, ...validFiles];
 										// Create previews
@@ -193,11 +200,11 @@
 										{selectedImages.length} / 5 images selected
 									</span>
 								</div>
-								
+
 								{#if imageError}
 									<p class="text-sm text-red-600">{imageError}</p>
 								{/if}
-								
+
 								{#if selectedImages.length < 1}
 									<p class="text-sm text-red-600">At least 1 image is required</p>
 								{/if}
@@ -420,10 +427,47 @@
 									/>
 								</div>
 								{#if !latValue || !lngValue}
-									<p class="text-sm text-red-600">⚠️ Please select a location on the map (required)</p>
+									<p class="text-sm text-red-600">
+										⚠️ Please select a location on the map (required)
+									</p>
 								{/if}
 							</div>
 						{/if}
+					</div>
+
+					<div class="mt-6">
+						<h3 class="block text-sm font-medium text-slate-700 mb-2">
+							Operating Hours (For Pickup/Return)
+						</h3>
+						<div class="flex gap-4 items-center">
+							<div class="flex-1">
+								<label for="operatingHoursStart" class="block text-xs text-slate-500 mb-1"
+									>Start Time</label
+								>
+								<input
+									type="time"
+									name="operatingHoursStart"
+									id="operatingHoursStart"
+									value="09:00"
+									required
+									class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+								/>
+							</div>
+							<span class="text-slate-400">to</span>
+							<div class="flex-1">
+								<label for="operatingHoursEnd" class="block text-xs text-slate-500 mb-1"
+									>End Time</label
+								>
+								<input
+									type="time"
+									name="operatingHoursEnd"
+									id="operatingHoursEnd"
+									value="17:00"
+									required
+									class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+								/>
+							</div>
+						</div>
 					</div>
 				</section>
 
@@ -510,7 +554,8 @@
 					</button>
 					<button
 						type="submit"
-						disabled={(dispatchValue === 'PICKUP_OR_DELIVERY' && (!latValue || !lngValue)) || selectedImages.length < 1}
+						disabled={(dispatchValue === 'PICKUP_OR_DELIVERY' && (!latValue || !lngValue)) ||
+							selectedImages.length < 1}
 						class="px-10 py-2.5 rounded-lg text-sm font-medium text-white bg-teal-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all shadow-lg hover:shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						Create Listing

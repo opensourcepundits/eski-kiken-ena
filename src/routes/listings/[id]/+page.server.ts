@@ -44,6 +44,7 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const startDate = formData.get('startDate') as string;
 		const endDate = formData.get('endDate') as string;
+		const renterMessage = formData.get('renterMessage') as string;
 
 		if (!startDate || !endDate) {
 			return fail(400, { message: 'Svp swazir ban date' });
@@ -66,6 +67,10 @@ export const actions: Actions = {
 		if (!listing) {
 			return error(404, 'Listing missing');
 		}
+
+		// Validate operating hours
+		// Validate operating hours logic removed as times are no longer collected here.
+		// The owner will set times upon approval.
 
 		// Calculate total price: (Price per day * days) + Deposit
 		const diffTime = Math.abs(end.getTime() - start.getTime());
@@ -97,7 +102,9 @@ export const actions: Actions = {
 				startDate: start,
 				endDate: end,
 				totalPrice: totalPrice,
-				status: 'PENDING'
+				status: 'PENDING',
+				renterMessage: renterMessage || null,
+				expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours from now
 			});
 
 			await sendLoanRequestEmail({
@@ -108,7 +115,8 @@ export const actions: Actions = {
 				bookingDetails: {
 					startDate: start,
 					endDate: end,
-					totalPrice
+					totalPrice,
+					renterMessage
 				}
 			});
 		} catch (e) {

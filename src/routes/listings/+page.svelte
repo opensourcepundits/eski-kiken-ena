@@ -428,7 +428,7 @@
 									<div class="text-xs font-black text-slate-500">{formatRating(listing)}</div>
 								</div>
 
-								<div class="flex items-center justify-between text-surface text-sm mb-4">
+								<div class="flex items-center justify-between text-surface text-sm mb-2">
 									<span>{listing.district?.replace(/_/g, ' ') ?? 'Unknown'}</span>
 									{#if Number(listing.avgDays ?? 0) > 0}
 										<div
@@ -438,6 +438,17 @@
 										</div>
 									{/if}
 								</div>
+
+								{#if listing.operatingHours}
+									<div
+										class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4"
+									>
+										<span
+											>🕒 {(listing.operatingHours as any).start} - {(listing.operatingHours as any)
+												.end}</span
+										>
+									</div>
+								{/if}
 
 								<div class="mt-auto pt-4 border-t border-surface flex items-center justify-between">
 									<div>

@@ -40,6 +40,10 @@ export const actions: Actions = {
 		const lat = formData.get('lat') ? parseFloat(formData.get('lat') as string) : null;
 		const lng = formData.get('lng') ? parseFloat(formData.get('lng') as string) : null;
 
+
+		const operatingHoursStart = formData.get('operatingHoursStart') as string;
+		const operatingHoursEnd = formData.get('operatingHoursEnd') as string;
+
 		// Handle image uploads
 		const imageCount = parseInt(formData.get('imageCount') as string) || 0;
 		const imagePaths: string[] = [];
@@ -125,8 +129,13 @@ export const actions: Actions = {
 				replacementValue,
 				transportSize,
 				dispatch,
+
 				deliveryAreas: (dispatch === 'DELIVER_ONLY' || dispatch === 'PICKUP_OR_DELIVERY') ? deliveryAreas : null,
 				images: imagePaths,
+				operatingHours: {
+					start: operatingHoursStart || '09:00',
+					end: operatingHoursEnd || '17:00'
+				},
 				isActive: true
 			});
 		} catch (e) {
