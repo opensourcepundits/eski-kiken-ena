@@ -193,7 +193,7 @@
 									<div
 										class="mt-3 flex items-center justify-between text-sm font-bold text-slate-600"
 									>
-										<span>{listing.district?.replace(/_/g, ' ') ?? 'Unknown'}</span>
+										<span></span>
 										{#if Number(listing.avgDays ?? 0) > 0}
 											<div
 												class="flex items-center gap-1 text-indigo-600 text-[10px] uppercase tracking-wider"
@@ -244,13 +244,13 @@
 							Pena nanye dan sa l'endroit la pour ler.
 						</p>
 						<p class="text-accent text-sm font-medium uppercase tracking-widest">
-							Check enn lot district?
+							Check back soon!
 						</p>
 					</div>
 					<a
 						href="/listings"
 						class="mt-4 bg-secondary text-background px-10 py-4 rounded-md font-black shadow-xl hover:bg-accent transition-all"
-						>Browse all Districts</a
+						>Browse all gear</a
 					>
 				</div>
 			{/if}

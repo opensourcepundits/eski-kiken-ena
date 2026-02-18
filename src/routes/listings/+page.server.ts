@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	const category = url.searchParams.get('category');
 	const condition = url.searchParams.get('condition');
 	const powerSource = url.searchParams.get('powerSource');
-	const district = url.searchParams.get('district');
+
 	const transportSize = url.searchParams.get('transportSize');
 	const minPrice = url.searchParams.get('minPrice');
 	const maxPrice = url.searchParams.get('maxPrice');
@@ -27,9 +27,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	if (powerSource) {
 		conditions.push(eq(listings.powerSource, powerSource as any));
 	}
-	if (district) {
-		conditions.push(eq(listings.district, district as any));
-	}
+
 	if (transportSize) {
 		conditions.push(eq(listings.transportSize, transportSize as any));
 	}
@@ -88,7 +86,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			category,
 			condition,
 			powerSource,
-			district,
+
 			transportSize,
 			minPrice,
 			maxPrice,

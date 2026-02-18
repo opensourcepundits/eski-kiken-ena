@@ -20,18 +20,7 @@
 
 	const conditions = ['LIKE_NEW', 'GOOD', 'FUNCTIONAL', 'HEAVY_WEAR'];
 	const powerSources = ['BATTERY', 'CORDED_220V', 'PETROL', 'DIESEL', 'MANUAL'];
-	const districts = [
-		'PORT_LOUIS',
-		'PAMPLEMOUSSES',
-		'RIVIERE_DU_REMPART',
-		'FLACQ',
-		'GRAND_PORT',
-		'SAVANNE',
-		'PLAINES_WILHEMS',
-		'MOKA',
-		'BLACK_RIVER',
-		'RODRIGUES'
-	];
+
 	const transportSizes = ['BACKPACK', 'CAR_TRUNK', 'BACKSEAT', 'PICKUP_TRUCK', 'VAN_REQUIRED'];
 
 	let searchQuery = $state(filters.searchQuery || '');
@@ -41,7 +30,7 @@
 	let selectedCategory = $state(filters.category || '');
 	let selectedCondition = $state(filters.condition || '');
 	let selectedPowerSource = $state(filters.powerSource || '');
-	let selectedDistrict = $state(filters.district || '');
+
 	let selectedTransportSize = $state(filters.transportSize || '');
 	let minPrice = $state(filters.minPrice || '');
 	let maxPrice = $state(filters.maxPrice || '');
@@ -53,7 +42,7 @@
 		if (selectedCategory) params.set('category', selectedCategory);
 		if (selectedCondition) params.set('condition', selectedCondition);
 		if (selectedPowerSource) params.set('powerSource', selectedPowerSource);
-		if (selectedDistrict) params.set('district', selectedDistrict);
+
 		if (selectedTransportSize) params.set('transportSize', selectedTransportSize);
 		if (minPrice) params.set('minPrice', minPrice);
 		if (maxPrice) params.set('maxPrice', maxPrice);
@@ -67,7 +56,7 @@
 		selectedCategory = '';
 		selectedCondition = '';
 		selectedPowerSource = '';
-		selectedDistrict = '';
+
 		selectedTransportSize = '';
 		minPrice = '';
 		maxPrice = '';
@@ -244,39 +233,6 @@
 						</div>
 					</div>
 
-					<!-- District Filter -->
-					<div>
-						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">District</h3>
-						<div class="space-y-2 max-h-48 overflow-y-auto">
-							<label class="flex items-center gap-2 cursor-pointer group">
-								<input
-									type="radio"
-									name="district"
-									value=""
-									bind:group={selectedDistrict}
-									onchange={updateFilters}
-									class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
-								/>
-								<span class="text-sm text-slate-500 italic">All Districts</span>
-							</label>
-							{#each districts as dist}
-								<label class="flex items-center gap-2 cursor-pointer group">
-									<input
-										type="radio"
-										name="district"
-										value={dist}
-										bind:group={selectedDistrict}
-										onchange={updateFilters}
-										class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
-									/>
-									<span class="text-sm text-slate-700 group-hover:text-accent"
-										>{dist.replace(/_/g, ' ')}</span
-									>
-								</label>
-							{/each}
-						</div>
-					</div>
-
 					<!-- Transport Size Filter -->
 					<div>
 						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">
@@ -429,7 +385,7 @@
 								</div>
 
 								<div class="flex items-center justify-between text-surface text-sm mb-2">
-									<span>{listing.district?.replace(/_/g, ' ') ?? 'Unknown'}</span>
+									<span></span>
 									{#if Number(listing.avgDays ?? 0) > 0}
 										<div
 											class="flex items-center gap-1 text-indigo-600 text-[10px] uppercase font-black tracking-wider"

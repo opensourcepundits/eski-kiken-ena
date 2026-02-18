@@ -51,9 +51,6 @@
 					</h1>
 					<div class="flex flex-wrap items-center gap-6 text-slate-600">
 						<div class="flex items-center gap-2">
-							<span class="font-bold text-slate-900">{listing.district?.replace('_', ' ')}</span>
-						</div>
-						<div class="flex items-center gap-2">
 							<span>Listed {formattedDate}</span>
 						</div>
 					</div>
@@ -129,14 +126,6 @@
 											>Size</span
 										>
 										<span class="text-slate-900">{listing.transportSize.replace('_', ' ')}</span>
-									</li>
-								{/if}
-								{#if listing.district}
-									<li class="flex justify-between pb-3">
-										<span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest"
-											>District</span
-										>
-										<span class="text-slate-900">{listing.district.replace('_', ' ')}</span>
 									</li>
 								{/if}
 							</ul>

@@ -28,7 +28,7 @@ export const actions: Actions = {
 		const condition = formData.get('condition') as any;
 		const powerSourceRaw = formData.get('powerSource');
 		const powerSource = powerSourceRaw ? (powerSourceRaw as any) : null;
-		const district = formData.get('district') as any;
+
 		const pickupAddress = formData.get('pickupAddress') as string;
 		const pricePerDay = formData.get('pricePerDay') as string;
 		const deposit = formData.get('deposit') as string;
@@ -39,6 +39,7 @@ export const actions: Actions = {
 		const deliveryAreas = formData.get('deliveryAreas') as string;
 		const lat = formData.get('lat') ? parseFloat(formData.get('lat') as string) : null;
 		const lng = formData.get('lng') ? parseFloat(formData.get('lng') as string) : null;
+		const bufferDays = formData.get('bufferDays') ? parseInt(formData.get('bufferDays') as string) : 0;
 
 
 		const operatingHoursStart = formData.get('operatingHoursStart') as string;
@@ -120,7 +121,7 @@ export const actions: Actions = {
 				category,
 				condition,
 				powerSource,
-				district,
+
 				pickupAddress,
 				lat,
 				lng,
@@ -136,7 +137,8 @@ export const actions: Actions = {
 					start: operatingHoursStart || '09:00',
 					end: operatingHoursEnd || '17:00'
 				},
-				isActive: true
+				isActive: true,
+				bufferDays: bufferDays >= 0 ? bufferDays : 0
 			});
 		} catch (e) {
 			console.error(e);

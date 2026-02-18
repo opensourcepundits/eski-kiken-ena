@@ -15,6 +15,9 @@
 	let imagePreviews = $state<string[]>([]);
 	let imageError = $state<string>('');
 
+	let replacementValue = $state<string>('');
+	let depositPercentage = $state<string>('0');
+
 	const dispatchOptions = [
 		{ value: 'DELIVER_ONLY', label: 'Delivery only' },
 		{ value: 'PICKUP_ONLY', label: 'Pick up only' },
@@ -353,8 +356,8 @@
 						</div>
 
 						{#if dispatchValue === 'DELIVER_ONLY' || dispatchValue === 'PICKUP_OR_DELIVERY'}
-							<div class="sm:col-span-2">
-								<label for="deliveryAreas" class="block text-sm font-medium text-slate-700"
+							<div class="sm:col-span-1">
+								<label for="deliveryAreas" class="block text-sm font-medium text-secondary"
 									>Delivery applicable for: *</label
 								>
 								<input
@@ -363,7 +366,7 @@
 									name="deliveryAreas"
 									bind:value={deliveryAreasValue}
 									required
-									class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+									class="mt-1 block w-full rounded-lg border-surface shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2.5 border"
 									placeholder="Quatre Bornes, Rose Hill, Trianon, ..."
 								/>
 							</div>
@@ -435,39 +438,69 @@
 						{/if}
 					</div>
 
-					<div class="mt-6">
-						<h3 class="block text-sm font-medium text-slate-700 mb-2">
-							Operating Hours (For Pickup/Return)
-						</h3>
-						<div class="flex gap-4 items-center">
-							<div class="flex-1">
-								<label for="operatingHoursStart" class="block text-xs text-slate-500 mb-1"
-									>Start Time</label
-								>
-								<input
-									type="time"
-									name="operatingHoursStart"
-									id="operatingHoursStart"
-									value="09:00"
-									required
-									class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-								/>
-							</div>
-							<span class="text-slate-400">to</span>
-							<div class="flex-1">
-								<label for="operatingHoursEnd" class="block text-xs text-slate-500 mb-1"
-									>End Time</label
-								>
-								<input
-									type="time"
-									name="operatingHoursEnd"
-									id="operatingHoursEnd"
-									value="17:00"
-									required
-									class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-								/>
+					<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+						<div class="flex-1">
+							<h3 class="block text-sm font-medium text-slate-700 mb-2">
+								Operating Hours (For Pickup/Return)
+							</h3>
+							<div class="flex gap-4 items-center">
+								<div class="flex-1">
+									<label for="operatingHoursStart" class="block text-xs text-slate-500 mb-1"
+										>Start Time</label
+									>
+									<input
+										type="time"
+										name="operatingHoursStart"
+										id="operatingHoursStart"
+										value="09:00"
+										required
+										class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+									/>
+								</div>
+								<span class="text-slate-400">to</span>
+								<div class="flex-1">
+									<label for="operatingHoursEnd" class="block text-xs text-slate-500 mb-1"
+										>End Time</label
+									>
+									<input
+										type="time"
+										name="operatingHoursEnd"
+										id="operatingHoursEnd"
+										value="17:00"
+										required
+										class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+									/>
+								</div>
 							</div>
 						</div>
+					</div>
+
+					<div class="mt-6 flex-1">
+						<label
+							for="bufferDays"
+							class="flex items-center gap-2 text-sm font-medium text-slate-700"
+						>
+							Buffer Days between listings
+							<div class="group relative inline-block">
+								<span
+									class="cursor-help bg-slate-200 text-slate-600 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold"
+									>i</span
+								>
+								<div
+									class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block w-48 p-2 bg-slate-800 text-white text-[10px] rounded shadow-lg z-50 normal-case leading-tight"
+								>
+									This can be used for checking the quality of the item before renting it out again.
+								</div>
+							</div>
+						</label>
+						<input
+							type="number"
+							name="bufferDays"
+							id="bufferDays"
+							min="0"
+							value="0"
+							class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border h-[42px]"
+						/>
 					</div>
 				</section>
 
@@ -498,26 +531,8 @@
 						</div>
 
 						<div>
-							<label for="deposit" class="block text-sm font-medium text-slate-700"
-								>Security Deposit (Rs)</label
-							>
-							<div class="mt-1 relative rounded-lg shadow-sm">
-								<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-									<span class="text-slate-500 sm:text-sm">Rs</span>
-								</div>
-								<input
-									type="number"
-									step="0.01"
-									name="deposit"
-									id="deposit"
-									class="block w-full pl-10 rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-								/>
-							</div>
-						</div>
-
-						<div>
 							<label for="replacementValue" class="block text-sm font-medium text-slate-700"
-								>Replacement Value (Rs)</label
+								>Item's Value (Rs)</label
 							>
 							<div class="mt-1 relative rounded-lg shadow-sm">
 								<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -528,10 +543,47 @@
 									step="0.01"
 									name="replacementValue"
 									id="replacementValue"
+									bind:value={replacementValue}
 									class="block w-full pl-10 rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
 								/>
 							</div>
 						</div>
+
+						<div>
+							<label for="depositPercentage" class="block text-sm font-medium text-slate-700"
+								>Security Deposit (%)</label
+							>
+							<div class="mt-1 relative rounded-lg shadow-sm">
+								<input
+									type="number"
+									min="0"
+									max="100"
+									step="1"
+									name="depositPercentage"
+									id="depositPercentage"
+									bind:value={depositPercentage}
+									class="block w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
+									placeholder="0-100"
+								/>
+								<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+									<span class="text-slate-500 sm:text-sm">%</span>
+								</div>
+							</div>
+							{#if replacementValue && depositPercentage}
+								<p class="mt-1 text-xs text-slate-500">
+									Calculated: Rs {(
+										(Number(replacementValue) * Number(depositPercentage)) /
+										100
+									).toFixed(2)}
+								</p>
+							{/if}
+						</div>
+
+						<input
+							type="hidden"
+							name="deposit"
+							value={((Number(replacementValue) * Number(depositPercentage)) / 100).toString()}
+						/>
 					</div>
 				</section>
 
@@ -543,7 +595,6 @@
 					<input type="hidden" name="lat" value={latValue} />
 					<input type="hidden" name="lng" value={lngValue} />
 				{/if}
-				<input type="hidden" name="district" value="PORT_LOUIS" />
 
 				<div class="pt-6 border-t border-slate-200 flex items-center justify-end gap-4">
 					<button
