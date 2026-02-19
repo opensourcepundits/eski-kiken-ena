@@ -20,6 +20,8 @@ export async function sendLoanRequestEmail({
         endDate: Date;
         totalPrice: string;
         renterMessage?: string;
+        dispatchMethod?: string;
+        deliveryAddress?: string;
     };
 }) {
     try {
@@ -35,6 +37,8 @@ export async function sendLoanRequestEmail({
         <ul>
           <li><strong>Dates:</strong> ${bookingDetails.startDate.toLocaleDateString()} - ${bookingDetails.endDate.toLocaleDateString()}</li>
           <li><strong>Total Earnings:</strong> Rs ${bookingDetails.totalPrice}</li>
+          <li><strong>Fulfillment:</strong> ${bookingDetails.dispatchMethod === 'DELIVERY' ? '🚚 Delivery' : '🏠 Pick up'}</li>
+          ${bookingDetails.deliveryAddress ? `<li><strong>Delivery Location:</strong> ${bookingDetails.deliveryAddress}</li>` : ''}
         </ul>
 
         ${bookingDetails.renterMessage ? `<h3>Message from Renter:</h3><p style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; font-style: italic;">"${bookingDetails.renterMessage}"</p>` : ''}

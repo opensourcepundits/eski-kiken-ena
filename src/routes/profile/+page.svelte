@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import DashboardTab from './DashboardTab.svelte';
+	import ListingMap from '$lib/components/ListingMap.svelte';
 
 	let { data } = $props();
 	let user = $derived(data.user);
@@ -390,84 +391,97 @@
 											booking.endDate
 										)}
 										<div
-											class="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform"
+											role="button"
+											tabindex="0"
+											onclick={() => openBookingModal(booking)}
+											onkeydown={(e) => e.key === 'Enter' && openBookingModal(booking)}
+											class="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-900/5 p-6 flex gap-6 group hover:scale-[1.01] transition-transform cursor-pointer overflow-hidden relative"
 										>
-											<div class="w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0">
-												{#if (booking.listing.images as string[])?.length > 0}
-													<img
-														src={(booking.listing.images as string[])[0]}
-														alt=""
-														class="w-full h-full object-cover"
-													/>
-												{:else}
-													<div class="w-full h-full flex items-center justify-center text-2xl">
-														📦
-													</div>
-												{/if}
-											</div>
-											<div class="flex-grow">
-												<div class="flex justify-between items-start">
-													<div>
-														<h3 class="font-black text-slate-900 leading-tight mb-1">
-															{booking.listing.title}
-														</h3>
-														<span
-															class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full whitespace-nowrap
+											<!-- Hover Highlight -->
+											<div
+												class="absolute inset-0 bg-orange-50 opacity-0 group-hover:opacity-50 transition-opacity"
+											></div>
+
+											<div class="relative z-10 flex gap-6 w-full">
+												<div
+													class="w-20 h-20 bg-slate-100 rounded-md overflow-hidden flex-shrink-0"
+												>
+													{#if (booking.listing.images as string[])?.length > 0}
+														<img
+															src={(booking.listing.images as string[])[0]}
+															alt=""
+															class="w-full h-full object-cover"
+														/>
+													{:else}
+														<div class="w-full h-full flex items-center justify-center text-2xl">
+															📦
+														</div>
+													{/if}
+												</div>
+												<div class="flex-grow">
+													<div class="flex justify-between items-start">
+														<div>
+															<h3 class="font-black text-slate-900 leading-tight mb-1">
+																{booking.listing.title}
+															</h3>
+															<span
+																class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full whitespace-nowrap
                                                             {displayStatus.includes('CONFIRMED')
-																? 'bg-emerald-50 text-emerald-600'
-																: displayStatus === 'COMPLETED'
-																	? 'bg-slate-100 text-slate-500'
-																	: displayStatus === 'CANCELLED'
-																		? 'bg-red-50 text-red-600'
-																		: 'bg-orange-50 text-orange-600'}"
-														>
-															{displayStatus}
-														</span>
+																	? 'bg-emerald-50 text-emerald-600'
+																	: displayStatus === 'COMPLETED'
+																		? 'bg-slate-100 text-slate-500'
+																		: displayStatus === 'CANCELLED'
+																			? 'bg-red-50 text-red-600'
+																			: 'bg-orange-50 text-orange-600'}"
+															>
+																{displayStatus}
+															</span>
+														</div>
 													</div>
-												</div>
-												<p class="mt-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-													Renter: <span class="text-slate-900"
-														>{booking.renter?.firstName} {booking.renter?.lastName}</span
-													>
-												</p>
-												<div class="mt-2 text-xs text-slate-500 font-bold">
-													<p class="uppercase text-[9px] opacity-60">Dates</p>
-													<p class="text-slate-900">
-														{new Date(booking.startDate).toLocaleDateString('en-GB')} - {new Date(
-															booking.endDate
-														).toLocaleDateString('en-GB')}
+													<p class="mt-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+														Renter: <span class="text-slate-900"
+															>{booking.renter?.firstName} {booking.renter?.lastName}</span
+														>
 													</p>
-												</div>
-												<div class="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-500 font-bold">
-													<div>
-														<p class="uppercase text-[9px] opacity-60">Pickup</p>
-														<p class="text-slate-900 font-black">{booking.pickupTime || 'N/A'}</p>
-													</div>
-													<div>
-														<p class="uppercase text-[9px] opacity-60">Return</p>
-														<p class="text-slate-900 font-black">{booking.returnTime || 'N/A'}</p>
-													</div>
-												</div>
-												{#if booking.status === 'PENDING'}
-													<div class="mt-4">
-														<button
-															onclick={() => openRespondModal(booking)}
-															class="w-full py-2.5 bg-teal-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98]"
-														>
-															Respond
-														</button>
-													</div>
-												{:else}
-													<div class="mt-4 pt-4 border-t border-slate-50">
-														<p
-															class="text-[9px] font-black text-slate-400 uppercase tracking-widest italic"
-														>
-															Processed on {new Date(
-																booking.createdAt ?? new Date()
+													<div class="mt-2 text-xs text-slate-500 font-bold">
+														<p class="uppercase text-[9px] opacity-60">Dates</p>
+														<p class="text-slate-900">
+															{new Date(booking.startDate).toLocaleDateString('en-GB')} - {new Date(
+																booking.endDate
 															).toLocaleDateString('en-GB')}
 														</p>
 													</div>
-												{/if}
+													<div class="mt-2 grid grid-cols-2 gap-2 text-xs text-slate-500 font-bold">
+														<div>
+															<p class="uppercase text-[9px] opacity-60">Pickup</p>
+															<p class="text-slate-900 font-black">{booking.pickupTime || 'N/A'}</p>
+														</div>
+														<div>
+															<p class="uppercase text-[9px] opacity-60">Return</p>
+															<p class="text-slate-900 font-black">{booking.returnTime || 'N/A'}</p>
+														</div>
+													</div>
+													{#if booking.status === 'PENDING'}
+														<div class="mt-4">
+															<button
+																onclick={() => openRespondModal(booking)}
+																class="w-full py-2.5 bg-teal-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98]"
+															>
+																Respond
+															</button>
+														</div>
+													{:else}
+														<div class="mt-4 pt-4 border-t border-slate-50">
+															<p
+																class="text-[9px] font-black text-slate-400 uppercase tracking-widest italic"
+															>
+																Processed on {new Date(
+																	booking.createdAt ?? new Date()
+																).toLocaleDateString('en-GB')}
+															</p>
+														</div>
+													{/if}
+												</div>
 											</div>
 										</div>
 									{/each}
@@ -842,12 +856,39 @@
 					<h2 class="text-2xl font-black text-teal-50 mb-2 leading-tight">
 						{selectedBooking.listing.title}
 					</h2>
-					<div class="flex items-center gap-2 mb-6">
+					<div class="flex items-center gap-2 mb-2">
 						<p class="text-sm font-bold text-slate-400">Listed for</p>
 						<p class="text-sm font-black text-teal-600">
 							Rs {selectedBooking.listing.pricePerDay} / day
 						</p>
 					</div>
+
+					{#if selectedBooking.renterId === user.id}
+						<div
+							class="flex items-center gap-3 mb-6 p-3 bg-slate-50 rounded-2xl border border-slate-100"
+						>
+							<div
+								class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 font-black text-xs uppercase"
+							>
+								{selectedBooking.listing.owner.firstName[0]}{selectedBooking.listing.owner
+									.lastName[0]}
+							</div>
+							<div>
+								<p
+									class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1"
+								>
+									Owner
+								</p>
+								<p class="text-xs font-bold text-slate-900">
+									{selectedBooking.listing.owner.firstName}
+									{selectedBooking.listing.owner.lastName}
+								</p>
+								<p class="text-[9px] font-medium text-slate-500 opacity-70">
+									{selectedBooking.listing.owner.email}
+								</p>
+							</div>
+						</div>
+					{/if}
 
 					<!-- Receipt / Breakdown Card -->
 					<div class="bg-slate-50 rounded-md p-6 border border-slate-100 space-y-4 mb-6">
@@ -895,12 +936,19 @@
 							</div>
 						{/if}
 
-						<div class="flex justify-between items-center text-sm">
+						<div class="flex justify-between items-center text-sm pb-2 border-b border-slate-100">
 							<span class="text-slate-500 font-medium">Duration</span>
 							<span class="font-bold text-slate-900">
 								{getDays(selectedBooking.startDate, selectedBooking.endDate)} days
 							</span>
 						</div>
+
+						{#if Number(selectedBooking.listing.deposit) > 0}
+							<div class="flex justify-between items-center text-sm pb-2 border-b border-slate-100">
+								<span class="text-slate-500 font-medium">Security Deposit</span>
+								<span class="font-bold text-slate-900">Rs {selectedBooking.listing.deposit}</span>
+							</div>
+						{/if}
 
 						<div class="flex justify-between items-center pt-2">
 							<span class="text-slate-900 font-black text-lg">Total Paid</span>
@@ -908,8 +956,76 @@
 						</div>
 					</div>
 
+					<!-- Logistics & Messages -->
+					<div class="space-y-6 mb-8">
+						<!-- Fulfillment Method -->
+						<div class="bg-indigo-50/50 rounded-2xl p-5 border border-indigo-100/50">
+							<h3
+								class="text-[10px] font-black uppercase text-indigo-400 tracking-widest mb-3 flex items-center gap-2"
+							>
+								{#if selectedBooking.chosenDispatch === 'DELIVERY'}
+									<span>🚚 Fulfillment: Delivery</span>
+								{:else}
+									<span>🏠 Fulfillment: Pick up</span>
+								{/if}
+							</h3>
+
+							{#if selectedBooking.chosenDispatch === 'DELIVERY'}
+								<div class="space-y-3">
+									<p class="text-xs font-bold text-slate-700 leading-tight">
+										<span class="text-slate-400 block mb-1">Delivery Address:</span>
+										{selectedBooking.deliveryAddress}
+									</p>
+									{#if selectedBooking.deliveryLat && selectedBooking.deliveryLng}
+										<div class="h-40 w-full rounded-xl overflow-hidden border border-slate-200">
+											<ListingMap
+												lat={Number(selectedBooking.deliveryLat)}
+												lng={Number(selectedBooking.deliveryLng)}
+												title="Delivery Location"
+											/>
+										</div>
+									{/if}
+								</div>
+							{:else}
+								<p class="text-xs font-bold text-slate-700 leading-tight">
+									<span class="text-slate-400 block mb-1">Pickup Address:</span>
+									{selectedBooking.listing.pickupAddress || 'Provided by owner in instructions'}
+								</p>
+							{/if}
+						</div>
+
+						<!-- Messages -->
+						<div class="grid grid-cols-1 gap-4">
+							{#if selectedBooking.renterMessage}
+								<div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+									<p class="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">
+										{selectedBooking.renterId === user.id
+											? 'Your Message to Owner'
+											: 'Message from Renter'}
+									</p>
+									<p class="text-xs font-medium text-slate-700 italic">
+										"{selectedBooking.renterMessage}"
+									</p>
+								</div>
+							{/if}
+
+							{#if selectedBooking.ownerMessage}
+								<div class="bg-teal-50 p-5 rounded-xl border border-teal-100">
+									<p class="text-[9px] font-black uppercase text-teal-600 tracking-widest mb-2">
+										{selectedBooking.listing.ownerId === user.id
+											? 'Your Instructions'
+											: 'Instructions from Owner'}
+									</p>
+									<p class="text-sm font-bold text-slate-800 leading-relaxed">
+										{selectedBooking.ownerMessage}
+									</p>
+								</div>
+							{/if}
+						</div>
+					</div>
+
 					<!-- [NEW] Review Section -->
-					{#if displayStatus === 'COMPLETED' || displayStatus === 'CONFIRMED: ONGOING'}
+					{#if (displayStatus === 'COMPLETED' || displayStatus === 'CONFIRMED: ONGOING') && selectedBooking.renterId === user.id}
 						<div class="mb-6 bg-slate-50 rounded-md p-6 border border-slate-100">
 							<h3 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">
 								Rate this Item
@@ -1316,6 +1432,38 @@
 							</p>
 							<p class="text-xl font-black text-teal-600">Rs {bookingToRespond.totalPrice}</p>
 						</div>
+
+						<!-- Delivery Information -->
+						{#if bookingToRespond.chosenDispatch === 'DELIVERY' && bookingToRespond.deliveryAddress}
+							<div class="pt-4 border-t border-slate-200/50 space-y-3">
+								<div>
+									<p class="text-[10px] font-black uppercase text-teal-600 tracking-widest mb-1">
+										🚚 Delivery Requested
+									</p>
+									<p class="text-xs font-bold text-slate-700 leading-tight">
+										{bookingToRespond.deliveryAddress}
+									</p>
+								</div>
+								{#if bookingToRespond.deliveryLat && bookingToRespond.deliveryLng}
+									<div
+										class="h-40 w-full rounded-xl overflow-hidden border border-slate-200 shadow-inner"
+									>
+										<ListingMap
+											lat={Number(bookingToRespond.deliveryLat)}
+											lng={Number(bookingToRespond.deliveryLng)}
+											title="Renter's Delivery Spot"
+										/>
+									</div>
+								{/if}
+							</div>
+						{:else}
+							<div class="pt-4 border-t border-slate-200/50">
+								<p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">
+									🏠 Fulfillment
+								</p>
+								<p class="text-xs font-bold text-slate-700">Renter will pick up the item</p>
+							</div>
+						{/if}
 					</div>
 
 					<!-- Instruction Textbox -->
@@ -1395,10 +1543,11 @@
 
 	<!-- KYC Modal -->
 	{#if isKycModalOpen}
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
 			class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
 			onclick={closeKycModal}
-			role="presentation"
 		>
 			<div
 				class="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 max-w-2xl w-full overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]"
@@ -1414,6 +1563,7 @@
 					<button
 						onclick={closeKycModal}
 						class="absolute top-8 right-8 text-white/50 hover:text-white transition-colors"
+						aria-label="Close"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -1547,7 +1697,18 @@
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								class="w-full h-48 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-3 transition-all group-hover:border-teal-400 group-hover:bg-slate-50 bg-slate-50/50 cursor-pointer overflow-hidden relative"
-								onclick={() => document.getElementById('documentImage').click()}
+								role="button"
+								tabindex="0"
+								onclick={() => {
+									const el = document.getElementById('documentImage');
+									if (el) el.click();
+								}}
+								onkeydown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										const el = document.getElementById('documentImage');
+										if (el) el.click();
+									}
+								}}
 							>
 								{#if kycDocumentPreview}
 									<img

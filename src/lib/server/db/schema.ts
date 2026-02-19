@@ -162,6 +162,11 @@ export const bookings = pgTable('bookings', {
 	pickupTime: text('pickup_time'), // HH:mm format
 	returnTime: text('return_time'), // HH:mm format
 	renterMessage: text('renter_message'),
+	ownerMessage: text('owner_message'),
+	chosenDispatch: text('chosen_dispatch'), // 'PICKUP' or 'DELIVERY'
+	deliveryLat: doublePrecision('delivery_lat'),
+	deliveryLng: doublePrecision('delivery_lng'),
+	deliveryAddress: text('delivery_address'),
 	expiresAt: timestamp('expires_at'),
 	createdAt: timestamp('created_at').defaultNow(),
 	amendmentRequests: jsonb('amendment_requests').default({}) // Stores { fields: ['pickupTime', 'returnTime'], message: string, from: 'OWNER' | 'RENTER' }

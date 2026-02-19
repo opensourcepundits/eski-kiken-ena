@@ -50,6 +50,15 @@ export const actions: Actions = {
 			return fail(400, { message: 'Svp swazir ban date' });
 		}
 
+		const chosenDispatch = formData.get('chosenDispatch') as string;
+		const deliveryLat = formData.get('deliveryLat') ? Number(formData.get('deliveryLat')) : null;
+		const deliveryLng = formData.get('deliveryLng') ? Number(formData.get('deliveryLng')) : null;
+		const deliveryAddress = formData.get('deliveryAddress') as string;
+
+		if (chosenDispatch === 'DELIVERY' && !deliveryAddress) {
+			return fail(400, { message: 'Svp swazir enn landrwa pou livre' });
+		}
+
 		const start = new Date(startDate);
 		const end = new Date(endDate);
 
@@ -67,10 +76,6 @@ export const actions: Actions = {
 		if (!listing) {
 			return error(404, 'Listing missing');
 		}
-
-		// Validate operating hours
-		// Validate operating hours logic removed as times are no longer collected here.
-		// The owner will set times upon approval.
 
 		// Calculate total price: (Price per day * days) + Deposit
 		const diffTime = Math.abs(end.getTime() - start.getTime());
@@ -104,6 +109,10 @@ export const actions: Actions = {
 				totalPrice: totalPrice,
 				status: 'PENDING',
 				renterMessage: renterMessage || null,
+				chosenDispatch: chosenDispatch,
+				deliveryLat: deliveryLat,
+				deliveryLng: deliveryLng,
+				deliveryAddress: deliveryAddress || null,
 				expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours from now
 			});
 
@@ -116,7 +125,9 @@ export const actions: Actions = {
 					startDate: start,
 					endDate: end,
 					totalPrice,
-					renterMessage
+					renterMessage,
+					dispatchMethod: chosenDispatch,
+					deliveryAddress
 				}
 			});
 		} catch (e) {

@@ -3,6 +3,7 @@
 	import ListingMap from '$lib/components/ListingMap.svelte';
 	import ImageCarousel from '$lib/components/ImageCarousel.svelte';
 	import DateRangeCalendar from '$lib/components/DateRangeCalendar.svelte';
+	import LocationPickerModal from '$lib/components/LocationPickerModal.svelte';
 
 	let { data, form } = $props<{ data: any; form: any }>();
 	let listing = $derived(data.listing);
@@ -11,6 +12,25 @@
 	let endDate = $state('');
 	let hasConflict = $state(false);
 	let renterMessage = $state('');
+
+	// Dispatch & Delivery Logic
+	let chosenDispatch = $state('PICKUP');
+	let isLocationModalOpen = $state(false);
+	let deliveryLat = $state<number | null>(null);
+	let deliveryLng = $state<number | null>(null);
+	let deliveryAddress = $state('');
+
+	$effect(() => {
+		chosenDispatch = data.listing.dispatch === 'DELIVER_ONLY' ? 'DELIVERY' : 'PICKUP';
+	});
+
+	function handleLocationConfirm(event: CustomEvent) {
+		const { lat, lng, address } = event.detail;
+		deliveryLat = lat;
+		deliveryLng = lng;
+		deliveryAddress = address;
+		isLocationModalOpen = false;
+	}
 
 	let totalPrice = $derived.by(() => {
 		if (!startDate || !endDate) return 0;
@@ -235,11 +255,87 @@
 									blockedRanges={data.blockedRanges}
 									bind:hasConflict
 								/>
-								<!-- Hidden fields to submit selected date range with the form -->
 								<input type="hidden" name="startDate" value={startDate} />
 								<input type="hidden" name="endDate" value={endDate} />
 
-								<input type="hidden" name="endDate" value={endDate} />
+								<!-- Dispatch Selection -->
+								<div class="space-y-4 pt-2">
+									{#if listing.dispatch === 'PICKUP_OR_DELIVERY'}
+										<div class="flex items-center gap-2 p-1 bg-slate-100 rounded-2xl">
+											<button
+												type="button"
+												class="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all {chosenDispatch ===
+												'PICKUP'
+													? 'bg-white text-teal-600 shadow-sm'
+													: 'text-slate-400 hover:text-slate-600'}"
+												onclick={() => (chosenDispatch = 'PICKUP')}
+											>
+												Pick up
+											</button>
+											<button
+												type="button"
+												class="flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all {chosenDispatch ===
+												'DELIVERY'
+													? 'bg-white text-teal-600 shadow-sm'
+													: 'text-slate-400 hover:text-slate-600'}"
+												onclick={() => (chosenDispatch = 'DELIVERY')}
+											>
+												Delivery
+											</button>
+										</div>
+									{:else if listing.dispatch === 'DELIVER_ONLY'}
+										<div
+											class="py-3 px-4 bg-teal-50 text-teal-700 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center"
+										>
+											🚚 This item is delivery only
+										</div>
+									{/if}
+
+									{#if chosenDispatch === 'DELIVERY'}
+										<div class="space-y-2">
+											<button
+												type="button"
+												onclick={() => (isLocationModalOpen = true)}
+												class="w-full py-4 border-2 border-dashed {deliveryAddress
+													? 'border-teal-200 bg-teal-50/50'
+													: 'border-slate-200 bg-slate-50'} hover:border-teal-500 hover:bg-teal-50 rounded-2xl transition-all flex flex-col items-center justify-center gap-2 group"
+											>
+												{#if deliveryAddress}
+													<div class="flex items-start gap-2 px-4">
+														<span class="text-teal-600 mt-0.5">📍</span>
+														<span class="text-left text-xs font-bold text-slate-700 line-clamp-2"
+															>{deliveryAddress}</span
+														>
+													</div>
+													<span
+														class="text-[10px] font-black text-teal-600 uppercase tracking-widest underline"
+														>Change location</span
+													>
+												{:else}
+													<div
+														class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform"
+													>
+														<span class="text-xl">📍</span>
+													</div>
+													<span class="text-xs font-black text-slate-500 uppercase tracking-widest"
+														>Choose Delivery Location</span
+													>
+												{/if}
+											</button>
+
+											{#if !deliveryAddress}
+												<p class="text-[10px] text-red-500 font-bold text-center">
+													* Delivery location is required
+												</p>
+											{/if}
+										</div>
+									{/if}
+								</div>
+
+								<input type="hidden" name="chosenDispatch" value={chosenDispatch} />
+								<input type="hidden" name="deliveryLat" value={deliveryLat} />
+								<input type="hidden" name="deliveryLng" value={deliveryLng} />
+								<input type="hidden" name="deliveryAddress" value={deliveryAddress} />
 
 								<div class="space-y-2">
 									<label
@@ -301,7 +397,10 @@
 								<!-- Action Button (Reduced vertical padding) -->
 								<button
 									type="submit"
-									disabled={!startDate || !endDate || hasConflict}
+									disabled={!startDate ||
+										!endDate ||
+										hasConflict ||
+										(chosenDispatch === 'DELIVERY' && !deliveryAddress)}
 									class="w-full py-4 bg-teal-600 hover:bg-indigo-700 text-white rounded-[1.25rem] font-black text-lg transition-all shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transform disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale disabled:scale-100"
 								>
 									Request Booking
@@ -314,3 +413,9 @@
 		</div>
 	</main>
 </div>
+
+<LocationPickerModal
+	isOpen={isLocationModalOpen}
+	on:close={() => (isLocationModalOpen = false)}
+	on:confirm={handleLocationConfirm}
+/>

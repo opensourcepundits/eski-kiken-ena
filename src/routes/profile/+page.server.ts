@@ -31,7 +31,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const userBookings = await db.query.bookings.findMany({
 		where: eq(bookings.renterId, locals.user.id),
 		with: {
-			listing: true
+			listing: {
+				with: {
+					owner: true
+				}
+			}
 		},
 		orderBy: [desc(bookings.createdAt)]
 	});
@@ -138,9 +142,12 @@ export const actions: Actions = {
 			console.log(`Updating booking ${bookingId} to ${status} (User is Owner: ${isOwner}, Renter: ${isRenter})`);
 
 			const updateData: any = { status };
-			if (isOwner && status === 'CONFIRMED') {
-				if (pickupTime) updateData.pickupTime = pickupTime;
-				if (returnTime) updateData.returnTime = returnTime;
+			if (isOwner) {
+				if (ownerMessage) updateData.ownerMessage = ownerMessage;
+				if (status === 'CONFIRMED') {
+					if (pickupTime) updateData.pickupTime = pickupTime;
+					if (returnTime) updateData.returnTime = returnTime;
+				}
 			}
 
 			await db.update(bookings).set(updateData).where(eq(bookings.id, bookingId));
