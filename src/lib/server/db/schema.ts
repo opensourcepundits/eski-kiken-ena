@@ -38,6 +38,8 @@ export const bookingStatusEnum = pgEnum('booking_status', [
 	'AMENDMENT_REQUESTED'
 ]);
 export const kycStatusEnum = pgEnum('kyc_status', ['PENDING', 'VERIFIED', 'REJECTED', 'NONE']);
+export const idTypeEnum = pgEnum('id_type', ['NIC', 'PASSPORT']);
+
 
 export const categoryEnum = pgEnum('category', [
 	'POWER_TOOLS',
@@ -80,6 +82,8 @@ export const users = pgTable('users', {
 	phone: text('phone'),
 	role: roleEnum('role').default('USER'),
 	kycStatus: kycStatusEnum('kyc_status').default('PENDING'),
+	kyc: boolean('kyc').default(false),
+
 	profileImage: text('profile_image'),
 	reputation: smallint('reputation'),
 	createdAt: timestamp('created_at').defaultNow()
@@ -163,12 +167,36 @@ export const bookings = pgTable('bookings', {
 	amendmentRequests: jsonb('amendment_requests').default({}) // Stores { fields: ['pickupTime', 'returnTime'], message: string, from: 'OWNER' | 'RENTER' }
 });
 
+export const kyc = pgTable('kyc', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	userId: uuid('user_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(),
+	surname: text('surname').notNull(),
+	idType: idTypeEnum('id_type').notNull(),
+	identifierNumber: text('identifier_number').notNull(),
+	nationality: text('nationality').notNull(),
+	documentImage: text('document_image'),
+	createdAt: timestamp('created_at').defaultNow()
+});
+
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
 	listings: many(listings),
 	bookings: many(bookings),
-	ratings: many(ratings)
+	ratings: many(ratings),
+	kyc: many(kyc)
 }));
+
+export const kycRelations = relations(kyc, ({ one }) => ({
+	user: one(users, {
+		fields: [kyc.userId],
+		references: [users.id]
+	})
+}));
+
 
 export const listingsRelations = relations(listings, ({ one, many }) => ({
 	owner: one(users, {

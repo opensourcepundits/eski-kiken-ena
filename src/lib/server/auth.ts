@@ -19,7 +19,8 @@ export const lucia = new Lucia(adapter, {
 			phone: attributes.phone,
 			reputation: attributes.reputation,
 			role: attributes.role,
-			kycStatus: attributes.kycStatus
+			kycStatus: attributes.kycStatus,
+			kyc: attributes.kyc
 		};
 	}
 });
@@ -39,4 +40,6 @@ interface DatabaseUserAttributes {
 	reputation: number | null;
 	role: 'USER' | 'ADMIN';
 	kycStatus: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'NONE';
+	kyc: boolean;
 }
+

@@ -1,14 +1,19 @@
 import { db } from '$lib/server/db';
-import { bookings, listings, ratings } from '$lib/server/db/schema';
+import { bookings, listings, ratings, users, kyc } from '$lib/server/db/schema';
+
 import { error, fail, redirect } from '@sveltejs/kit';
 import { desc, eq, and, sql } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
+import { randomUUID } from 'crypto';
 import {
 	sendLoanStatusChangedEmail,
 	sendLoanCancelledByRenterEmail,
 	sendAmendmentRequestedEmail,
 	sendBookingUpdatedByRenterEmail
 } from '$lib/server/email';
+
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) {
@@ -399,5 +404,71 @@ export const actions: Actions = {
 		}
 
 		return { success: true };
+	},
+	completeKyc: async ({ request, locals }) => {
+		if (!locals.user) {
+			return fail(401, { message: 'Unauthorized' });
+		}
+
+		const formData = await request.formData();
+		const name = formData.get('name') as string;
+		const surname = formData.get('surname') as string;
+		const idType = formData.get('idType') as any;
+		const identifierNumber = formData.get('identifierNumber') as string;
+		const nationality = formData.get('nationality') as string;
+		const documentImage = formData.get('documentImage') as File;
+
+		if (!name || !surname || !idType || !identifierNumber || !nationality || !documentImage) {
+			return fail(400, { message: 'Missing required fields' });
+		}
+
+		let imagePath = '';
+		try {
+			const uploadDir = join(process.cwd(), 'static', 'uploads', 'kyc');
+			await mkdir(uploadDir, { recursive: true });
+
+			if (!documentImage.type.startsWith('image/')) {
+				return fail(400, { message: 'Only image files are allowed.' });
+			}
+
+			const fileExtension = documentImage.name.split('.').pop() || 'jpg';
+			const fileName = `${randomUUID()}.${fileExtension}`;
+			const filePath = join(uploadDir, fileName);
+
+			const arrayBuffer = await documentImage.arrayBuffer();
+			const buffer = Buffer.from(arrayBuffer);
+			await writeFile(filePath, buffer);
+
+			imagePath = `/uploads/kyc/${fileName}`;
+		} catch (error) {
+			console.error('Error saving KYC document:', error);
+			return fail(500, { message: 'Error uploading document.' });
+		}
+
+		try {
+			await db.insert(kyc).values({
+				userId: locals.user.id,
+				name,
+				surname,
+				idType,
+				identifierNumber,
+				nationality,
+				documentImage: imagePath
+			});
+
+			await db
+				.update(users)
+				.set({
+					kyc: true,
+					kycStatus: 'PENDING'
+				})
+				.where(eq(users.id, locals.user.id));
+		} catch (e) {
+			console.error('KYC submission failed:', e);
+			return fail(500, { message: 'Failed to submit KYC' });
+		}
+
+		return { success: true };
 	}
 };
+
