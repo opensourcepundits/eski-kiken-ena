@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const client = postgres(process.env.POSTGRES_URL || 'postgres://postgres:postgres@localhost:5432/eke', {
+const client = postgres(process.env.DATABASE_URL || process.env.POSTGRES_URL || 'postgres://postgres:postgres@localhost:5432/eke', {
     prepare: false
 });
 const db = drizzle(client, { schema });
