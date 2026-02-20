@@ -48,7 +48,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 				db.select({ id: listings.id }).from(listings).where(eq(listings.ownerId, userId))
 			),
 		with: {
-			listing: true,
+			listing: {
+				with: {
+					owner: true
+				}
+			},
 			renter: true
 		},
 		orderBy: [desc(bookings.createdAt)]

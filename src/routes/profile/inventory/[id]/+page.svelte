@@ -72,7 +72,7 @@
 					class="bg-white rounded-[2.5rem] shadow-2xl shadow-teal-900/5 border border-slate-100 overflow-hidden"
 				>
 					<div class="p-8 border-b border-slate-50">
-						<h2 class="text-2xl font-black text-teal-50">Upcoming & Active Bookings</h2>
+						<h2 class="text-2xl font-black text-slate-900">Upcoming & Active Bookings</h2>
 						<p class="text-slate-400 font-bold text-sm uppercase tracking-widest mt-1">
 							Direct from your schedule
 						</p>
@@ -178,7 +178,7 @@
 
 			<!-- Booking History -->
 			<div class="lg:col-span-12 mt-12">
-				<h2 class="text-2xl font-black text-teal-50 mb-8 border-l-4 border-teal-600 pl-4">
+				<h2 class="text-2xl font-black text-slate-900 mb-8 border-l-4 border-teal-600 pl-4">
 					Booking History
 				</h2>
 

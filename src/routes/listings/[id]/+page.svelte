@@ -85,7 +85,7 @@
 
 				<!-- Description & Features -->
 				<div class="prose prose-slate max-w-none">
-					<h2 class="text-2xl font-black text-teal-50 border-b border-slate-100 pb-4 mb-6">
+					<h2 class="text-2xl font-black text-slate-900 border-b border-slate-100 pb-4 mb-6">
 						About this item
 					</h2>
 					<p class="text-slate-600 leading-relaxed whitespace-pre-wrap text-lg font-medium">
@@ -155,7 +155,7 @@
 					<!-- Location Detail -->
 					{#if listing.lat && listing.lng}
 						<div class="mt-12">
-							<h2 class="text-2xl font-black text-teal-50 border-b border-slate-100 pb-4 mb-6">
+							<h2 class="text-2xl font-black text-slate-900 border-b border-slate-100 pb-4 mb-6">
 								Location
 							</h2>
 							<div
@@ -173,7 +173,7 @@
 
 					<!-- Dispatch & Delivery Information -->
 					<div class="mt-12">
-						<h2 class="text-2xl font-black text-teal-50 border-b border-slate-100 pb-4 mb-6">
+						<h2 class="text-2xl font-black text-slate-900 border-b border-slate-100 pb-4 mb-6">
 							Delivery & Pickup
 						</h2>
 						<div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 shadow-sm">

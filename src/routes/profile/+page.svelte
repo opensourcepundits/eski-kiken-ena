@@ -220,7 +220,7 @@
 					{#if activeTab === 'rentals'}
 						<!-- Bookings as Renter -->
 						<section>
-							<h2 class="text-2xl font-black text-teal-50 mb-6 flex items-center gap-3">
+							<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
 								My rentals
 								<span class="text-xs bg-indigo-100 text-teal-600 px-3 py-1 rounded-full"
 									>{userBookings.length}</span
@@ -369,7 +369,7 @@
 					{:else if activeTab === 'requests'}
 						<!-- Bookings for my Items (As Owner) -->
 						<section>
-							<h2 class="text-2xl font-black text-teal-50 mb-6 flex items-center gap-3">
+							<h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
 								Request for listings
 								<span class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full"
 									>{ownerBookings.length}</span
@@ -464,7 +464,10 @@
 													{#if booking.status === 'PENDING'}
 														<div class="mt-4">
 															<button
-																onclick={() => openRespondModal(booking)}
+																onclick={(e) => {
+																	e.stopPropagation();
+																	openRespondModal(booking);
+																}}
 																class="w-full py-2.5 bg-teal-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-[0.98]"
 															>
 																Respond
@@ -491,7 +494,7 @@
 					{:else if activeTab === 'listings'}
 						<section>
 							<div class="flex justify-between items-center mb-8">
-								<h2 class="text-2xl font-black text-teal-50 flex items-center gap-3">
+								<h2 class="text-2xl font-black text-slate-900 flex items-center gap-3">
 									My Gear
 									<span class="text-xs bg-indigo-100 text-teal-600 px-3 py-1 rounded-full"
 										>{userListings.length}</span
@@ -611,7 +614,7 @@
 						<DashboardTab {userListings} {ownerBookings} />
 					{:else if activeTab === 'settings'}
 						<section class="max-w-2xl">
-							<h2 class="text-2xl font-black text-teal-50 mb-8">Account Settings</h2>
+							<h2 class="text-2xl font-black text-slate-900 mb-8">Account Settings</h2>
 
 							<form
 								class="bg-white rounded-[2.5rem] shadow-2xl shadow-teal-900/5 border border-slate-100 p-10 space-y-8"
@@ -853,7 +856,7 @@
 
 				<!-- Modal Content -->
 				<div class="p-8 overflow-y-auto">
-					<h2 class="text-2xl font-black text-teal-50 mb-2 leading-tight">
+					<h2 class="text-2xl font-black text-slate-900 mb-2 leading-tight">
 						{selectedBooking.listing.title}
 					</h2>
 					<div class="flex items-center gap-2 mb-2">
@@ -870,8 +873,8 @@
 							<div
 								class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 font-black text-xs uppercase"
 							>
-								{selectedBooking.listing.owner.firstName[0]}{selectedBooking.listing.owner
-									.lastName[0]}
+								{(selectedBooking.listing.owner?.firstName ?? user.firstName)[0]}{(selectedBooking
+									.listing.owner?.lastName ?? user.lastName)[0]}
 							</div>
 							<div>
 								<p
@@ -880,11 +883,11 @@
 									Owner
 								</p>
 								<p class="text-xs font-bold text-slate-900">
-									{selectedBooking.listing.owner.firstName}
-									{selectedBooking.listing.owner.lastName}
+									{selectedBooking.listing.owner?.firstName ?? user.firstName}
+									{selectedBooking.listing.owner?.lastName ?? user.lastName}
 								</p>
 								<p class="text-[9px] font-medium text-slate-500 opacity-70">
-									{selectedBooking.listing.owner.email}
+									{selectedBooking.listing.owner?.email ?? user.email}
 								</p>
 							</div>
 						</div>
@@ -1204,7 +1207,7 @@
 							/></svg
 						>
 					</div>
-					<h2 class="text-2xl font-black text-teal-50 mb-2 tracking-tight">Cancel Booking?</h2>
+					<h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Cancel Booking?</h2>
 					<p class="text-slate-500 font-medium leading-relaxed">
 						Are you sure you want to cancel your reservation for <span
 							class="text-slate-900 font-black">"{bookingToCancel.title}"</span
@@ -1275,7 +1278,7 @@
 							/></svg
 						>
 					</div>
-					<h2 class="text-2xl font-black text-teal-50 mb-2 tracking-tight">Eski ou sir?</h2>
+					<h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Eski ou sir?</h2>
 					<p class="text-slate-500 font-medium leading-relaxed">
 						Ou pe al retire <span class="text-slate-900 font-black">"{listingToDelete.title}"</span> depi
 						ou inventory. Sa aksion la pa kapav sanze apre.
@@ -1323,7 +1326,7 @@
 				<!-- Modal Header -->
 				<div class="p-8 border-b border-slate-100 flex-shrink-0">
 					<div class="flex justify-between items-start mb-4">
-						<h2 class="text-2xl font-black text-teal-50 leading-tight">Respond to Request</h2>
+						<h2 class="text-2xl font-black text-slate-900 leading-tight">Respond to Request</h2>
 						<button
 							onclick={closeRespondModal}
 							class="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition-all"

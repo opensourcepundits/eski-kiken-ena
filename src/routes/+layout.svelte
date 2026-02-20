@@ -132,13 +132,13 @@
 					{:else}
 						<a
 							href="/login"
-							class="px-4 py-1.5 rounded-full hover:bg-background/10 transition-all font-bold text-xs border border-background/20"
+							class="px-4 py-1.5 rounded-full hover:bg-white/10 transition-all font-bold text-xs border border-white/20 text-white"
 						>
 							Login
 						</a>
 						<a
 							href="/register"
-							class="px-4 py-1.5 rounded-full bg-background text-secondary hover:bg-background/90 transition-all font-bold text-xs"
+							class="px-4 py-1.5 rounded-full bg-primary text-white hover:bg-primary/90 transition-all font-bold text-xs"
 						>
 							Sign Up
 						</a>

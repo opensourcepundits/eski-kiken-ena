@@ -182,7 +182,7 @@
 </script>
 
 <div class="space-y-8">
-	<h2 class="text-2xl font-black text-teal-50">Performance Dashboard</h2>
+	<h2 class="text-2xl font-black text-slate-900">Performance Dashboard</h2>
 
 	<!-- KPI Grid -->
 	<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
