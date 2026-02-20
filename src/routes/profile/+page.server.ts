@@ -4,8 +4,7 @@ import { bookings, listings, ratings, users, kyc } from '$lib/server/db/schema';
 import { error, fail, redirect } from '@sveltejs/kit';
 import { desc, eq, and, sql } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { put } from '@vercel/blob';
 import { randomUUID } from 'crypto';
 import {
 	sendLoanStatusChangedEmail,
@@ -431,24 +430,24 @@ export const actions: Actions = {
 
 		let imagePath = '';
 		try {
-			const uploadDir = join(process.cwd(), 'static', 'uploads', 'kyc');
-			await mkdir(uploadDir, { recursive: true });
-
 			if (!documentImage.type.startsWith('image/')) {
 				return fail(400, { message: 'Only image files are allowed.' });
 			}
 
-			const fileExtension = documentImage.name.split('.').pop() || 'jpg';
-			const fileName = `${randomUUID()}.${fileExtension}`;
-			const filePath = join(uploadDir, fileName);
+			// Validate file size (5MB limit)
+			if (documentImage.size > 5 * 1024 * 1024) {
+				return fail(400, { message: 'Images must be less than 5MB.' });
+			}
 
-			const arrayBuffer = await documentImage.arrayBuffer();
-			const buffer = Buffer.from(arrayBuffer);
-			await writeFile(filePath, buffer);
+			// Upload to Vercel Blob
+			const blob = await put(`kyc/${randomUUID()}-${documentImage.name}`, documentImage, {
+				access: 'public',
+				contentType: documentImage.type
+			});
 
-			imagePath = `/uploads/kyc/${fileName}`;
+			imagePath = blob.url;
 		} catch (error) {
-			console.error('Error saving KYC document:', error);
+			console.error('Error saving KYC document to Vercel Blob:', error);
 			return fail(500, { message: 'Error uploading document.' });
 		}
 

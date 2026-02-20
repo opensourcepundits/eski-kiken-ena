@@ -2,8 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { listings } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { put } from '@vercel/blob';
 import { randomUUID } from 'crypto';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -42,7 +41,6 @@ export const actions: Actions = {
 		const bufferDays = formData.get('bufferDays') ? parseInt(formData.get('bufferDays') as string) : 0;
 		const headsUpDays = formData.get('headsUpDays') ? parseInt(formData.get('headsUpDays') as string) : 0;
 
-
 		const operatingHoursStart = formData.get('operatingHoursStart') as string;
 		const operatingHoursEnd = formData.get('operatingHoursEnd') as string;
 
@@ -58,14 +56,11 @@ export const actions: Actions = {
 			return fail(400, { message: 'Maximum 5 images allowed.' });
 		}
 
-		// Process and save images
+		// Process and save images to Vercel Blob
 		try {
-			const uploadDir = join(process.cwd(), 'static', 'uploads', 'listings');
-			await mkdir(uploadDir, { recursive: true });
-
 			for (let i = 0; i < imageCount; i++) {
 				const file = formData.get(`image_${i}`) as File;
-				if (!file) continue;
+				if (!file || !file.name) continue;
 
 				// Validate file type
 				if (!file.type.startsWith('image/')) {
@@ -77,21 +72,16 @@ export const actions: Actions = {
 					return fail(400, { message: 'Images must be less than 5MB.' });
 				}
 
-				// Generate unique filename
-				const fileExtension = file.name.split('.').pop() || 'jpg';
-				const fileName = `${randomUUID()}.${fileExtension}`;
-				const filePath = join(uploadDir, fileName);
+				// Upload to Vercel Blob
+				const blob = await put(`listings/${randomUUID()}-${file.name}`, file, {
+					access: 'public',
+					contentType: file.type
+				});
 
-				// Convert File to Buffer and save
-				const arrayBuffer = await file.arrayBuffer();
-				const buffer = Buffer.from(arrayBuffer);
-				await writeFile(filePath, buffer);
-
-				// Store relative path for database
-				imagePaths.push(`/uploads/listings/${fileName}`);
+				imagePaths.push(blob.url);
 			}
 		} catch (error) {
-			console.error('Error saving images:', error);
+			console.error('Error saving images to Vercel Blob:', error);
 			return fail(500, { message: 'Error uploading images.' });
 		}
 
@@ -108,9 +98,6 @@ export const actions: Actions = {
 		if ((dispatch === 'DELIVER_ONLY' || dispatch === 'PICKUP_OR_DELIVERY') && !deliveryAreas) {
 			return fail(400, { message: 'Delivery areas are required for delivery options.' });
 		}
-
-		// For delivery only, pickup address is not required but location is still needed for map
-		// For pickup options, both location and address are recommended
 
 		try {
 			await db.insert(listings).values({

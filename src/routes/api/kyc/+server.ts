@@ -1,25 +1,8 @@
 import { db } from '$lib/server/db';
-import { kyc } from '$lib/server/db/kyc.schema';
-import { uploadsDir } from '$lib/config/uploads';
-import { fail, json } from '@sveltejs/kit';
+import { kyc } from '$lib/server/db/schema';
+import { error, json } from '@sveltejs/kit';
 import { v4 as uuid } from 'uuid';
-import path from 'path';
-import fs from 'fs';
-
-// Simple memory-less uploader: saves uploaded file to local uploads/kyc/
-async function saveFile(file: File) {
-	const uploadsPath = uploadsDir();
-	if (!fs.existsSync(uploadsPath)) {
-		fs.mkdirSync(uploadsPath, { recursive: true });
-	}
-	const ext = path.extname(file.name) || '.dat';
-	const name = uuid() + ext;
-	const fullPath = path.join(uploadsPath, name);
-	const buf = Buffer.from(await file.arrayBuffer());
-	fs.writeFileSync(fullPath, buf);
-	// Return relative path for storage in DB
-	return fullPath;
-}
+import { put } from '@vercel/blob';
 
 export const POST = async ({ request }) => {
 	// parse multipart/form-data
@@ -33,42 +16,52 @@ export const POST = async ({ request }) => {
 
 	// basic validation
 	if (!name || !surname || !idType || !identifierNumber || !nationality || !file) {
-		return fail(400, { message: 'All fields are required' });
+		return json({ message: 'All fields are required' }, { status: 400 });
 	}
-	if (!['NIC', 'Passport'].includes(idType)) {
-		return fail(400, { message: 'Invalid id_type' });
+	// Note: main schema uses NIC and PASSPORT (all caps)
+	const idTypeFormatted = idType.toUpperCase();
+	if (!['NIC', 'PASSPORT'].includes(idTypeFormatted)) {
+		return json({ message: 'Invalid id_type. Use NIC or PASSPORT' }, { status: 400 });
+	}
+
+	const userId = form.get('user_id')?.toString();
+	if (!userId) {
+		return json({ message: 'user_id is required' }, { status: 400 });
 	}
 
 	// 1:1 constraint: check if user_id exists in KYC
-	// Without auth, we cannot know user id; simulate by using a placeholder? We'll skip user check here and enforce via a per-request id in form
-	const userId = form.get('user_id')?.toString();
-	if (!userId) {
-		// If no user_id provided, create without conflict check; but to satisfy 1:1, require user_id
-		return fail(400, { message: 'user_id is required' });
-	}
-
 	const existing = await db
-		.query(kyc)
-		.findFirst({ where: (kyc) => require('drizzle-orm').eq(kyc.user_id, userId) });
+		.query.kyc.findFirst({ where: (kyc, { eq }) => eq(kyc.userId, userId) });
+
 	if (existing) {
-		return fail(409, { message: 'KYC already exists for this user' });
+		return json({ message: 'KYC already exists for this user' }, { status: 409 });
 	}
 
-	const docPath = await saveFile(file as any);
-	const newKyc = await db
-		.insert(kyc)
-		.values({
-			id: uuid(),
-			name,
-			surname,
-			id_type: idType,
-			identifier_number: identifierNumber,
-			nationality,
-			document_url: docPath,
-			user_id: userId,
-			createdAt: new Date()
-		})
-		.executeTakeFirst();
+	try {
+		// Upload to Vercel Blob
+		const blob = await put(`kyc/${uuid()}-${file.name}`, file, {
+			access: 'public',
+			contentType: file.type
+		});
 
-	return json({ id: newKyc?.insertId ?? '' }, { status: 201 });
+		const newKyc = await db
+			.insert(kyc)
+			.values({
+				id: uuid(),
+				name,
+				surname,
+				idType: idTypeFormatted as any,
+				identifierNumber: identifierNumber,
+				nationality,
+				documentImage: blob.url,
+				userId: userId,
+				createdAt: new Date()
+			})
+			.returning();
+
+		return json({ id: newKyc[0]?.id ?? '' }, { status: 201 });
+	} catch (err) {
+		console.error('Error saving KYC to Vercel Blob:', err);
+		return json({ message: 'Error uploading document' }, { status: 500 });
+	}
 };
