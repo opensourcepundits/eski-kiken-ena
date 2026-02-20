@@ -475,32 +475,64 @@
 						</div>
 					</div>
 
-					<div class="mt-6 flex-1">
-						<label
-							for="bufferDays"
-							class="flex items-center gap-2 text-sm font-medium text-slate-700"
-						>
-							Buffer Days between listings
-							<div class="group relative inline-block">
-								<span
-									class="cursor-help bg-slate-200 text-slate-600 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold"
-									>i</span
-								>
-								<div
-									class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block w-48 p-2 bg-slate-800 text-white text-[10px] rounded shadow-lg z-50 normal-case leading-tight"
-								>
-									This can be used for checking the quality of the item before renting it out again.
+					<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+						<div class="flex-1">
+							<label
+								for="bufferDays"
+								class="flex items-center gap-2 text-sm font-medium text-slate-700"
+							>
+								Buffer Days between listings
+								<div class="group relative inline-block">
+									<span
+										class="cursor-help bg-slate-200 text-slate-600 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold"
+										>i</span
+									>
+									<div
+										class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block w-48 p-2 bg-slate-800 text-white text-[10px] rounded shadow-lg z-50 normal-case leading-tight"
+									>
+										This can be used for checking the quality of the item before renting it out
+										again.
+									</div>
 								</div>
-							</div>
-						</label>
-						<input
-							type="number"
-							name="bufferDays"
-							id="bufferDays"
-							min="0"
-							value="0"
-							class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border h-[42px]"
-						/>
+							</label>
+							<input
+								type="number"
+								name="bufferDays"
+								id="bufferDays"
+								min="0"
+								value="0"
+								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border h-[42px]"
+							/>
+						</div>
+
+						<div class="flex-1">
+							<label
+								for="headsUpDays"
+								class="flex items-center gap-2 text-sm font-medium text-slate-700"
+							>
+								Heads up days before booking
+								<div class="group relative inline-block">
+									<span
+										class="cursor-help bg-slate-200 text-slate-600 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold"
+										>i</span
+									>
+									<div
+										class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block w-48 p-2 bg-slate-800 text-white text-[10px] rounded shadow-lg z-50 normal-case leading-tight"
+									>
+										The minimum number of days of heads up the lister needs to prepare the item
+										before renting it out.
+									</div>
+								</div>
+							</label>
+							<input
+								type="number"
+								name="headsUpDays"
+								id="headsUpDays"
+								min="0"
+								value="0"
+								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border h-[42px]"
+							/>
+						</div>
 					</div>
 				</section>
 

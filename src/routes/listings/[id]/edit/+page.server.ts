@@ -47,6 +47,7 @@ export const actions: Actions = {
 		const lat = formData.get('lat') ? parseFloat(formData.get('lat') as string) : null;
 		const lng = formData.get('lng') ? parseFloat(formData.get('lng') as string) : null;
 		const bufferDays = formData.get('bufferDays') ? parseInt(formData.get('bufferDays') as string) : 0;
+		const headsUpDays = formData.get('headsUpDays') ? parseInt(formData.get('headsUpDays') as string) : 0;
 
 		const operatingHoursStart = formData.get('operatingHoursStart') as string;
 		const operatingHoursEnd = formData.get('operatingHoursEnd') as string;
@@ -81,6 +82,7 @@ export const actions: Actions = {
 						end: operatingHoursEnd || '17:00'
 					},
 					bufferDays: bufferDays >= 0 ? bufferDays : 0,
+					headsUpDays: headsUpDays >= 0 ? headsUpDays : 0,
 					updatedAt: new Date()
 				})
 				.where(and(eq(listings.id, params.id), eq(listings.ownerId, locals.user.id)));
