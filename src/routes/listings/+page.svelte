@@ -24,7 +24,7 @@
 	const transportSizes = ['BACKPACK', 'CAR_TRUNK', 'BACKSEAT', 'PICKUP_TRUCK', 'VAN_REQUIRED'];
 
 	let searchQuery = $state(filters.searchQuery || '');
-	let showFilters = $state(true);
+	let showFilters = $state(false);
 
 	// Filter state
 	let selectedCategory = $state(filters.category || '');
@@ -93,17 +93,17 @@
 					e.preventDefault();
 					handleSearch();
 				}}
-				class="max-w-3xl mx-auto relative"
+				class="max-w-3xl mx-auto relative flex flex-col sm:block gap-3"
 			>
 				<input
 					type="text"
-					placeholder="Search for tools, equipment, or categories..."
+					placeholder="Search for tools, equipment..."
 					bind:value={searchQuery}
-					class="w-full pl-6 pr-32 py-5 rounded-full text-secondary text-white shadow-2xl focus:ring-4 focus:ring-accent/50 transition-all border-none"
+					class="w-full pl-6 sm:pr-32 py-4 sm:py-5 rounded-full text-secondary bg-white text-secondary placeholder-slate-500 shadow-2xl focus:ring-4 focus:ring-accent/50 transition-all border-none"
 				/>
 				<button
 					type="submit"
-					class="absolute right-3 top-1/2 -translate-y-1/2 bg-accent hover:bg-surface text-background px-8 py-3 rounded-full font-semibold transition-colors"
+					class="sm:absolute sm:right-3 sm:top-1/2 sm:-translate-y-1/2 bg-accent hover:bg-surface text-background px-8 py-4 sm:py-3 rounded-full font-semibold transition-colors w-full sm:w-auto mt-2 sm:mt-0"
 				>
 					Find Gear
 				</button>
@@ -113,10 +113,12 @@
 
 	<!-- Main Content -->
 	<main class="max-w-7xl mx-auto px-4 -mt-16 relative z-20 pb-20">
-		<div class="flex gap-6">
+		<div class="flex flex-col lg:flex-row gap-6">
 			<!-- Filter Sidebar -->
 			<aside
-				class="w-64 flex-shrink-0 bg-background rounded-lg border border-surface p-6 h-fit sticky top-4"
+				class="{showFilters
+					? 'block'
+					: 'hidden'} lg:block w-full lg:w-64 flex-shrink-0 bg-background rounded-lg border border-surface p-6 h-fit lg:sticky lg:top-4"
 			>
 				<div class="flex items-center justify-between mb-6">
 					<h2 class="text-lg font-bold text-secondary">Filters</h2>
@@ -313,14 +315,14 @@
 						<button
 							type="button"
 							onclick={() => (showFilters = !showFilters)}
-							class="lg:hidden flex items-center gap-2 bg-background px-5 py-2.5 rounded-lg border border-surface shadow-sm font-medium text-secondary hover:bg-surface transition-all"
+							class="lg:hidden flex-shrink-0 flex items-center gap-2 bg-background px-5 py-2.5 rounded-lg border border-surface shadow-sm font-medium text-secondary hover:bg-surface transition-all"
 						>
 							Filters
 						</button>
 						<select
 							bind:value={sortBy}
 							onchange={updateFilters}
-							class="bg-background px-5 py-2.5 rounded-lg border border-surface shadow-sm font-medium text-secondary hover:bg-surface transition-all appearance-none pr-10"
+							class="w-full lg:w-auto bg-background px-5 py-2.5 rounded-lg border border-surface shadow-sm font-medium text-secondary hover:bg-surface transition-all appearance-none pr-10"
 						>
 							<option value="newest">Sort by: Newest</option>
 							<option value="price-low">Price: Low to High</option>
@@ -329,11 +331,18 @@
 					</div>
 					<a
 						href="/listings/new"
-						class="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-teal-600/30 transition-all hover:scale-105 active:scale-95"
+						class="hidden md:flex flex-shrink-0 items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-teal-600/30 transition-all hover:scale-105 active:scale-95"
 					>
 						List Your Gear
 					</a>
 				</div>
+
+				<a
+					href="/listings/new"
+					class="md:hidden w-full flex justify-center items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-teal-600/30 transition-all active:scale-95 mb-6"
+				>
+					List Your Gear
+				</a>
 
 				<!-- Results Count -->
 				<div class="mb-6 text-sm text-slate-600">

@@ -9,6 +9,7 @@
 	let { data, children } = $props();
 
 	let showNavbarSearch = $state(true);
+	let isMobileMenuOpen = $state(false);
 
 	let observer: IntersectionObserver | null = null;
 
@@ -132,13 +133,13 @@
 					{:else}
 						<a
 							href="/login"
-							class="px-4 py-1.5 rounded-full hover:bg-white/10 transition-all font-bold text-xs border border-white/20 text-white"
+							class="px-4 py-1.5 rounded-full bg-primary-600 text-white hover:bg-primary/90 transition-all font-bold text-xs border border-primary-600/30"
 						>
 							Login
 						</a>
 						<a
 							href="/register"
-							class="px-4 py-1.5 rounded-full bg-primary text-white hover:bg-primary/90 transition-all font-bold text-xs"
+							class="px-4 py-1.5 rounded-full bg-primary-800 text-white hover:bg-primary/90 transition-all font-bold text-xs"
 						>
 							Sign Up
 						</a>
@@ -150,10 +151,101 @@
 			<button
 				class="md:hidden p-2 rounded-full bg-background/5 border border-background/10 text-background/80 hover:bg-background/10 transition-colors"
 				aria-label="Toggle Menu"
+				onclick={() => {
+					isMobileMenuOpen = !isMobileMenuOpen;
+				}}
 			>
 				<Menu size={20} />
 			</button>
 		</nav>
+
+		<!-- Mobile Dropdown Menu -->
+		{#if isMobileMenuOpen}
+			<div
+				class="md:hidden bg-secondary text-background border-t border-background/10 absolute top-16 left-0 right-0 z-40 shadow-2xl"
+			>
+				<div class="px-4 pt-2 pb-6 space-y-4 animate-in slide-in-from-top-2 duration-200">
+					<form action="/listings" method="GET" class="flex w-full mt-2">
+						<div class="relative w-full group">
+							<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+								<Search
+									size={16}
+									class="text-background/40 group-focus-within:text-primary transition-colors"
+								/>
+							</div>
+							<input
+								type="text"
+								name="q"
+								placeholder="Search for gear..."
+								class="block w-full pl-9 pr-4 py-2 bg-background/5 border border-background/10 rounded-full text-sm text-background placeholder:text-background/50 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:bg-background/10 transition-all border-none"
+							/>
+						</div>
+					</form>
+					<div class="flex flex-col space-y-1 font-bold text-lg">
+						<a
+							href="/listings"
+							class="text-background/80 hover:text-background py-3 border-b border-background/10"
+							onclick={() => (isMobileMenuOpen = false)}>Browse Gear</a
+						>
+						<a
+							href="/how-it-works"
+							class="text-background/80 hover:text-background py-3 border-b border-background/10"
+							onclick={() => (isMobileMenuOpen = false)}>How it works</a
+						>
+					</div>
+					<div class="pt-4 flex flex-col space-y-3">
+						{#if data.user}
+							<a
+								href="/profile"
+								class="flex items-center gap-3 py-2 bg-background/5 rounded-lg px-3"
+								onclick={() => (isMobileMenuOpen = false)}
+							>
+								<div
+									class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-background text-sm"
+								>
+									{data.user.firstName ? data.user.firstName.charAt(0).toUpperCase() : 'U'}
+								</div>
+								<div class="font-bold text-base">
+									{data.user.firstName || 'User'}
+									<div class="text-xs opacity-60 font-normal">View Profile</div>
+								</div>
+							</a>
+							<a
+								href="/listings/new"
+								class="bg-primary text-background px-4 py-3 rounded-full font-bold hover:bg-primary/90 transition-all text-center text-base shadow-sm"
+								onclick={() => (isMobileMenuOpen = false)}
+							>
+								List an Item
+							</a>
+							<form method="POST" action="/logout" use:enhance class="w-full mt-2">
+								<button
+									class="w-full py-3 rounded-full bg-red-500/10 text-red-400 font-bold border border-red-500/20 hover:bg-red-500/20 transition-colors"
+									title="Logout"
+									onclick={() => (isMobileMenuOpen = false)}
+								>
+									Logout
+								</button>
+							</form>
+						{:else}
+							<a
+								href="/login"
+								class="block text-center px-4 py-3 rounded-full border border-background/20 text-background font-bold text-base hover:bg-background/10 transition-colors"
+								onclick={() => (isMobileMenuOpen = false)}
+							>
+								Login
+							</a>
+							<a
+								href="/register"
+								class="block text-center px-4 py-3 rounded-full bg-primary text-background font-bold text-base hover:bg-primary/90 transition-colors shadow-sm"
+								onclick={() => (isMobileMenuOpen = false)}
+							>
+								Sign Up
+							</a>
+						{/if}
+					</div>
+				</div>
+			</div>
+		{/if}
 	</header>
 
 	<!-- Main Content Area -->

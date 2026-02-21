@@ -112,7 +112,7 @@
 
 				<button
 					type="submit"
-					class="w-full bg-ocean text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-600 transition-all shadow-lg shadow-ocean/20 flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-[0.98]"
+					class="w-full bg-teal-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-600 transition-all shadow-lg shadow-ocean/20 flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-[0.98]"
 				>
 					Sign In
 					<svg
