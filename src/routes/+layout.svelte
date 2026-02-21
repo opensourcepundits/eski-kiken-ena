@@ -11,6 +11,19 @@
 	let showNavbarSearch = $state(true);
 	let isMobileMenuOpen = $state(false);
 	let isNotificationsOpen = $state(false);
+	let hasViewedNotifications = $state(false);
+
+	let notificationsContainer: HTMLElement | null = $state(null);
+
+	function handleWindowClick(event: MouseEvent) {
+		if (
+			isNotificationsOpen &&
+			notificationsContainer &&
+			!notificationsContainer.contains(event.target as Node)
+		) {
+			isNotificationsOpen = false;
+		}
+	}
 
 	let observer: IntersectionObserver | null = null;
 
@@ -45,6 +58,8 @@
 		}, 100);
 	});
 </script>
+
+<svelte:window onclick={handleWindowClick} />
 
 <div class="min-h-screen flex flex-col font-sans text-secondary bg-background">
 	<!-- Global Navigation Bar -->
@@ -103,13 +118,16 @@
 
 				<div class="flex items-center gap-3">
 					{#if data.user}
-						<div class="relative">
+						<div class="relative" bind:this={notificationsContainer}>
 							<button
 								class="p-2 rounded-full bg-background/5 hover:bg-background/10 transition-colors text-background/80 border border-background/10 relative"
-								onclick={() => (isNotificationsOpen = !isNotificationsOpen)}
+								onclick={() => {
+									isNotificationsOpen = !isNotificationsOpen;
+									if (isNotificationsOpen) hasViewedNotifications = true;
+								}}
 							>
 								<Bell size={18} />
-								{#if data.notifications && data.notifications.length > 0}
+								{#if data.notifications && data.notifications.length > 0 && !hasViewedNotifications}
 									<span
 										class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-secondary shadow-sm"
 									></span>
