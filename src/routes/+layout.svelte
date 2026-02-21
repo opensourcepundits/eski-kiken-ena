@@ -78,7 +78,7 @@
 						<input
 							type="text"
 							name="q"
-							placeholder="Search for gear..."
+							placeholder="Search for items..."
 							class="block w-full pl-9 pr-4 py-1.5 bg-background/5 border border-background/10 rounded-full text-sm text-background placeholder:text-background/30 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:bg-background/10 transition-all border-none bg-white/5"
 						/>
 					</div>
@@ -176,7 +176,7 @@
 							<input
 								type="text"
 								name="q"
-								placeholder="Search for gear..."
+								placeholder="Search for items..."
 								class="block w-full pl-9 pr-4 py-2 bg-background/5 border border-background/10 rounded-full text-sm text-background placeholder:text-background/50 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:bg-background/10 transition-all border-none"
 							/>
 						</div>
@@ -185,7 +185,7 @@
 						<a
 							href="/listings"
 							class="text-background/80 hover:text-background py-3 border-b border-background/10"
-							onclick={() => (isMobileMenuOpen = false)}>Browse Gear</a
+							onclick={() => (isMobileMenuOpen = false)}>Browse items</a
 						>
 						<a
 							href="/how-it-works"
@@ -267,7 +267,7 @@
 				<h3 class="text-background font-bold mb-4 uppercase text-xs tracking-widest">Platform</h3>
 				<ul class="space-y-2 text-sm">
 					<li>
-						<a href="/listings" class="hover:text-background transition-colors">Browse All Gear</a>
+						<a href="/listings" class="hover:text-background transition-colors">Browse All items</a>
 					</li>
 					<li>
 						<a href="/listings/new" class="hover:text-background transition-colors"

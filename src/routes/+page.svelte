@@ -135,7 +135,7 @@
 		<div class="mt-32">
 			<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
 				<div>
-					<h2 class="text-4xl font-black text-secondary tracking-tight">Recent Gear</h2>
+					<h2 class="text-4xl font-black text-secondary tracking-tight">Recent items</h2>
 					<p class="text-surface font-bold mt-2 italic">Nouvo zafer kinn mete sa ban zour la.</p>
 				</div>
 				<a
@@ -250,7 +250,7 @@
 					<a
 						href="/listings"
 						class="mt-4 bg-secondary text-background px-10 py-4 rounded-md font-black shadow-xl hover:bg-accent transition-all"
-						>Browse all gear</a
+						>Browse all items</a
 					>
 				</div>
 			{/if}

@@ -495,7 +495,7 @@
 						<section>
 							<div class="flex justify-between items-center mb-8">
 								<h2 class="text-2xl font-black text-slate-900 flex items-center gap-3">
-									My Gear
+									My items
 									<span class="text-xs bg-indigo-100 text-teal-600 px-3 py-1 rounded-full"
 										>{userListings.length}</span
 									>
@@ -1069,7 +1069,7 @@
 									<textarea
 										name="comment"
 										bind:value={reviewComment}
-										placeholder="How was your experience with this gear?"
+										placeholder="How was your experience with this items?"
 										class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-bold text-slate-700 placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-100 outline-none resize-none h-20"
 									></textarea>
 								</div>

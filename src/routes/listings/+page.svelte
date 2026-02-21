@@ -105,7 +105,7 @@
 					type="submit"
 					class="sm:absolute sm:right-3 sm:top-1/2 sm:-translate-y-1/2 bg-accent hover:bg-surface text-background px-8 py-4 sm:py-3 rounded-full font-semibold transition-colors w-full sm:w-auto mt-2 sm:mt-0"
 				>
-					Find Gear
+					Find items
 				</button>
 			</form>
 		</div>
@@ -333,7 +333,7 @@
 						href="/listings/new"
 						class="hidden md:flex flex-shrink-0 items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-teal-600/30 transition-all hover:scale-105 active:scale-95"
 					>
-						List Your Gear
+						List Your items
 					</a>
 				</div>
 
@@ -341,7 +341,7 @@
 					href="/listings/new"
 					class="md:hidden w-full flex justify-center items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-teal-600/30 transition-all active:scale-95 mb-6"
 				>
-					List Your Gear
+					List Your items
 				</a>
 
 				<!-- Results Count -->
