@@ -125,7 +125,6 @@ export const listings = pgTable('listings', {
 
 	// Financials
 	pricePerDay: decimal('price_per_day', { precision: 10, scale: 2 }).notNull(),
-	deposit: decimal('deposit', { precision: 10, scale: 2 }).default('0'),
 	replacementValue: decimal('replacement_value', { precision: 10, scale: 2 }),
 
 	// Media & Metadata

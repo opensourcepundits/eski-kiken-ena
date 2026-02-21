@@ -666,7 +666,7 @@
 
 								<div class="pt-4">
 									<button
-										class="w-full py-5 bg-teal-600 text-white rounded-md font-black text-lg shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all transform active:scale-95"
+										class="w-full py-5 bg-teal-600 text-white rounded-md font-black text-lg shadow-xl hover:bg-teal-700 transition-all transform active:scale-95"
 									>
 										Save Profile Changes
 									</button>
@@ -736,7 +736,7 @@
 									</p>
 									<button
 										onclick={openKycModal}
-										class="w-full py-5 bg-sunset text-white rounded-md font-black text-lg shadow-xl shadow-orange-900/10 hover:bg-orange-500 transition-all transform active:scale-95 flex items-center justify-center gap-3"
+										class="w-full py-5 bg-orange-400 text-white rounded-md font-black text-lg shadow-xl shadow-orange-900/10 hover:bg-orange-500 transition-all transform active:scale-95 flex items-center justify-center gap-3"
 									>
 										Complete KYC
 										<svg
@@ -1560,7 +1560,7 @@
 			>
 				<div class="bg-teal-900 px-8 py-10 text-white flex-shrink-0 relative">
 					<h2 class="text-3xl font-black tracking-tight">Complete KYC</h2>
-					<p class="text-indigo-200 mt-2 font-medium opacity-80">
+					<p class="text-indigo-100 mt-2 font-medium opacity-80">
 						Please provide your official information as it appears on your ID.
 					</p>
 					<button

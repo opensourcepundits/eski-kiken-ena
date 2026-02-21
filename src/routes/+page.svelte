@@ -48,16 +48,16 @@
 			<h1
 				class="text-5xl md:text-8xl font-black tracking-tighter leading-none drop-shadow-xl animate-in fade-in slide-in-from-bottom-8 duration-700"
 			>
-				Need a tool for the
+				Need a tool for the <br class="md:hidden" />
 				<span
-					class="relative inline-block text-left min-w-[3ch] overflow-hidden align-bottom h-[1em]"
+					class="relative inline-block text-left min-w-[3ch] overflow-hidden align-bottom h-[1.4em] md:h-[1em] whitespace-nowrap px-1"
 				>
 					<span class="invisible">{changingText}</span>
 					{#key changingText}
 						<span
 							in:fly={{ y: 100, duration: 600, delay: 0, easing: quintOut }}
 							out:fly={{ y: -100, duration: 600, easing: quintOut }}
-							class="absolute top-0 left-0 w-full text-primary underline decoration-4 underline-offset-8"
+							class="absolute top-0 left-0 w-full text-center md:text-left text-primary underline decoration-4 underline-offset-8 whitespace-nowrap"
 						>
 							{changingText}
 						</span>
