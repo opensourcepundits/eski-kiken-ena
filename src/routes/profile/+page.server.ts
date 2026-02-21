@@ -1,11 +1,10 @@
 import { db } from '$lib/server/db';
-import { bookings, listings, ratings, users, kyc } from '$lib/server/db/schema';
+import { bookings, listings, ratings, users } from '$lib/server/db/schema';
 
 import { error, fail, redirect } from '@sveltejs/kit';
 import { desc, eq, and, sql } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
-import { put } from '@vercel/blob';
-import { randomUUID } from 'crypto';
+
 import {
 	sendLoanStatusChangedEmail,
 	sendLoanCancelledByRenterEmail,
@@ -415,70 +414,6 @@ export const actions: Actions = {
 
 		return { success: true };
 	},
-	completeKyc: async ({ request, locals }) => {
-		if (!locals.user) {
-			return fail(401, { message: 'Unauthorized' });
-		}
 
-		const formData = await request.formData();
-		const name = formData.get('name') as string;
-		const surname = formData.get('surname') as string;
-		const idType = formData.get('idType') as any;
-		const identifierNumber = formData.get('identifierNumber') as string;
-		const nationality = formData.get('nationality') as string;
-		const documentImage = formData.get('documentImage') as File;
-
-		if (!name || !surname || !idType || !identifierNumber || !nationality || !documentImage) {
-			return fail(400, { message: 'Missing required fields' });
-		}
-
-		let imagePath = '';
-		try {
-			if (!documentImage.type.startsWith('image/')) {
-				return fail(400, { message: 'Only image files are allowed.' });
-			}
-
-			// Validate file size (5MB limit)
-			if (documentImage.size > 5 * 1024 * 1024) {
-				return fail(400, { message: 'Images must be less than 5MB.' });
-			}
-
-			// Upload to Vercel Blob
-			const blob = await put(`kyc/${randomUUID()}-${documentImage.name}`, documentImage, {
-				access: 'public',
-				contentType: documentImage.type
-			});
-
-			imagePath = blob.url;
-		} catch (error) {
-			console.error('Error saving KYC document to Vercel Blob:', error);
-			return fail(500, { message: 'Error uploading document.' });
-		}
-
-		try {
-			await db.insert(kyc).values({
-				userId: locals.user.id,
-				name,
-				surname,
-				idType,
-				identifierNumber,
-				nationality,
-				documentImage: imagePath
-			});
-
-			await db
-				.update(users)
-				.set({
-					kyc: true,
-					kycStatus: 'PENDING'
-				})
-				.where(eq(users.id, locals.user.id));
-		} catch (e) {
-			console.error('KYC submission failed:', e);
-			return fail(500, { message: 'Failed to submit KYC' });
-		}
-
-		return { success: true };
-	}
 };
 

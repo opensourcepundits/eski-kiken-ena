@@ -1,0 +1,95 @@
+﻿Loading svelte-check in workspace: c:\Users\noor_\Documents\projects\eke
+Getting Svelte diagnostics...
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\routes\listings\[id]\+page.server.ts[39m:84:34
+[31mError[39m: Property 'deposit' does not exist on type '{ district: "PORT_LOUIS" | "PAMPLEMOUSSES" | "RIVIERE_DU_REMPART" | "FLACQ" | "GRAND_PORT" | "SAVANNE" | "PLAINES_WILHEMS" | "MOKA" | "BLACK_RIVER" | "RODRIGUES" | null; category: "POWER_TOOLS" | ... 7 more ... | "OTHER"; ... 30 more ...; owner: { ...; }; }'. 
+[36m		const rentalCost = Number(listing.pricePerDay) * diffDays;
+		const deposit = Number(listing.[35mdeposit[36m || 0);
+		const totalPrice = (rentalCost + deposit).toFixed(2);[39m
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\lib\components\ImageCarousel.svelte[39m:93:6
+[33mWarn[39m: Self-closing HTML tags for non-void elements are ambiguous ΓÇö use `<button ...></button>` rather than `<button ... />`
+https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
+[36m				{#each images as _img, i}
+					[35m<button
+						type="button"
+						aria-label={`Go to image ${i + 1}`}
+						aria-current={i === index ? 'true' : 'false'}
+						onclick={() => (index = i)}
+						class={`h-2.5 w-2.5 rounded-full transition-all ${
+							i === index ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/80'
+						}`}
+					/>[36m
+				{/each}[39m
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\lib\components\LocationPickerModal.svelte[39m:18:27
+[33mWarn[39m: This reference only captures the initial value of `initialLat`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m	let leafletLoaded = $state(false);
+	let selectedLat = $state([35minitialLat[36m);
+	let selectedLng = $state(initialLng);[39m
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\lib\components\LocationPickerModal.svelte[39m:19:27
+[33mWarn[39m: This reference only captures the initial value of `initialLng`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m	let selectedLat = $state(initialLat);
+	let selectedLng = $state([35minitialLng[36m);
+	let address = $state('');[39m
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\routes\listings\+page.svelte[39m:26:27
+[33mWarn[39m: This reference only captures the initial value of `filters`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m
+	let searchQuery = $state([35mfilters[36m.searchQuery || '');
+	let showFilters = $state(false);[39m
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\routes\listings\+page.svelte[39m:30:32
+[33mWarn[39m: This reference only captures the initial value of `filters`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m	// Filter state
+	let selectedCategory = $state([35mfilters[36m.category || '');
+	let selectedCondition = $state(filters.condition || '');[39m
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\routes\listings\+page.svelte[39m:31:33
+[33mWarn[39m: This reference only captures the initial value of `filters`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m	let selectedCategory = $state(filters.category || '');
+	let selectedCondition = $state([35mfilters[36m.condition || '');
+	let selectedPowerSource = $state(filters.powerSource || '');[39m
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\routes\listings\+page.svelte[39m:32:35
+[33mWarn[39m: This reference only captures the initial value of `filters`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m	let selectedCondition = $state(filters.condition || '');
+	let selectedPowerSource = $state([35mfilters[36m.powerSource || '');[39m
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\routes\listings\+page.svelte[39m:34:37
+[33mWarn[39m: This reference only captures the initial value of `filters`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m
+	let selectedTransportSize = $state([35mfilters[36m.transportSize || '');
+	let minPrice = $state(filters.minPrice || '');[39m
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\routes\listings\+page.svelte[39m:35:24
+[33mWarn[39m: This reference only captures the initial value of `filters`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m	let selectedTransportSize = $state(filters.transportSize || '');
+	let minPrice = $state([35mfilters[36m.minPrice || '');
+	let maxPrice = $state(filters.maxPrice || '');[39m
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\routes\listings\+page.svelte[39m:36:24
+[33mWarn[39m: This reference only captures the initial value of `filters`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m	let minPrice = $state(filters.minPrice || '');
+	let maxPrice = $state([35mfilters[36m.maxPrice || '');
+	let sortBy = $state(filters.sortBy || 'newest');[39m
+
+c:\Users\noor_\Documents\projects\eke\[32msrc\routes\listings\+page.svelte[39m:37:22
+[33mWarn[39m: This reference only captures the initial value of `filters`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m	let maxPrice = $state(filters.maxPrice || '');
+	let sortBy = $state([35mfilters[36m.sortBy || 'newest');[39m
+
+====================================
+[31msvelte-check found 1 error and 11 warnings in 4 files
+[39m
