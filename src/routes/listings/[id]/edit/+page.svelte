@@ -5,22 +5,21 @@
 	let { data, form } = $props();
 	let listing = $derived(data.listing);
 
-	let latValue = $state<string>(data.listing.lat?.toString() || '');
-	let lngValue = $state<string>(data.listing.lng?.toString() || '');
-	let pickupAddressValue = $state<string>(data.listing.pickupAddress || '');
-	let dispatchValue = $state<string>(data.listing.dispatch || 'PICKUP_ONLY');
-	let deliveryAreasValue = $state<string>(
-		data.listing.deliveryAreas || 'Quatre Bornes, Rose Hill, Trianon, ...'
-	);
+	let latValue = $state<string>('');
+	let lngValue = $state<string>('');
+	let pickupAddressValue = $state<string>('');
+	let dispatchValue = $state<string>('PICKUP_ONLY');
+	let deliveryAreasValue = $state<string>('');
+	let replacementValue = $state<string>('');
 
-	let replacementValue = $state<string>(data.listing.replacementValue || '');
-	let depositPercentage = $state<string>(
-		data.listing.replacementValue && data.listing.deposit
-			? Math.round(
-					(Number(data.listing.deposit) / Number(data.listing.replacementValue)) * 100
-				).toString()
-			: '0'
-	);
+	$effect(() => {
+		latValue = data.listing.lat?.toString() || '';
+		lngValue = data.listing.lng?.toString() || '';
+		pickupAddressValue = data.listing.pickupAddress || '';
+		dispatchValue = data.listing.dispatch || 'PICKUP_ONLY';
+		deliveryAreasValue = data.listing.deliveryAreas || 'Quatre Bornes, Rose Hill, Trianon, ...';
+		replacementValue = data.listing.replacementValue || '';
+	});
 
 	const dispatchOptions = [
 		{ value: 'DELIVER_ONLY', label: 'Delivery only' },
@@ -432,42 +431,6 @@
 								/>
 							</div>
 						</div>
-
-						<div>
-							<label for="depositPercentage" class="block text-sm font-medium text-slate-700"
-								>Security Deposit (%)</label
-							>
-							<div class="mt-1 relative rounded-lg shadow-sm">
-								<input
-									type="number"
-									min="0"
-									max="100"
-									step="1"
-									name="depositPercentage"
-									id="depositPercentage"
-									bind:value={depositPercentage}
-									class="block w-full rounded-lg border-slate-300 focus:border-teal-600 focus:ring-teal-600 sm:text-sm p-2.5 border"
-									placeholder="0-100"
-								/>
-								<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-									<span class="text-slate-500 sm:text-sm">%</span>
-								</div>
-							</div>
-							{#if replacementValue && depositPercentage}
-								<p class="mt-1 text-xs text-slate-500 font-bold italic">
-									Calculated: Rs {(
-										(Number(replacementValue) * Number(depositPercentage)) /
-										100
-									).toFixed(2)}
-								</p>
-							{/if}
-						</div>
-
-						<input
-							type="hidden"
-							name="deposit"
-							value={((Number(replacementValue) * Number(depositPercentage)) / 100).toString()}
-						/>
 					</div>
 				</section>
 

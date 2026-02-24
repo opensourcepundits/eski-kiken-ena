@@ -45,22 +45,20 @@ export const actions: Actions = {
         const operatingHoursStart = formData.get('operatingHoursStart') as string;
         const operatingHoursEnd = formData.get('operatingHoursEnd') as string;
 
-        // Handle image uploads
-        const imageCount = parseInt(formData.get('imageCount') as string) || 0;
-        const imagePaths: string[] = [];
-
-        if (imageCount < 1) {
-            return fail(400, { message: 'At least 1 image is required.' });
-        }
-
-        if (imageCount > 5) {
-            return fail(400, { message: 'Maximum 5 images allowed.' });
-        }
-
         // Process and save images to Vercel Blob
+        const imagePaths: string[] = [];
         try {
-            for (let i = 0; i < imageCount; i++) {
-                const file = formData.get(`image_${i}`) as File;
+            const files = formData.getAll('images') as File[];
+
+            if (files.length === 0 || (files.length === 1 && !files[0].name)) {
+                return fail(400, { message: 'At least 1 image is required.' });
+            }
+
+            if (files.length > 5) {
+                return fail(400, { message: 'Maximum 5 images allowed.' });
+            }
+
+            for (const file of files) {
                 if (!file || !file.name) continue;
 
                 // Validate file type

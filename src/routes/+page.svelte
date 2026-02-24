@@ -8,8 +8,8 @@
 
 	const recentListings = $derived((data?.recentListings ?? []) as any[]);
 
-	let changingText = $state('weekend');
-	const textOptions = ['weekend', 'day', 'next few weeks', 'next few months'];
+	let changingText = $state('weekend?');
+	const textOptions = ['weekend?', 'day?', 'next weeks?', 'next months?'];
 	let textIndex = 0;
 
 	onMount(() => {
@@ -50,19 +50,19 @@
 			>
 				Need a tool for the <br class="md:hidden" />
 				<span
-					class="relative inline-block text-left min-w-[3ch] overflow-hidden align-bottom h-[1.4em] md:h-[1em] whitespace-nowrap px-1"
+					class="relative inline-block text-left min-w-[3ch] overflow-hidden align-baseline h-[1.2em] md:h-[1em] whitespace-nowrap px-1"
 				>
 					<span class="invisible">{changingText}</span>
 					{#key changingText}
 						<span
-							in:fly={{ y: 100, duration: 600, delay: 0, easing: quintOut }}
-							out:fly={{ y: -100, duration: 600, easing: quintOut }}
+							in:fly={{ y: 50, duration: 600, delay: 0, easing: quintOut }}
+							out:fly={{ y: -50, duration: 600, easing: quintOut }}
 							class="absolute top-0 left-0 w-full text-center md:text-left text-primary underline decoration-4 underline-offset-8 whitespace-nowrap"
 						>
 							{changingText}
 						</span>
 					{/key}
-				</span>?
+				</span>
 			</h1>
 
 			<!-- Search Bar -->

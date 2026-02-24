@@ -838,13 +838,6 @@
 							</span>
 						</div>
 
-						{#if Number(selectedBooking.listing.deposit) > 0}
-							<div class="flex justify-between items-center text-sm pb-2 border-b border-slate-100">
-								<span class="text-slate-500 font-medium">Security Deposit</span>
-								<span class="font-bold text-slate-900">Rs {selectedBooking.listing.deposit}</span>
-							</div>
-						{/if}
-
 						<div class="flex justify-between items-center pt-2">
 							<span class="text-slate-900 font-black text-lg">Total Paid</span>
 							<span class="text-teal-600 font-black text-2xl">Rs {selectedBooking.totalPrice}</span>

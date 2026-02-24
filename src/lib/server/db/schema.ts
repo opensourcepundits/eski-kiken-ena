@@ -137,7 +137,7 @@ export const listings = pgTable('listings', {
 	avgDays: decimal('avg_days', { precision: 10, scale: 1 }).default('0'),
 	totalEarnings: decimal('total_earnings', { precision: 10, scale: 2 }).default('0'),
 	avgEarnings: decimal('avg_earnings', { precision: 10, scale: 2 }).default('0'),
-	operatingHours: jsonb('operating_hours').default({ start: '09:00', end: '17:00' }), // Default 9-5
+	operatingHours: jsonb('operating_hours').$type<{ start: string; end: string }>().default({ start: '09:00', end: '17:00' }), // Default 9-5
 	isActive: boolean('is_active').default(true),
 	bufferDays: integer('buffer_days').default(0),
 	headsUpDays: integer('heads_up_days').default(0),

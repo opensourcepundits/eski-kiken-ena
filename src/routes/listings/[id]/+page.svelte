@@ -40,8 +40,7 @@
 		const diffTime = Math.abs(end.getTime() - start.getTime());
 		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 		const rentalCost = Number(listing.pricePerDay) * diffDays;
-		const deposit = Number(listing.deposit || 0);
-		return rentalCost + deposit;
+		return rentalCost;
 	});
 
 	let formattedDate = $derived(
@@ -146,6 +145,32 @@
 											>Size</span
 										>
 										<span class="text-slate-900">{listing.transportSize.replace('_', ' ')}</span>
+									</li>
+								{/if}
+								{#if listing.operatingHours}
+									<li class="flex justify-between border-b border-slate-200/50 pb-3">
+										<span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest"
+											>Operating Hours</span
+										>
+										<span class="text-slate-900"
+											>{listing.operatingHours.start} - {listing.operatingHours.end}</span
+										>
+									</li>
+								{/if}
+								<li class="flex justify-between border-b border-slate-200/50 pb-3">
+									<span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest"
+										>Min. Heads Up</span
+									>
+									<span class="text-slate-900"
+										>{listing.headsUpDays || 0} day{listing.headsUpDays !== 1 ? 's' : ''}</span
+									>
+								</li>
+								{#if listing.replacementValue}
+									<li class="flex justify-between pb-3">
+										<span class="text-slate-400 font-bold uppercase text-[10px] tracking-widest"
+											>Item's Value</span
+										>
+										<span class="text-slate-900">Rs {listing.replacementValue}</span>
 									</li>
 								{/if}
 							</ul>
@@ -377,12 +402,6 @@
 																(1000 * 60 * 60 * 24)
 														)}</span
 												>
-											</div>
-											<div
-												class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-500"
-											>
-												<span>Security Deposit</span>
-												<span>Rs {listing.deposit || 0}</span>
 											</div>
 										</div>
 										<div
