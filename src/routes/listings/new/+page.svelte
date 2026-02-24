@@ -1,28 +1,10 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import MapPicker from '$lib/components/MapPicker.svelte';
+	import { goto } from '$app/navigation';
+	import ImageCarousel from '$lib/components/ImageCarousel.svelte';
 
-	let { form } = $props();
-
-	let latValue = $state<string>('');
-	let lngValue = $state<string>('');
-	let pickupAddressValue = $state<string>('');
-	let dispatchValue = $state<string>('PICKUP_ONLY');
-	let deliveryAreasValue = $state<string>('Quatre Bornes, Rose Hill, Trianon, ...');
-
-	// Image upload state
-	let selectedImages = $state<File[]>([]);
-	let imagePreviews = $state<string[]>([]);
-	let imageError = $state<string>('');
-
-	let replacementValue = $state<string>('');
-	let depositPercentage = $state<string>('0');
-
-	const dispatchOptions = [
-		{ value: 'DELIVER_ONLY', label: 'Delivery only' },
-		{ value: 'PICKUP_ONLY', label: 'Pick up only' },
-		{ value: 'PICKUP_OR_DELIVERY', label: 'Pick up or Delivery' }
-	];
+	let { data } = $props();
+	let listings = $derived(data.listings);
+	let filters = $derived(data.filters || {});
 
 	const categories = [
 		'POWER_TOOLS',
@@ -37,614 +19,436 @@
 	];
 
 	const conditions = ['LIKE_NEW', 'GOOD', 'FUNCTIONAL', 'HEAVY_WEAR'];
-
 	const powerSources = ['BATTERY', 'CORDED_220V', 'PETROL', 'DIESEL', 'MANUAL'];
+
 	const transportSizes = ['BACKPACK', 'CAR_TRUNK', 'BACKSEAT', 'PICKUP_TRUCK', 'VAN_REQUIRED'];
+
+	let searchQuery = $state(filters.searchQuery || '');
+	let showFilters = $state(false);
+
+	// Filter state
+	let selectedCategory = $state(filters.category || '');
+	let selectedCondition = $state(filters.condition || '');
+	let selectedPowerSource = $state(filters.powerSource || '');
+
+	let selectedTransportSize = $state(filters.transportSize || '');
+	let minPrice = $state(filters.minPrice || '');
+	let maxPrice = $state(filters.maxPrice || '');
+	let sortBy = $state(filters.sortBy || 'newest');
+
+	function updateFilters() {
+		const params = new URLSearchParams();
+		if (searchQuery) params.set('q', searchQuery);
+		if (selectedCategory) params.set('category', selectedCategory);
+		if (selectedCondition) params.set('condition', selectedCondition);
+		if (selectedPowerSource) params.set('powerSource', selectedPowerSource);
+
+		if (selectedTransportSize) params.set('transportSize', selectedTransportSize);
+		if (minPrice) params.set('minPrice', minPrice);
+		if (maxPrice) params.set('maxPrice', maxPrice);
+		if (sortBy) params.set('sortBy', sortBy);
+
+		goto(`/listings?${params.toString()}`, { noScroll: false });
+	}
+
+	function clearFilters() {
+		searchQuery = '';
+		selectedCategory = '';
+		selectedCondition = '';
+		selectedPowerSource = '';
+
+		selectedTransportSize = '';
+		minPrice = '';
+		maxPrice = '';
+		sortBy = 'newest';
+		goto('/listings', { noScroll: false });
+	}
+
+	function handleSearch() {
+		updateFilters();
+	}
+
+	function formatRating(listing: any) {
+		const rating = Number(listing?.rating ?? 0);
+		const reviewCount = Number(listing?.reviewCount ?? 0);
+		if (!reviewCount) return 'No ratings yet';
+		return `★ ${rating.toFixed(1)} (${reviewCount})`;
+	}
 </script>
 
-<div class="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
-	<div class="max-w-3xl mx-auto">
-		<div class="bg-white rounded-md shadow-xl overflow-hidden border border-slate-200">
-			<div class="bg-primary px-8 py-10">
-				<h1 class="text-3xl font-extrabold text-background">List Your Item</h1>
-				<p class="mt-2 text-background/70 italic">
-					Share your tools and earn while helping others finish their projects.
-				</p>
-			</div>
+<div class="min-h-screen bg-background">
+	<!-- Hero Section -->
+	<div class="bg-secondary text-background pt-24 pb-32 px-4 shadow-inner relative overflow-hidden">
+		<div class="absolute inset-0 bg-accent opacity-20"></div>
+		<div class="max-w-7xl mx-auto relative z-10 text-center">
+			<h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-6">Rent Anything, Anywhere.</h1>
+			<p class="text-xl text-background/80 max-w-2xl mx-auto mb-10">
+				High-quality tools and equipment available for rent from your local community.
+			</p>
 
+			<!-- Search Bar -->
 			<form
-				method="POST"
-				action="/listings/new"
-				use:enhance={({ formData, cancel }) => {
-					// Validate images before submission
-					if (selectedImages.length < 1) {
-						cancel();
-						imageError = 'At least 1 image is required';
-						return;
-					}
-
-					// Add images to formData
-					selectedImages.forEach((file, index) => {
-						formData.append(`image_${index}`, file);
-					});
-					formData.append('imageCount', selectedImages.length.toString());
-
-					return async ({ result, update }) => {
-						if (result.type === 'failure' && result.data?.message) {
-							imageError = result.data.message as string;
-						}
-						update();
-					};
+				id="big-search-bar"
+				onsubmit={(e) => {
+					e.preventDefault();
+					handleSearch();
 				}}
-				enctype="multipart/form-data"
-				class="p-8 space-y-8"
+				class="max-w-3xl mx-auto relative flex flex-col sm:block gap-3"
 			>
-				{#if form?.message}
-					<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
-						{form.message}
-					</div>
-				{/if}
-
-				<!-- Core Information -->
-				<section>
-					<div class="flex items-center gap-2 mb-4">
-						<span class="text-accent text-xl"></span>
-						<h2 class="text-xl font-semibold text-secondary">Core Information</h2>
-					</div>
-					<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-						<div class="sm:col-span-2">
-							<label for="title" class="block text-sm font-medium text-secondary"
-								>Item Title *</label
-							>
-							<input
-								type="text"
-								name="title"
-								id="title"
-								required
-								class="mt-1 block w-full rounded-lg border-surface shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2.5 border"
-								placeholder="e.g. Makita Cordless Drill HP457D"
-							/>
-						</div>
-
-						<div class="sm:col-span-2">
-							<label for="description" class="block text-sm font-medium text-secondary"
-								>Description</label
-							>
-							<textarea
-								name="description"
-								id="description"
-								rows="3"
-								class="mt-1 block w-full rounded-lg border-surface shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2.5 border"
-								placeholder="Describe the item, its condition, and what's included..."
-							></textarea>
-						</div>
-
-						<div>
-							<label for="brand" class="block text-sm font-medium text-secondary">Brand</label>
-							<input
-								type="text"
-								name="brand"
-								id="brand"
-								class="mt-1 block w-full rounded-lg border-surface shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2.5 border"
-							/>
-						</div>
-
-						<div>
-							<label for="modelNumber" class="block text-sm font-medium text-slate-700"
-								>Model Number</label
-							>
-							<input
-								type="text"
-								name="modelNumber"
-								id="modelNumber"
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-							/>
-						</div>
-
-						<!-- Image Upload Section -->
-						<div class="sm:col-span-2">
-							<label for="images" class="block text-sm font-medium text-secondary mb-2"
-								>Images * (Minimum 1, Maximum 5)</label
-							>
-							<input
-								type="file"
-								name="images"
-								id="images"
-								accept="image/*"
-								multiple
-								class="hidden"
-								onchange={(e) => {
-									const files = Array.from((e.target as HTMLInputElement).files || []);
-									if (files.length + selectedImages.length > 5) {
-										imageError = 'Maximum 5 images allowed';
-										return;
-									}
-									imageError = '';
-
-									// Validate file types and sizes
-									const validFiles: File[] = [];
-									for (const file of files) {
-										if (!file.type.startsWith('image/')) {
-											imageError = 'Only image files are allowed';
-											continue;
-										}
-										if (file.size > 5 * 1024 * 1024) {
-											// 5MB limit
-											imageError = 'Images must be less than 5MB';
-											continue;
-										}
-										validFiles.push(file);
-									}
-
-									if (validFiles.length > 0) {
-										selectedImages = [...selectedImages, ...validFiles];
-										// Create previews
-										validFiles.forEach((file) => {
-											const reader = new FileReader();
-											reader.onload = (e) => {
-												imagePreviews = [...imagePreviews, e.target?.result as string];
-											};
-											reader.readAsDataURL(file);
-										});
-									}
-								}}
-							/>
-							<div class="mt-2 space-y-4">
-								<div class="flex items-center gap-4">
-									<button
-										type="button"
-										onclick={() => document.getElementById('images')?.click()}
-										class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-teal-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-										disabled={selectedImages.length >= 5}
-									>
-										{selectedImages.length === 0 ? 'Select Images' : 'Add More Images'}
-									</button>
-									<span class="text-sm text-slate-600">
-										{selectedImages.length} / 5 images selected
-									</span>
-								</div>
-
-								{#if imageError}
-									<p class="text-sm text-red-600">{imageError}</p>
-								{/if}
-
-								{#if selectedImages.length < 1}
-									<p class="text-sm text-red-600">At least 1 image is required</p>
-								{/if}
-
-								<!-- Image Previews -->
-								{#if imagePreviews.length > 0}
-									<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-										{#each imagePreviews as preview, index}
-											<div class="relative group">
-												<img
-													src={preview}
-													alt={`Preview ${index + 1}`}
-													class="w-full h-32 object-cover rounded-lg border-2 border-slate-200"
-												/>
-												<button
-													type="button"
-													onclick={() => {
-														selectedImages = selectedImages.filter((_, i) => i !== index);
-														imagePreviews = imagePreviews.filter((_, i) => i !== index);
-														imageError = '';
-													}}
-													class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-													aria-label="Remove image"
-												>
-													<svg
-														xmlns="http://www.w3.org/2000/svg"
-														class="h-4 w-4"
-														fill="none"
-														viewBox="0 0 24 24"
-														stroke="currentColor"
-													>
-														<path
-															stroke-linecap="round"
-															stroke-linejoin="round"
-															stroke-width="2"
-															d="M6 18L18 6M6 6l12 12"
-														/>
-													</svg>
-												</button>
-											</div>
-										{/each}
-									</div>
-								{/if}
-							</div>
-						</div>
-					</div>
-				</section>
-
-				<hr class="border-slate-100" />
-
-				<!-- Classification -->
-				<section>
-					<div class="flex items-center gap-2 mb-4">
-						<h2 class="text-xl font-semibold text-slate-800">Classification</h2>
-					</div>
-					<div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
-						<div>
-							<label for="category" class="block text-sm font-medium text-slate-700"
-								>Category *</label
-							>
-							<select
-								id="category"
-								name="category"
-								required
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border bg-white"
-							>
-								<option value="">Select Category</option>
-								{#each categories as cat}
-									<option value={cat}>{cat.replace('_', ' ')}</option>
-								{/each}
-							</select>
-						</div>
-
-						<div>
-							<label for="condition" class="block text-sm font-medium text-slate-700"
-								>Condition</label
-							>
-							<select
-								id="condition"
-								name="condition"
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border bg-white"
-							>
-								{#each conditions as cond}
-									<option value={cond} selected={cond === 'GOOD'}>{cond.replace('_', ' ')}</option>
-								{/each}
-							</select>
-						</div>
-
-						<div>
-							<label for="powerSource" class="block text-sm font-medium text-slate-700"
-								>Power Source</label
-							>
-							<select
-								id="powerSource"
-								name="powerSource"
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border bg-white"
-							>
-								<option value="">None / Manual</option>
-								{#each powerSources as source}
-									<option value={source}>{source.replace('_', ' ')}</option>
-								{/each}
-							</select>
-						</div>
-					</div>
-				</section>
-
-				<hr class="border-slate-100" />
-
-				<!-- Logistics -->
-				<section>
-					<div class="flex items-center gap-2 mb-4">
-						<h2 class="text-xl font-semibold text-slate-800">Logistics</h2>
-					</div>
-					<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-						<div>
-							<label for="dispatch" class="block text-sm font-medium text-slate-700"
-								>Dispatch *</label
-							>
-							<select
-								id="dispatch"
-								name="dispatch"
-								bind:value={dispatchValue}
-								required
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border bg-white"
-							>
-								{#each dispatchOptions as option}
-									<option value={option.value}>{option.label}</option>
-								{/each}
-							</select>
-						</div>
-
-						<div>
-							<label for="transportSize" class="block text-sm font-medium text-slate-700"
-								>Transport Requirements</label
-							>
-							<select
-								id="transportSize"
-								name="transportSize"
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border bg-white"
-							>
-								<option value="">Not Specified</option>
-								{#each transportSizes as size}
-									<option value={size}>{size.replace('_', ' ')}</option>
-								{/each}
-							</select>
-						</div>
-
-						{#if dispatchValue === 'DELIVER_ONLY' || dispatchValue === 'PICKUP_OR_DELIVERY'}
-							<div class="sm:col-span-1">
-								<label for="deliveryAreas" class="block text-sm font-medium text-secondary"
-									>Delivery applicable for: *</label
-								>
-								<input
-									type="text"
-									id="deliveryAreas"
-									name="deliveryAreas"
-									bind:value={deliveryAreasValue}
-									required
-									class="mt-1 block w-full rounded-lg border-surface shadow-sm focus:border-accent focus:ring-accent sm:text-sm p-2.5 border"
-									placeholder="Quatre Bornes, Rose Hill, Trianon, ..."
-								/>
-							</div>
-						{/if}
-
-						{#if dispatchValue === 'PICKUP_ONLY'}
-							<!-- Pick up only - map selector optional, address optional -->
-							<div class="sm:col-span-2 space-y-4">
-								<label for="pickupAddress" class="block text-sm font-medium text-slate-700"
-									>Pickup Address (Optional)</label
-								>
-								<div class="flex gap-2">
-									<input
-										type="text"
-										name="pickupAddress"
-										id="pickupAddress"
-										bind:value={pickupAddressValue}
-										class="flex-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-										placeholder="e.g. 12, Rue de la Paix, Port Louis"
-									/>
-									<MapPicker
-										lat={latValue ? parseFloat(latValue) : null}
-										lng={lngValue ? parseFloat(lngValue) : null}
-										onLocationSelect={(lat, lng, address) => {
-											latValue = lat.toString();
-											lngValue = lng.toString();
-											if (address) {
-												pickupAddressValue = address;
-											}
-										}}
-									/>
-								</div>
-							</div>
-						{:else if dispatchValue === 'DELIVER_ONLY'}
-							<!-- Delivery only - no address field, no map selector -->
-						{:else}
-							<!-- Pick up or Delivery - map required, address auto-filled -->
-							<div class="sm:col-span-2 space-y-4">
-								<label for="pickupAddress" class="block text-sm font-medium text-slate-700"
-									>Pickup Address *</label
-								>
-								<div class="flex gap-2">
-									<input
-										type="text"
-										name="pickupAddress"
-										id="pickupAddress"
-										bind:value={pickupAddressValue}
-										class="flex-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-										placeholder="e.g. 12, Rue de la Paix, Port Louis"
-									/>
-									<MapPicker
-										lat={latValue ? parseFloat(latValue) : null}
-										lng={lngValue ? parseFloat(lngValue) : null}
-										onLocationSelect={(lat, lng, address) => {
-											latValue = lat.toString();
-											lngValue = lng.toString();
-											if (address) {
-												pickupAddressValue = address;
-											}
-										}}
-									/>
-								</div>
-								{#if !latValue || !lngValue}
-									<p class="text-sm text-red-600">
-										⚠️ Please select a location on the map (required)
-									</p>
-								{/if}
-							</div>
-						{/if}
-					</div>
-
-					<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-						<div class="flex-1">
-							<h3 class="block text-sm font-medium text-slate-700 mb-2">
-								Operating Hours (For Pickup/Return)
-							</h3>
-							<div class="flex gap-4 items-center">
-								<div class="flex-1">
-									<label for="operatingHoursStart" class="block text-xs text-slate-500 mb-1"
-										>Start Time</label
-									>
-									<input
-										type="time"
-										name="operatingHoursStart"
-										id="operatingHoursStart"
-										value="09:00"
-										required
-										class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-									/>
-								</div>
-								<span class="text-slate-400">to</span>
-								<div class="flex-1">
-									<label for="operatingHoursEnd" class="block text-xs text-slate-500 mb-1"
-										>End Time</label
-									>
-									<input
-										type="time"
-										name="operatingHoursEnd"
-										id="operatingHoursEnd"
-										value="17:00"
-										required
-										class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-									/>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-						<div class="flex-1">
-							<label
-								for="bufferDays"
-								class="flex items-center gap-2 text-sm font-medium text-slate-700"
-							>
-								Buffer Days between listings
-								<div class="group relative inline-block">
-									<span
-										class="cursor-help bg-slate-200 text-slate-600 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold"
-										>i</span
-									>
-									<div
-										class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block w-48 p-2 bg-slate-800 text-white text-[10px] rounded shadow-lg z-50 normal-case leading-tight"
-									>
-										This can be used for checking the quality of the item before renting it out
-										again.
-									</div>
-								</div>
-							</label>
-							<input
-								type="number"
-								name="bufferDays"
-								id="bufferDays"
-								min="0"
-								value="0"
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border h-[42px]"
-							/>
-						</div>
-
-						<div class="flex-1">
-							<label
-								for="headsUpDays"
-								class="flex items-center gap-2 text-sm font-medium text-slate-700"
-							>
-								Heads up days before booking
-								<div class="group relative inline-block">
-									<span
-										class="cursor-help bg-slate-200 text-slate-600 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold"
-										>i</span
-									>
-									<div
-										class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block w-48 p-2 bg-slate-800 text-white text-[10px] rounded shadow-lg z-50 normal-case leading-tight"
-									>
-										The minimum number of days of heads up the lister needs to prepare the item
-										before renting it out.
-									</div>
-								</div>
-							</label>
-							<input
-								type="number"
-								name="headsUpDays"
-								id="headsUpDays"
-								min="0"
-								value="0"
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border h-[42px]"
-							/>
-						</div>
-					</div>
-				</section>
-
-				<hr class="border-slate-100" />
-
-				<section>
-					<div class="flex items-center gap-2 mb-4">
-						<h2 class="text-xl font-semibold text-slate-800">Financials</h2>
-					</div>
-					<div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
-						<div>
-							<label for="pricePerDay" class="block text-sm font-medium text-slate-700"
-								>Price / Day (Rs) *</label
-							>
-							<div class="mt-1 relative rounded-lg shadow-sm">
-								<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-									<span class="text-slate-500 sm:text-sm">Rs</span>
-								</div>
-								<input
-									type="number"
-									step="0.01"
-									name="pricePerDay"
-									id="pricePerDay"
-									required
-									class="block w-full pl-10 rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-								/>
-							</div>
-						</div>
-
-						<div>
-							<label for="replacementValue" class="block text-sm font-medium text-slate-700"
-								>Item's Value (Rs)</label
-							>
-							<div class="mt-1 relative rounded-lg shadow-sm">
-								<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-									<span class="text-slate-500 sm:text-sm">Rs</span>
-								</div>
-								<input
-									type="number"
-									step="0.01"
-									name="replacementValue"
-									id="replacementValue"
-									bind:value={replacementValue}
-									class="block w-full pl-10 rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-								/>
-							</div>
-						</div>
-
-						<div>
-							<label for="depositPercentage" class="block text-sm font-medium text-slate-700"
-								>Security Deposit (%)</label
-							>
-							<div class="mt-1 relative rounded-lg shadow-sm">
-								<input
-									type="number"
-									min="0"
-									max="100"
-									step="1"
-									name="depositPercentage"
-									id="depositPercentage"
-									bind:value={depositPercentage}
-									class="block w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2.5 border"
-									placeholder="0-100"
-								/>
-								<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-									<span class="text-slate-500 sm:text-sm">%</span>
-								</div>
-							</div>
-							{#if replacementValue && depositPercentage}
-								<p class="mt-1 text-xs text-slate-500">
-									Calculated: Rs {(
-										(Number(replacementValue) * Number(depositPercentage)) /
-										100
-									).toFixed(2)}
-								</p>
-							{/if}
-						</div>
-
-						<input
-							type="hidden"
-							name="deposit"
-							value={((Number(replacementValue) * Number(depositPercentage)) / 100).toString()}
-						/>
-					</div>
-				</section>
-
-				<!-- Hidden inputs for lat/lng and district -->
-				{#if dispatchValue === 'PICKUP_OR_DELIVERY'}
-					<input type="hidden" name="lat" value={latValue} required />
-					<input type="hidden" name="lng" value={lngValue} required />
-				{:else}
-					<input type="hidden" name="lat" value={latValue} />
-					<input type="hidden" name="lng" value={lngValue} />
-				{/if}
-
-				<div class="pt-6 border-t border-slate-200 flex items-center justify-end gap-4">
-					<button
-						type="button"
-						class="px-6 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-					>
-						Cancel
-					</button>
-					<button
-						type="submit"
-						disabled={(dispatchValue === 'PICKUP_OR_DELIVERY' && (!latValue || !lngValue)) ||
-							selectedImages.length < 1}
-						class="px-10 py-2.5 rounded-lg text-sm font-medium text-white bg-teal-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all shadow-lg hover:shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
-					>
-						Create Listing
-					</button>
-				</div>
+				<input
+					type="text"
+					placeholder="Search for tools, equipment..."
+					bind:value={searchQuery}
+					class="w-full pl-6 sm:pr-32 py-4 sm:py-5 rounded-full text-secondary bg-white text-secondary placeholder-slate-500 shadow-2xl focus:ring-4 focus:ring-accent/50 transition-all border-none"
+				/>
+				<button
+					type="submit"
+					class="sm:absolute sm:right-3 sm:top-1/2 sm:-translate-y-1/2 bg-accent hover:bg-surface text-background px-8 py-4 sm:py-3 rounded-full font-semibold transition-colors w-full sm:w-auto mt-2 sm:mt-0"
+				>
+					Find Gear
+				</button>
 			</form>
 		</div>
 	</div>
+
+	<!-- Main Content -->
+	<main class="max-w-7xl mx-auto px-4 -mt-16 relative z-20 pb-20">
+		<div class="flex flex-col lg:flex-row gap-6">
+			<!-- Filter Sidebar -->
+			<aside
+				class="{showFilters
+					? 'block'
+					: 'hidden'} lg:block w-full lg:w-64 flex-shrink-0 bg-background rounded-lg border border-surface p-6 h-fit lg:sticky lg:top-4"
+			>
+				<div class="flex items-center justify-between mb-6">
+					<h2 class="text-lg font-bold text-secondary">Filters</h2>
+					<button
+						type="button"
+						onclick={clearFilters}
+						class="text-xs text-accent hover:underline font-medium"
+					>
+						Clear all
+					</button>
+				</div>
+
+				<div class="space-y-6">
+					<!-- Category Filter -->
+					<div>
+						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">Category</h3>
+						<div class="space-y-2">
+							<label class="flex items-center gap-2 cursor-pointer group">
+								<input
+									type="radio"
+									name="category"
+									value=""
+									bind:group={selectedCategory}
+									onchange={updateFilters}
+									class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
+								/>
+								<span class="text-sm text-slate-500 italic">All Categories</span>
+							</label>
+							{#each categories as cat}
+								<label class="flex items-center gap-2 cursor-pointer group">
+									<input
+										type="radio"
+										name="category"
+										value={cat}
+										bind:group={selectedCategory}
+										onchange={updateFilters}
+										class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
+									/>
+									<span class="text-sm text-slate-700 group-hover:text-accent"
+										>{cat.replace(/_/g, ' ')}</span
+									>
+								</label>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Condition Filter -->
+					<div>
+						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">
+							Condition
+						</h3>
+						<div class="space-y-2">
+							<label class="flex items-center gap-2 cursor-pointer group">
+								<input
+									type="radio"
+									name="condition"
+									value=""
+									bind:group={selectedCondition}
+									onchange={updateFilters}
+									class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
+								/>
+								<span class="text-sm text-slate-500 italic">All Conditions</span>
+							</label>
+							{#each conditions as cond}
+								<label class="flex items-center gap-2 cursor-pointer group">
+									<input
+										type="radio"
+										name="condition"
+										value={cond}
+										bind:group={selectedCondition}
+										onchange={updateFilters}
+										class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
+									/>
+									<span class="text-sm text-slate-700 group-hover:text-accent"
+										>{cond.replace(/_/g, ' ')}</span
+									>
+								</label>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Power Source Filter -->
+					<div>
+						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">
+							Power Source
+						</h3>
+						<div class="space-y-2">
+							<label class="flex items-center gap-2 cursor-pointer group">
+								<input
+									type="radio"
+									name="powerSource"
+									value=""
+									bind:group={selectedPowerSource}
+									onchange={updateFilters}
+									class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
+								/>
+								<span class="text-sm text-slate-500 italic">All Power Sources</span>
+							</label>
+							{#each powerSources as source}
+								<label class="flex items-center gap-2 cursor-pointer group">
+									<input
+										type="radio"
+										name="powerSource"
+										value={source}
+										bind:group={selectedPowerSource}
+										onchange={updateFilters}
+										class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
+									/>
+									<span class="text-sm text-slate-700 group-hover:text-accent"
+										>{source.replace(/_/g, ' ')}</span
+									>
+								</label>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Transport Size Filter -->
+					<div>
+						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">
+							Transport Size
+						</h3>
+						<div class="space-y-2">
+							<label class="flex items-center gap-2 cursor-pointer group">
+								<input
+									type="radio"
+									name="transportSize"
+									value=""
+									bind:group={selectedTransportSize}
+									onchange={updateFilters}
+									class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
+								/>
+								<span class="text-sm text-slate-500 italic">All Sizes</span>
+							</label>
+							{#each transportSizes as size}
+								<label class="flex items-center gap-2 cursor-pointer group">
+									<input
+										type="radio"
+										name="transportSize"
+										value={size}
+										bind:group={selectedTransportSize}
+										onchange={updateFilters}
+										class="w-4 h-4 text-accent focus:ring-accent border-slate-300"
+									/>
+									<span class="text-sm text-slate-700 group-hover:text-accent"
+										>{size.replace(/_/g, ' ')}</span
+									>
+								</label>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Price Range Filter -->
+					<div>
+						<h3 class="text-sm font-bold text-secondary mb-3 uppercase tracking-wider">
+							Price Range
+						</h3>
+						<div class="space-y-3">
+							<div>
+								<label for="minPrice" class="block text-xs text-slate-600 mb-1"
+									>Min Price (Rs)</label
+								>
+								<input
+									id="minPrice"
+									type="number"
+									bind:value={minPrice}
+									onchange={updateFilters}
+									placeholder="0"
+									class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+								/>
+							</div>
+							<div>
+								<label for="maxPrice" class="block text-xs text-slate-600 mb-1"
+									>Max Price (Rs)</label
+								>
+								<input
+									id="maxPrice"
+									type="number"
+									bind:value={maxPrice}
+									onchange={updateFilters}
+									placeholder="No limit"
+									class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</aside>
+
+			<!-- Main Content Area -->
+			<div class="flex-1">
+				<!-- Action Bar -->
+				<div class="flex justify-between items-center mb-8">
+					<div class="flex gap-4">
+						<button
+							type="button"
+							onclick={() => (showFilters = !showFilters)}
+							class="lg:hidden flex-shrink-0 flex items-center gap-2 bg-background px-5 py-2.5 rounded-lg border border-surface shadow-sm font-medium text-secondary hover:bg-surface transition-all"
+						>
+							Filters
+						</button>
+						<select
+							bind:value={sortBy}
+							onchange={updateFilters}
+							class="w-full lg:w-auto bg-background px-5 py-2.5 rounded-lg border border-surface shadow-sm font-medium text-secondary hover:bg-surface transition-all appearance-none pr-10"
+						>
+							<option value="newest">Sort by: Newest</option>
+							<option value="price-low">Price: Low to High</option>
+							<option value="price-high">Price: High to Low</option>
+						</select>
+					</div>
+					<a
+						href="/listings/new"
+						class="hidden md:flex flex-shrink-0 items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-teal-600/30 transition-all hover:scale-105 active:scale-95"
+					>
+						List Your Gear
+					</a>
+				</div>
+
+				<a
+					href="/listings/new"
+					class="md:hidden w-full flex justify-center items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-teal-600/30 transition-all active:scale-95 mb-6"
+				>
+					List Your Gear
+				</a>
+
+				<!-- Results Count -->
+				<div class="mb-6 text-sm text-slate-600">
+					<span class="font-semibold">{listings.length}</span> listing{listings.length !== 1
+						? 's'
+						: ''} found
+				</div>
+
+				<!-- Grid -->
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+					{#each listings as listing}
+						<div
+							class="group bg-background rounded-md overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-surface flex flex-col"
+						>
+							<!-- Image Placeholder -->
+							<div class="h-48 bg-surface overflow-hidden relative">
+								<ImageCarousel
+									images={(listing.images as string[]) || []}
+									alt={listing.title}
+									containerClass="h-48 bg-surface"
+									imageClass="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+									showDots={false}
+									controlsOnHover={true}
+								/>
+								<div
+									class="absolute top-4 left-4 bg-background/95 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-accent shadow-sm"
+								>
+									{listing.category?.replace(/_/g, ' ') ?? 'General'}
+								</div>
+							</div>
+
+							<!-- Details -->
+							<div class="p-6 flex-grow flex flex-col">
+								<div class="flex justify-between items-start mb-2">
+									<h3
+										class="text-xl font-bold text-secondary group-hover:text-accent transition-colors line-clamp-1"
+									>
+										{listing.title}
+									</h3>
+								</div>
+
+								<div class="flex items-center justify-between gap-3 mb-4">
+									<div
+										class="inline-flex items-center px-3 py-1 rounded-full bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600"
+									>
+										{listing.condition?.replace(/_/g, ' ') ?? 'GOOD'}
+									</div>
+									<div class="text-xs font-black text-slate-500">{formatRating(listing)}</div>
+								</div>
+
+								<div class="flex items-center justify-between text-surface text-sm mb-2">
+									<span></span>
+									{#if Number(listing.avgDays ?? 0) > 0}
+										<div
+											class="flex items-center gap-1 text-indigo-600 text-[10px] uppercase font-black tracking-wider"
+										>
+											<span>Avg. {listing.avgDays} days</span>
+										</div>
+									{/if}
+								</div>
+
+								{#if listing.operatingHours}
+									<div
+										class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4"
+									>
+										<span
+											>🕒 {(listing.operatingHours as any).start} - {(listing.operatingHours as any)
+												.end}</span
+										>
+									</div>
+								{/if}
+
+								<div class="mt-auto pt-4 border-t border-surface flex items-center justify-between">
+									<div>
+										<span class="text-2xl font-black text-accent">Rs {listing.pricePerDay}</span>
+										<span class="text-surface text-sm">/ day</span>
+									</div>
+									<a
+										href="/listings/{listing.id}"
+										class="relative z-20 w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center text-white hover:bg-teal-700 transition-all shadow-sm shadow-teal-600/20"
+									>
+										<span class="text-lg leading-none">→</span>
+									</a>
+								</div>
+							</div>
+						</div>
+					{/each}
+				</div>
+
+				{#if listings.length === 0}
+					<div class="py-20 text-center">
+						<div
+							class="bg-background inline-flex p-8 rounded-3xl shadow-sm border border-surface mb-6"
+						></div>
+						<h3 class="text-2xl font-bold text-secondary mb-2">No listings found</h3>
+						<p class="text-surface">Try adjusting your filters or search query</p>
+						<button
+							type="button"
+							onclick={clearFilters}
+							class="mt-8 inline-block text-accent font-bold hover:underline"
+						>
+							Clear all filters &rarr;
+						</button>
+					</div>
+				{/if}
+			</div>
+		</div>
+	</main>
 </div>
