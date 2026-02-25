@@ -1197,14 +1197,14 @@
 												<label
 													for="pickupTime"
 													class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1"
-													>New Pickup Time</label
+													>New Pickup Time <span class="text-red-500">*</span></label
 												>
 												<input
 													type="time"
 													name="pickupTime"
 													value={selectedBooking.pickupTime}
 													required
-													class="w-full rounded-lg border-slate-200 text-sm font-bold"
+													class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
 												/>
 											</div>
 										{/if}
@@ -1213,14 +1213,14 @@
 												<label
 													for="returnTime"
 													class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1"
-													>New Return Time</label
+													>New Return Time <span class="text-red-500">*</span></label
 												>
 												<input
 													type="time"
 													name="returnTime"
 													value={selectedBooking.returnTime}
 													required
-													class="w-full rounded-lg border-slate-200 text-sm font-bold"
+													class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
 												/>
 											</div>
 										{/if}
@@ -1381,28 +1381,28 @@
 								<label
 									for="respPickupTime"
 									class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
-									>Pickup Time</label
+									>Pickup Time <span class="text-red-500">*</span></label
 								>
 								<input
 									type="time"
 									id="respPickupTime"
 									bind:value={responsePickupTime}
 									required
-									class="w-full rounded-lg border-slate-200 text-sm font-bold focus:ring-teal-500 focus:border-teal-500"
+									class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
 								/>
 							</div>
 							<div>
 								<label
 									for="respReturnTime"
 									class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
-									>Return Time</label
+									>Return Time <span class="text-red-500">*</span></label
 								>
 								<input
 									type="time"
 									id="respReturnTime"
 									bind:value={responseReturnTime}
 									required
-									class="w-full rounded-lg border-slate-200 text-sm font-bold focus:ring-teal-500 focus:border-teal-500"
+									class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
 								/>
 							</div>
 						</div>
