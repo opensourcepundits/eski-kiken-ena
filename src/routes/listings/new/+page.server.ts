@@ -30,7 +30,6 @@ export const actions: Actions = {
 
         const pickupAddress = formData.get('pickupAddress') as string;
         const pricePerDay = formData.get('pricePerDay') as string;
-        const deposit = formData.get('deposit') as string;
         const replacementValueRaw = formData.get('replacementValue') as string;
         const replacementValue = replacementValueRaw && replacementValueRaw.trim() !== '' ? replacementValueRaw : null;
         const transportSizeRaw = formData.get('transportSize');
@@ -113,7 +112,6 @@ export const actions: Actions = {
                 lat,
                 lng,
                 pricePerDay,
-                deposit: deposit || '0',
                 replacementValue,
                 transportSize,
                 dispatch,
@@ -133,6 +131,6 @@ export const actions: Actions = {
             return fail(500, { message: 'Internal Server Error' });
         }
 
-        throw redirect(302, '/listings');
+        return { success: true };
     }
 };

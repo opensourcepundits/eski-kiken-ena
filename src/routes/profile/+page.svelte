@@ -3,11 +3,29 @@
 	import DashboardTab from './DashboardTab.svelte';
 	import ListingMap from '$lib/components/ListingMap.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+	import ResultModal from '$lib/components/ResultModal.svelte';
 
 	let { data } = $props();
 	let user = $derived(data.user);
 
 	let isSubmittingResponse = $state(false);
+
+	// --- Result Modal State ---
+	let resultModal = $state<{
+		isOpen: boolean;
+		title: string;
+		message: string;
+		type: 'success' | 'error';
+	}>({
+		isOpen: false,
+		title: '',
+		message: '',
+		type: 'success'
+	});
+
+	function openResult(title: string, message: string, type: 'success' | 'error' = 'success') {
+		resultModal = { isOpen: true, title, message, type };
+	}
 
 	let declineForm: HTMLFormElement | undefined = $state();
 	let approveForm: HTMLFormElement | undefined = $state();
@@ -1082,8 +1100,11 @@
 								method="POST"
 								action="?/submitReview"
 								use:enhance={() => {
-									return async ({ update }) => {
+									return async ({ result, update }) => {
 										isReviewSubmitted = true;
+										if (result.type === 'success') {
+											openResult('Review Submitted!', 'Thank you for your feedback.');
+										}
 										await update();
 									};
 								}}
@@ -1156,7 +1177,13 @@
 										method="POST"
 										action="?/updateBooking"
 										use:enhance={() => {
-											return async ({ update }) => {
+											return async ({ result, update }) => {
+												if (result.type === 'success') {
+													openResult(
+														'Update Resubmitted',
+														'Your booking details have been updated and sent to the owner.'
+													);
+												}
 												await update();
 												closeBookingModal();
 											};
@@ -1231,7 +1258,13 @@
 		method="POST"
 		action="?/deleteListing"
 		use:enhance={() => {
-			return async ({ update }) => {
+			return async ({ result, update }) => {
+				if (result.type === 'success') {
+					openResult(
+						'Listing Removed',
+						'The item has been successfully removed from your inventory.'
+					);
+				}
 				await update();
 			};
 		}}
@@ -1246,8 +1279,11 @@
 		action="?/updateBookingStatus"
 		use:enhance={() => {
 			isSubmittingResponse = true;
-			return async ({ update }) => {
+			return async ({ result, update }) => {
 				isSubmittingResponse = false;
+				if (result.type === 'success') {
+					openResult('Booking Cancelled', 'Your reservation has been successfully cancelled.');
+				}
 				await update();
 			};
 		}}
@@ -1438,8 +1474,11 @@
 							action="?/updateBookingStatus"
 							use:enhance={() => {
 								isSubmittingResponse = true;
-								return async ({ update }) => {
+								return async ({ result, update }) => {
 									isSubmittingResponse = false;
+									if (result.type === 'success') {
+										openResult('Request Declined', 'The rental request has been declined.');
+									}
 									await update();
 									closeRespondModal();
 								};
@@ -1469,8 +1508,14 @@
 							action="?/updateBookingStatus"
 							use:enhance={() => {
 								isSubmittingResponse = true;
-								return async ({ update }) => {
+								return async ({ result, update }) => {
 									isSubmittingResponse = false;
+									if (result.type === 'success') {
+										openResult(
+											'Rental Approved!',
+											'You have successfully confirmed this rental request.'
+										);
+									}
 									await update();
 									closeRespondModal();
 								};
@@ -1564,6 +1609,14 @@
 		</div>
 	</div>
 {/if}
+
+<ResultModal
+	isOpen={resultModal.isOpen}
+	title={resultModal.title}
+	message={resultModal.message}
+	type={resultModal.type}
+	onClose={() => (resultModal.isOpen = false)}
+/>
 
 <style>
 	/* Custom animations or fixes if needed */

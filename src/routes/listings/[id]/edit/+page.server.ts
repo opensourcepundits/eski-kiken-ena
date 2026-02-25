@@ -38,7 +38,6 @@ export const actions: Actions = {
 
         const pickupAddress = formData.get('pickupAddress') as string;
         const pricePerDay = formData.get('pricePerDay') as string;
-        const deposit = formData.get('deposit') as string;
         const replacementValue = formData.get('replacementValue') as string;
         const transportSizeRaw = formData.get('transportSize');
         const transportSize = transportSizeRaw ? (transportSizeRaw as any) : null;
@@ -72,7 +71,6 @@ export const actions: Actions = {
                     lat,
                     lng,
                     pricePerDay,
-                    deposit: deposit || '0',
                     replacementValue,
                     transportSize,
                     dispatch,

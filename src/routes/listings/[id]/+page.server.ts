@@ -77,12 +77,10 @@ export const actions: Actions = {
 			return error(404, 'Listing missing');
 		}
 
-		// Calculate total price: (Price per day * days) + Deposit
+		// Calculate total price: Price per day * days
 		const diffTime = Math.abs(end.getTime() - start.getTime());
 		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-		const rentalCost = Number(listing.pricePerDay) * diffDays;
-		const deposit = Number(listing.deposit || 0);
-		const totalPrice = (rentalCost + deposit).toFixed(2);
+		const totalPrice = (Number(listing.pricePerDay) * diffDays).toFixed(2);
 
 		try {
 			// Check for date conflicts with existing CONFIRMED bookings for THIS listing only

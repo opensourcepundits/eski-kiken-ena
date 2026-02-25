@@ -3,10 +3,13 @@
 	import MapPicker from '$lib/components/MapPicker.svelte';
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+	import ResultModal from '$lib/components/ResultModal.svelte';
+	import { goto } from '$app/navigation';
 
 	let { data, form } = $props();
 
 	let isSubmitting = $state(false);
+	let showSuccessModal = $state(false);
 
 	let latValue = $state<string>('');
 	let lngValue = $state<string>('');
@@ -74,7 +77,11 @@
 					isSubmitting = true;
 					return async ({ result, update }) => {
 						isSubmitting = false;
-						await update();
+						if (result.type === 'success') {
+							showSuccessModal = true;
+						} else {
+							await update();
+						}
 					};
 				}}
 				enctype="multipart/form-data"
@@ -554,3 +561,11 @@
 		</div>
 	</div>
 </div>
+
+<ResultModal
+	isOpen={showSuccessModal}
+	title="Listing Created Successfully!"
+	message="Your item is now live and ready for rentals. Track its performance in your dashboard."
+	buttonText="Go to Listings"
+	onClose={() => goto('/listings')}
+/>
