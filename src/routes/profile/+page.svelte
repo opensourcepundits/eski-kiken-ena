@@ -9,6 +9,95 @@
 
 	let isSubmittingResponse = $state(false);
 
+	let declineForm: HTMLFormElement | undefined = $state();
+	let approveForm: HTMLFormElement | undefined = $state();
+	let updateBookingForm: HTMLFormElement | undefined = $state();
+	let reviewForm: HTMLFormElement | undefined = $state();
+	let deleteListingForm: HTMLFormElement | undefined = $state();
+	let cancelBookingForm: HTMLFormElement | undefined = $state();
+
+	let listingToDeleteId = $state('');
+	let bookingToCancelId = $state('');
+
+	// --- Confirmation Modal State ---
+	let confirmModal = $state<{
+		isOpen: boolean;
+		title: string;
+		message: string;
+		confirmText: string;
+		confirmClass: string;
+		onConfirm: () => void;
+	}>({
+		isOpen: false,
+		title: '',
+		message: '',
+		confirmText: 'Confirm',
+		confirmClass: '',
+		onConfirm: () => {}
+	});
+
+	function openConfirmDialog(config: {
+		title: string;
+		message: string;
+		confirmText?: string;
+		confirmClass?: string;
+		onConfirm: () => void;
+	}) {
+		confirmModal = {
+			isOpen: true,
+			title: config.title,
+			message: config.message,
+			confirmText: config.confirmText || 'Confirm',
+			confirmClass: config.confirmClass || 'bg-teal-600',
+			onConfirm: config.onConfirm
+		};
+	}
+
+	function closeConfirmDialog() {
+		confirmModal.isOpen = false;
+	}
+
+	function confirmDecline() {
+		openConfirmDialog({
+			title: 'Decline Request?',
+			message: 'Are you sure you want to decline this rental request? This will notify the renter.',
+			confirmText: 'Yes, Decline',
+			confirmClass: 'bg-red-600 hover:bg-red-700',
+			onConfirm: () => declineForm?.requestSubmit()
+		});
+	}
+
+	function confirmApprove() {
+		openConfirmDialog({
+			title: 'Approve Request?',
+			message:
+				'Are you sure you want to approve this rental? This will confirm the booking for the selected times.',
+			confirmText: 'Yes, Approve',
+			confirmClass: 'bg-teal-600 hover:bg-teal-700',
+			onConfirm: () => approveForm?.requestSubmit()
+		});
+	}
+
+	function confirmUpdate() {
+		openConfirmDialog({
+			title: 'Update Booking?',
+			message: 'Are you sure you want to update your booking details and resubmit for approval?',
+			confirmText: 'Yes, Update',
+			confirmClass: 'bg-teal-600 hover:bg-teal-700',
+			onConfirm: () => updateBookingForm?.requestSubmit()
+		});
+	}
+
+	function confirmReview() {
+		openConfirmDialog({
+			title: 'Submit Review?',
+			message: 'Are you sure you want to submit this review? You cannot change it later.',
+			confirmText: 'Yes, Submit',
+			confirmClass: 'bg-teal-600 hover:bg-teal-700',
+			onConfirm: () => reviewForm?.requestSubmit()
+		});
+	}
+
 	let activeTab = $state('requests'); // 'requests', 'rentals', 'listings', 'settings'
 
 	// --- Booking Details Modal State ---
@@ -57,15 +146,16 @@
 	// -----------------------------------
 
 	// --- Cancel Booking State (Two-Step Verification) ---
-	let bookingToCancel = $state<{ id: string; title: string } | null>(null);
-
 	function openCancelModal(event: Event, booking: any) {
 		event.stopPropagation();
-		bookingToCancel = { id: booking.id, title: booking.listing.title };
-	}
-
-	function closeCancelModal() {
-		bookingToCancel = null;
+		bookingToCancelId = booking.id;
+		openConfirmDialog({
+			title: 'Cancel Booking?',
+			message: `Are you sure you want to cancel your reservation for "${booking.listing.title}"?`,
+			confirmText: 'Yes, Cancel',
+			confirmClass: 'bg-red-600 hover:bg-red-700',
+			onConfirm: () => cancelBookingForm?.requestSubmit()
+		});
 	}
 	// --- Respond to Booking State ---
 	let bookingToRespond = $state<any>(null);
@@ -89,17 +179,15 @@
 	// ----------------------------------------------------
 
 	// --- Delete Listing State ---
-	let isDeleteModalOpen = $state(false);
-	let listingToDelete = $state<{ id: string; title: string } | null>(null);
-
 	function openDeleteModal(listing: any) {
-		listingToDelete = { id: listing.id, title: listing.title };
-		isDeleteModalOpen = true;
-	}
-
-	function closeDeleteModal() {
-		isDeleteModalOpen = false;
-		listingToDelete = null;
+		listingToDeleteId = listing.id;
+		openConfirmDialog({
+			title: 'Eski ou sir?',
+			message: `Ou pe al retire "${listing.title}" depi ou inventory. Sa aksion la pa kapav sanze apre.`,
+			confirmText: 'Wi, Retire Li',
+			confirmClass: 'bg-red-600 hover:bg-red-700',
+			onConfirm: () => deleteListingForm?.requestSubmit()
+		});
 	}
 </script>
 
@@ -990,6 +1078,7 @@
 							</h3>
 
 							<form
+								bind:this={reviewForm}
 								method="POST"
 								action="?/submitReview"
 								use:enhance={() => {
@@ -1030,6 +1119,8 @@
 								</div>
 
 								<button
+									type="button"
+									onclick={confirmReview}
 									disabled={reviewRating === 0 || isReviewSubmitted}
 									class="w-full py-3 bg-teal-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
 								>
@@ -1061,6 +1152,7 @@
 									</p>
 
 									<form
+										bind:this={updateBookingForm}
 										method="POST"
 										action="?/updateBooking"
 										use:enhance={() => {
@@ -1107,7 +1199,8 @@
 										{/if}
 
 										<button
-											type="submit"
+											type="button"
+											onclick={confirmUpdate}
 											class="w-full py-3 bg-teal-600 text-white rounded-lg font-black text-xs uppercase tracking-widest hover:bg-teal-700 shadow-md shadow-teal-900/10 active:scale-[0.98] transition-all"
 										>
 											Update & Resubmit
@@ -1132,149 +1225,37 @@
 		</div>
 	{/if}
 
-	<!-- Cancellation Confirmation Modal (Two-Step Verification) -->
-	{#if bookingToCancel}
-		<div
-			class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
-		>
-			<div
-				class="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 max-w-md w-full p-10 space-y-8 animate-in zoom-in-95 duration-300"
-			>
-				<div class="text-center">
-					<div
-						class="w-20 h-20 bg-orange-50 rounded-3xl flex items-center justify-center text-orange-600 mx-auto mb-6 shadow-sm"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="40"
-							height="40"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2.5"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line
-								x1="9"
-								y1="9"
-								x2="15"
-								y2="15"
-							/></svg
-						>
-					</div>
-					<h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Cancel Booking?</h2>
-					<p class="text-slate-500 font-medium leading-relaxed">
-						Are you sure you want to cancel your reservation for <span
-							class="text-slate-900 font-black">"{bookingToCancel.title}"</span
-						>?
-					</p>
-				</div>
+	<!-- Hidden Action Forms -->
+	<form
+		bind:this={deleteListingForm}
+		method="POST"
+		action="?/deleteListing"
+		use:enhance={() => {
+			return async ({ update }) => {
+				await update();
+			};
+		}}
+		class="hidden"
+	>
+		<input type="hidden" name="id" value={listingToDeleteId} />
+	</form>
 
-				<div class="flex flex-col gap-3">
-					<form
-						method="POST"
-						action="?/updateBookingStatus"
-						use:enhance={() => {
-							isSubmittingResponse = true;
-							return async ({ update }) => {
-								isSubmittingResponse = false;
-								await update();
-								closeCancelModal();
-							};
-						}}
-					>
-						<input type="hidden" name="bookingId" value={bookingToCancel.id} />
-						<input type="hidden" name="status" value="CANCELLED" />
-						<button
-							type="submit"
-							disabled={isSubmittingResponse}
-							class="w-full py-4 bg-red-600 text-white rounded-md font-black text-sm uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-100 active:scale-[0.98] flex items-center justify-center gap-2"
-						>
-							{#if isSubmittingResponse}
-								<LoadingSpinner />
-							{/if}
-							Yes, Cancel Booking
-						</button>
-					</form>
-					<button
-						onclick={closeCancelModal}
-						class="w-full py-4 bg-slate-50 text-slate-500 rounded-md font-black text-sm uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-[0.98]"
-					>
-						No, Keep it
-					</button>
-				</div>
-			</div>
-		</div>
-	{/if}
-
-	<!-- Custom Delete Modal -->
-	{#if isDeleteModalOpen && listingToDelete}
-		<div
-			class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
-		>
-			<div
-				class="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 max-w-md w-full p-10 space-y-8 animate-in zoom-in-95 duration-300"
-			>
-				<div class="text-center">
-					<div
-						class="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center text-red-600 mx-auto mb-6 shadow-sm animate-bounce"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width="40"
-							height="40"
-							viewBox="0 0 24 24"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2.5"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							><path
-								d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-							/><line x1="12" y1="9" x2="12" y2="13" /><line
-								x1="12"
-								y1="17"
-								x2="12.01"
-								y2="17"
-							/></svg
-						>
-					</div>
-					<h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Eski ou sir?</h2>
-					<p class="text-slate-500 font-medium leading-relaxed">
-						Ou pe al retire <span class="text-slate-900 font-black">"{listingToDelete.title}"</span> depi
-						ou inventory. Sa aksion la pa kapav sanze apre.
-					</p>
-				</div>
-
-				<div class="flex flex-col gap-3">
-					<form
-						method="POST"
-						action="?/deleteListing"
-						use:enhance={() => {
-							return async ({ result, update }) => {
-								await update();
-								closeDeleteModal();
-							};
-						}}
-					>
-						<input type="hidden" name="id" value={listingToDelete.id} />
-						<button
-							type="submit"
-							class="w-full py-4 bg-red-600 text-white rounded-md font-black text-sm uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-100 active:scale-[0.98]"
-						>
-							Wi, Retire Li
-						</button>
-					</form>
-					<button
-						onclick={closeDeleteModal}
-						class="w-full py-4 bg-slate-50 text-slate-500 rounded-md font-black text-sm uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-[0.98]"
-					>
-						Cancel
-					</button>
-				</div>
-			</div>
-		</div>
-	{/if}
+	<form
+		bind:this={cancelBookingForm}
+		method="POST"
+		action="?/updateBookingStatus"
+		use:enhance={() => {
+			isSubmittingResponse = true;
+			return async ({ update }) => {
+				isSubmittingResponse = false;
+				await update();
+			};
+		}}
+		class="hidden"
+	>
+		<input type="hidden" name="bookingId" value={bookingToCancelId} />
+		<input type="hidden" name="status" value="CANCELLED" />
+	</form>
 
 	<!-- Respond to Booking Modal -->
 	{#if bookingToRespond}
@@ -1452,6 +1433,7 @@
 					<div class="flex gap-3">
 						<!-- Decline Form -->
 						<form
+							bind:this={declineForm}
 							method="POST"
 							action="?/updateBookingStatus"
 							use:enhance={() => {
@@ -1468,7 +1450,8 @@
 							<input type="hidden" name="status" value="CANCELLED" />
 							<input type="hidden" name="message" value={responseMessage} />
 							<button
-								type="submit"
+								type="button"
+								onclick={confirmDecline}
 								disabled={isSubmittingResponse}
 								class="w-full py-4 bg-white text-slate-500 border border-slate-200 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
 							>
@@ -1481,6 +1464,7 @@
 
 						<!-- Approve Form -->
 						<form
+							bind:this={approveForm}
 							method="POST"
 							action="?/updateBookingStatus"
 							use:enhance={() => {
@@ -1500,7 +1484,8 @@
 							<input type="hidden" name="returnTime" value={responseReturnTime} />
 
 							<button
-								type="submit"
+								type="button"
+								onclick={confirmApprove}
 								disabled={!responseMessage ||
 									!responsePickupTime ||
 									!responseReturnTime ||
@@ -1522,6 +1507,62 @@
 	{/if}
 
 	<!-- KYC Modal -->
+{/if}
+
+<!-- Global Confirmation Modal -->
+{#if confirmModal.isOpen}
+	<div
+		class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+	>
+		<div
+			class="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 max-w-md w-full p-10 space-y-8 animate-in zoom-in-95 duration-300"
+		>
+			<div class="text-center">
+				<div
+					class="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center text-indigo-600 mx-auto mb-6 shadow-sm"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="40"
+						height="40"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline
+							points="22 4 12 14.01 9 11.01"
+						/></svg
+					>
+				</div>
+				<h2 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">
+					{confirmModal.title}
+				</h2>
+				<p class="text-slate-500 font-medium leading-relaxed">
+					{confirmModal.message}
+				</p>
+			</div>
+
+			<div class="flex flex-col gap-3">
+				<button
+					onclick={() => {
+						confirmModal.onConfirm();
+						closeConfirmDialog();
+					}}
+					class="w-full py-4 text-white rounded-md font-black text-sm uppercase tracking-widest transition-all shadow-xl active:scale-[0.98] {confirmModal.confirmClass}"
+				>
+					{confirmModal.confirmText}
+				</button>
+				<button
+					onclick={closeConfirmDialog}
+					class="w-full py-4 bg-slate-50 text-slate-500 rounded-md font-black text-sm uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-[0.98]"
+				>
+					Cancel
+				</button>
+			</div>
+		</div>
+	</div>
 {/if}
 
 <style>
