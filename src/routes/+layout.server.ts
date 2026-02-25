@@ -10,9 +10,10 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 		checkExpiredBookings().catch(err => console.error('Background expiry check failed', err));
 	}
 
-	let notifications: any[] = [];
+	// Stream notifications if user exists
+	const notificationsPromise = (async () => {
+		if (!locals.user) return [];
 
-	if (locals.user) {
 		const userId = locals.user.id;
 		const ownerListings = await db.select({ id: listings.id }).from(listings).where(eq(listings.ownerId, userId));
 		const listingIds = ownerListings.map((l: any) => l.id);
@@ -44,7 +45,7 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 			limit: 5
 		});
 
-		notifications = [
+		return [
 			...pendingRequests.map(b => ({
 				id: b.id,
 				type: 'REQUEST_RECEIVED',
@@ -60,10 +61,10 @@ export const load: LayoutServerLoad = async ({ locals }) => {
 				href: '/profile'
 			}))
 		].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
-	}
+	})();
 
 	return {
 		user: locals.user,
-		notifications
+		notifications: notificationsPromise
 	};
 };

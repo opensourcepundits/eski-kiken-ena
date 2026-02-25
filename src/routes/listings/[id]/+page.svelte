@@ -5,8 +5,12 @@
 	import DateRangeCalendar from '$lib/components/DateRangeCalendar.svelte';
 	import LocationPickerModal from '$lib/components/LocationPickerModal.svelte';
 
+	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
+
 	let { data, form } = $props<{ data: any; form: any }>();
 	let listing = $derived(data.listing);
+
+	let isSubmitting = $state(false);
 
 	let startDate = $state('');
 	let endDate = $state('');
@@ -265,7 +269,18 @@
 								</div>
 							</div> -->
 
-							<form method="POST" action="?/book" use:enhance class="space-y-4">
+							<form
+								method="POST"
+								action="?/book"
+								use:enhance={() => {
+									isSubmitting = true;
+									return async ({ update }) => {
+										isSubmitting = false;
+										await update();
+									};
+								}}
+								class="space-y-4"
+							>
 								{#if form?.message}
 									<div
 										class="bg-red-50 text-red-600 p-3 rounded-xl text-xs font-bold border border-red-100 animate-in fade-in slide-in-from-top-2"
@@ -419,10 +434,16 @@
 									disabled={!startDate ||
 										!endDate ||
 										hasConflict ||
-										(chosenDispatch === 'DELIVERY' && !deliveryAddress)}
-									class="w-full py-4 bg-teal-600 hover:bg-indigo-700 text-white rounded-[1.25rem] font-black text-lg transition-all shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transform disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale disabled:scale-100"
+										(chosenDispatch === 'DELIVERY' && !deliveryAddress) ||
+										isSubmitting}
+									class="w-full py-4 bg-teal-600 hover:bg-indigo-700 text-white rounded-[1.25rem] font-black text-lg transition-all shadow-xl shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] transform disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale disabled:scale-100 flex items-center justify-center gap-2"
 								>
-									Request Booking
+									{#if isSubmitting}
+										<LoadingSpinner />
+										Sending Request...
+									{:else}
+										Request Booking
+									{/if}
 								</button>
 							</form>
 						</div>

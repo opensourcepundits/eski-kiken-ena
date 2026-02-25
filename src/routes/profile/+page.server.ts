@@ -18,49 +18,46 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(302, '/login');
 	}
 
-	const userListings = await db.query.listings.findMany({
-		where: eq(listings.ownerId, locals.user.id),
-		with: {
-			bookings: true
-		},
-		orderBy: [desc(listings.createdAt)]
-	});
-
-	const userBookings = await db.query.bookings.findMany({
-		where: eq(bookings.renterId, locals.user.id),
-		with: {
-			listing: {
-				with: {
-					owner: true
-				}
-			}
-		},
-		orderBy: [desc(bookings.createdAt)]
-	});
-
-	// Also fetch bookings for the user's listings (as an owner)
 	const userId = locals.user.id;
-	const ownerBookings = await db.query.bookings.findMany({
-		where: (table, { inArray }) =>
-			inArray(
-				table.listingId,
-				db.select({ id: listings.id }).from(listings).where(eq(listings.ownerId, userId))
-			),
-		with: {
-			listing: {
-				with: {
-					owner: true
-				}
-			},
-			renter: true
-		},
-		orderBy: [desc(bookings.createdAt)]
-	});
 
+	// Stream data for better performance
 	return {
-		userListings,
-		userBookings,
-		ownerBookings
+		streamed: {
+			userListings: db.query.listings.findMany({
+				where: eq(listings.ownerId, locals.user.id),
+				with: {
+					bookings: true
+				},
+				orderBy: [desc(listings.createdAt)]
+			}),
+			userBookings: db.query.bookings.findMany({
+				where: eq(bookings.renterId, locals.user.id),
+				with: {
+					listing: {
+						with: {
+							owner: true
+						}
+					}
+				},
+				orderBy: [desc(bookings.createdAt)]
+			}),
+			ownerBookings: db.query.bookings.findMany({
+				where: (table, { inArray }) =>
+					inArray(
+						table.listingId,
+						db.select({ id: listings.id }).from(listings).where(eq(listings.ownerId, userId))
+					),
+				with: {
+					listing: {
+						with: {
+							owner: true
+						}
+					},
+					renter: true
+				},
+				orderBy: [desc(bookings.createdAt)]
+			})
+		}
 	};
 };
 

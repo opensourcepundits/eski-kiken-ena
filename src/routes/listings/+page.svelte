@@ -3,7 +3,6 @@
 	import ImageCarousel from '$lib/components/ImageCarousel.svelte';
 
 	let { data } = $props();
-	let listings = $derived(data.listings);
 	let filters = $derived(data.filters || {});
 
 	const categories = [
@@ -23,18 +22,29 @@
 
 	const transportSizes = ['BACKPACK', 'CAR_TRUNK', 'BACKSEAT', 'PICKUP_TRUCK', 'VAN_REQUIRED'];
 
-	let searchQuery = $state(filters.searchQuery || '');
+	let searchQuery = $state(data.filters?.searchQuery || '');
 	let showFilters = $state(false);
 
 	// Filter state
-	let selectedCategory = $state(filters.category || '');
-	let selectedCondition = $state(filters.condition || '');
-	let selectedPowerSource = $state(filters.powerSource || '');
+	let selectedCategory = $state(data.filters?.category || '');
+	let selectedCondition = $state(data.filters?.condition || '');
+	let selectedPowerSource = $state(data.filters?.powerSource || '');
 
-	let selectedTransportSize = $state(filters.transportSize || '');
-	let minPrice = $state(filters.minPrice || '');
-	let maxPrice = $state(filters.maxPrice || '');
-	let sortBy = $state(filters.sortBy || 'newest');
+	let selectedTransportSize = $state(data.filters?.transportSize || '');
+	let minPrice = $state(data.filters?.minPrice || '');
+	let maxPrice = $state(data.filters?.maxPrice || '');
+	let sortBy = $state(data.filters?.sortBy || 'newest');
+
+	$effect(() => {
+		searchQuery = data.filters?.searchQuery || '';
+		selectedCategory = data.filters?.category || '';
+		selectedCondition = data.filters?.condition || '';
+		selectedPowerSource = data.filters?.powerSource || '';
+		selectedTransportSize = data.filters?.transportSize || '';
+		minPrice = data.filters?.minPrice || '';
+		maxPrice = data.filters?.maxPrice || '';
+		sortBy = data.filters?.sortBy || 'newest';
+	});
 
 	function updateFilters() {
 		const params = new URLSearchParams();
@@ -344,110 +354,130 @@
 					List Your items
 				</a>
 
-				<!-- Results Count -->
-				<div class="mb-6 text-sm text-slate-600">
-					<span class="font-semibold">{listings.length}</span> listing{listings.length !== 1
-						? 's'
-						: ''} found
-				</div>
-
-				<!-- Grid -->
-				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-					{#each listings as listing}
-						<div
-							class="group bg-background rounded-md overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-surface flex flex-col"
-						>
-							<!-- Image Placeholder -->
-							<div class="h-48 bg-surface overflow-hidden relative">
-								<ImageCarousel
-									images={(listing.images as string[]) || []}
-									alt={listing.title}
-									containerClass="h-48 bg-surface"
-									imageClass="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-									showDots={false}
-									controlsOnHover={true}
-								/>
-								<div
-									class="absolute top-4 left-4 bg-background/95 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-accent shadow-sm"
-								>
-									{listing.category?.replace(/_/g, ' ') ?? 'General'}
+				{#await data.streamed.listings}
+					<!-- Skeleton UI -->
+					<div class="mb-6 h-5 w-32 bg-slate-100 animate-pulse rounded"></div>
+					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+						{#each Array(6) as _}
+							<div class="bg-white rounded-md border border-slate-100 h-96 animate-pulse">
+								<div class="h-48 bg-slate-50"></div>
+								<div class="p-6 space-y-4">
+									<div class="h-6 bg-slate-50 w-3/4 rounded"></div>
+									<div class="h-4 bg-slate-50 w-1/2 rounded"></div>
+									<div class="h-10 bg-slate-50 w-full rounded mt-auto"></div>
 								</div>
 							</div>
+						{/each}
+					</div>
+				{:then listings}
+					<!-- Results Count -->
+					<div class="mb-6 text-sm text-slate-600">
+						<span class="font-semibold">{listings.length}</span> listing{listings.length !== 1
+							? 's'
+							: ''} found
+					</div>
 
-							<!-- Details -->
-							<div class="p-6 flex-grow flex flex-col">
-								<div class="flex justify-between items-start mb-2">
-									<h3
-										class="text-xl font-bold text-secondary group-hover:text-accent transition-colors line-clamp-1"
-									>
-										{listing.title}
-									</h3>
-								</div>
-
-								<div class="flex items-center justify-between gap-3 mb-4">
+					<!-- Grid -->
+					<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+						{#each listings as listing}
+							<div
+								class="group bg-background rounded-md overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-surface flex flex-col"
+							>
+								<!-- Image Placeholder -->
+								<div class="h-48 bg-surface overflow-hidden relative">
+									<ImageCarousel
+										images={(listing.images as string[]) || []}
+										alt={listing.title}
+										containerClass="h-48 bg-surface"
+										imageClass="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+										showDots={false}
+										controlsOnHover={true}
+									/>
 									<div
-										class="inline-flex items-center px-3 py-1 rounded-full bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600"
+										class="absolute top-4 left-4 bg-background/95 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-accent shadow-sm"
 									>
-										{listing.condition?.replace(/_/g, ' ') ?? 'GOOD'}
+										{listing.category?.replace(/_/g, ' ') ?? 'General'}
 									</div>
-									<div class="text-xs font-black text-slate-500">{formatRating(listing)}</div>
 								</div>
 
-								<div class="flex items-center justify-between text-surface text-sm mb-2">
-									<span></span>
-									{#if Number(listing.avgDays ?? 0) > 0}
-										<div
-											class="flex items-center gap-1 text-indigo-600 text-[10px] uppercase font-black tracking-wider"
+								<!-- Details -->
+								<div class="p-6 flex-grow flex flex-col">
+									<div class="flex justify-between items-start mb-2">
+										<h3
+											class="text-xl font-bold text-secondary group-hover:text-accent transition-colors line-clamp-1"
 										>
-											<span>Avg. {listing.avgDays} days</span>
+											{listing.title}
+										</h3>
+									</div>
+
+									<div class="flex items-center justify-between gap-3 mb-4">
+										<div
+											class="inline-flex items-center px-3 py-1 rounded-full bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-600"
+										>
+											{listing.condition?.replace(/_/g, ' ') ?? 'GOOD'}
+										</div>
+										<div class="text-xs font-black text-slate-500">{formatRating(listing)}</div>
+									</div>
+
+									<div class="flex items-center justify-between text-surface text-sm mb-2">
+										<span></span>
+										{#if Number(listing.avgDays ?? 0) > 0}
+											<div
+												class="flex items-center gap-1 text-indigo-600 text-[10px] uppercase font-black tracking-wider"
+											>
+												<span>Avg. {listing.avgDays} days</span>
+											</div>
+										{/if}
+									</div>
+
+									{#if listing.operatingHours}
+										<div
+											class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4"
+										>
+											<span
+												>🕒 {(listing.operatingHours as any).start} - {(
+													listing.operatingHours as any
+												).end}</span
+											>
 										</div>
 									{/if}
-								</div>
 
-								{#if listing.operatingHours}
 									<div
-										class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4"
+										class="mt-auto pt-4 border-t border-surface flex items-center justify-between"
 									>
-										<span
-											>🕒 {(listing.operatingHours as any).start} - {(listing.operatingHours as any)
-												.end}</span
+										<div>
+											<span class="text-2xl font-black text-accent">Rs {listing.pricePerDay}</span>
+											<span class="text-surface text-sm">/ day</span>
+										</div>
+										<a
+											href="/listings/{listing.id}"
+											class="relative z-20 w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center text-white hover:bg-teal-700 transition-all shadow-sm shadow-teal-600/20"
 										>
+											<span class="text-lg leading-none">→</span>
+										</a>
 									</div>
-								{/if}
-
-								<div class="mt-auto pt-4 border-t border-surface flex items-center justify-between">
-									<div>
-										<span class="text-2xl font-black text-accent">Rs {listing.pricePerDay}</span>
-										<span class="text-surface text-sm">/ day</span>
-									</div>
-									<a
-										href="/listings/{listing.id}"
-										class="relative z-20 w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center text-white hover:bg-teal-700 transition-all shadow-sm shadow-teal-600/20"
-									>
-										<span class="text-lg leading-none">→</span>
-									</a>
 								</div>
 							</div>
-						</div>
-					{/each}
-				</div>
-
-				{#if listings.length === 0}
-					<div class="py-20 text-center">
-						<div
-							class="bg-background inline-flex p-8 rounded-3xl shadow-sm border border-surface mb-6"
-						></div>
-						<h3 class="text-2xl font-bold text-secondary mb-2">No listings found</h3>
-						<p class="text-surface">Try adjusting your filters or search query</p>
-						<button
-							type="button"
-							onclick={clearFilters}
-							class="mt-8 inline-block text-accent font-bold hover:underline"
-						>
-							Clear all filters &rarr;
-						</button>
+						{/each}
 					</div>
-				{/if}
+
+					{#if listings.length === 0}
+						<div class="py-20 text-center">
+							<div
+								class="bg-background inline-flex p-8 rounded-3xl shadow-sm border border-surface mb-6"
+							></div>
+							<h3 class="text-2xl font-bold text-secondary mb-2">No listings found</h3>
+							<p class="text-surface">Try adjusting your filters or search query</p>
+							<button
+								type="button"
+								onclick={clearFilters}
+								class="mt-8 inline-block text-accent font-bold hover:underline"
+							>
+								Clear all filters &rarr;
+							</button>
+						</div>
+					{/if}
+				{/await}
 			</div>
 		</div>
 	</main>

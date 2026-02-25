@@ -2,8 +2,11 @@
 	import { enhance } from '$app/forms';
 	import MapPicker from '$lib/components/MapPicker.svelte';
 	import { fly } from 'svelte/transition';
+	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 
 	let { data, form } = $props();
+
+	let isSubmitting = $state(false);
 
 	let latValue = $state<string>('');
 	let lngValue = $state<string>('');
@@ -68,7 +71,9 @@
 			<form
 				method="POST"
 				use:enhance={() => {
+					isSubmitting = true;
 					return async ({ result, update }) => {
+						isSubmitting = false;
 						await update();
 					};
 				}}
@@ -533,10 +538,16 @@
 					</a>
 					<button
 						type="submit"
-						disabled={dispatchValue === 'PICKUP_OR_DELIVERY' && (!latValue || !lngValue)}
-						class="w-full sm:w-auto px-12 py-3 rounded-xl text-sm font-black text-background bg-primary hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all shadow-xl shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest"
+						disabled={(dispatchValue === 'PICKUP_OR_DELIVERY' && (!latValue || !lngValue)) ||
+							isSubmitting}
+						class="w-full sm:w-auto px-12 py-3 rounded-xl text-sm font-black text-background bg-primary hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all shadow-xl shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest flex items-center justify-center gap-2"
 					>
-						Submit Listing
+						{#if isSubmitting}
+							<LoadingSpinner />
+							Listing Item...
+						{:else}
+							Submit Listing
+						{/if}
 					</button>
 				</div>
 			</form>

@@ -59,29 +59,34 @@ export const load: PageServerLoad = async ({ url }) => {
 			break;
 	}
 
-	const allListings = await db.query.listings.findMany({
-		where: whereClause,
-		orderBy,
-		with: {
-			owner: true
-		}
-	});
+	// Stream listings
+	const listingsPromise = (async () => {
+		const allListings = await db.query.listings.findMany({
+			where: whereClause,
+			orderBy,
+			with: {
+				owner: true
+			}
+		});
 
-	// Filter by search query if provided (client-side filtering for text search)
-	let filteredListings = allListings;
-	if (searchQuery) {
-		const query = searchQuery.toLowerCase();
-		filteredListings = allListings.filter(
-			(listing) =>
-				listing.title.toLowerCase().includes(query) ||
-				listing.description?.toLowerCase().includes(query) ||
-				listing.brand?.toLowerCase().includes(query) ||
-				listing.category?.toLowerCase().includes(query)
-		);
-	}
+		// Filter by search query if provided (client-side filtering for text search)
+		if (searchQuery) {
+			const query = searchQuery.toLowerCase();
+			return allListings.filter(
+				(listing) =>
+					listing.title.toLowerCase().includes(query) ||
+					listing.description?.toLowerCase().includes(query) ||
+					listing.brand?.toLowerCase().includes(query) ||
+					listing.category?.toLowerCase().includes(query)
+			);
+		}
+		return allListings;
+	})();
 
 	return {
-		listings: filteredListings,
+		streamed: {
+			listings: listingsPromise
+		},
 		filters: {
 			category,
 			condition,

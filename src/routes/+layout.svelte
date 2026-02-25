@@ -127,66 +127,81 @@
 								}}
 							>
 								<Bell size={18} />
-								{#if data.notifications && data.notifications.length > 0 && !hasViewedNotifications}
-									<span
-										class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-secondary shadow-sm"
-									></span>
-								{/if}
+								{#await data.notifications}
+									<!-- Loading state or nothing -->
+								{:then notifications}
+									{#if notifications && notifications.length > 0 && !hasViewedNotifications}
+										<span
+											class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-secondary shadow-sm"
+										></span>
+									{/if}
+								{/await}
 							</button>
 
 							{#if isNotificationsOpen}
 								<div
 									class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50 text-slate-800"
 								>
-									<div
-										class="px-4 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center"
-									>
-										<h3 class="font-bold text-sm">Notifications</h3>
-										<span
-											class="text-[10px] font-bold bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full"
-											>{data.notifications?.length || 0} New</span
+									{#await data.notifications}
+										<div class="p-6 text-center">
+											<div
+												class="inline-block w-5 h-5 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"
+											></div>
+											<p class="text-xs text-slate-400 mt-2 font-bold tracking-widest uppercase">
+												Loading...
+											</p>
+										</div>
+									{:then notifications}
+										<div
+											class="px-4 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center"
 										>
-									</div>
-									<div class="max-h-96 overflow-y-auto">
-										{#if !data.notifications || data.notifications.length === 0}
-											<div class="p-6 text-center text-slate-400 text-sm italic">
-												No new notifications.
-											</div>
-										{:else}
-											{#each data.notifications as notif}
-												<a
-													href={notif.href}
-													class="block border-b border-slate-50 p-4 hover:bg-slate-50 transition-colors"
-													onclick={() => (isNotificationsOpen = false)}
-												>
-													<div class="flex gap-3 items-start">
-														<div
-															class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 {notif.type ===
-															'REQUEST_RECEIVED'
-																? 'bg-orange-500'
-																: notif.type === 'REQUEST_ACCEPTED'
-																	? 'bg-emerald-500'
-																	: 'bg-red-500'}"
-														></div>
-														<div>
-															<p class="text-sm font-medium text-slate-700 leading-tight">
-																{notif.message}
-															</p>
-															<p
-																class="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold"
-															>
-																{new Date(notif.date).toLocaleDateString()}
-																{new Date(notif.date).toLocaleTimeString([], {
-																	hour: '2-digit',
-																	minute: '2-digit'
-																})}
-															</p>
+											<h3 class="font-bold text-sm">Notifications</h3>
+											<span
+												class="text-[10px] font-bold bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full"
+												>{notifications?.length || 0} New</span
+											>
+										</div>
+										<div class="max-h-96 overflow-y-auto">
+											{#if !notifications || notifications.length === 0}
+												<div class="p-6 text-center text-slate-400 text-sm italic">
+													No new notifications.
+												</div>
+											{:else}
+												{#each notifications as notif}
+													<a
+														href={notif.href}
+														class="block border-b border-slate-50 p-4 hover:bg-slate-50 transition-colors"
+														onclick={() => (isNotificationsOpen = false)}
+													>
+														<div class="flex gap-3 items-start">
+															<div
+																class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 {notif.type ===
+																'REQUEST_RECEIVED'
+																	? 'bg-orange-500'
+																	: notif.type === 'REQUEST_ACCEPTED'
+																		? 'bg-emerald-500'
+																		: 'bg-red-500'}"
+															></div>
+															<div>
+																<p class="text-sm font-medium text-slate-700 leading-tight">
+																	{notif.message}
+																</p>
+																<p
+																	class="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold"
+																>
+																	{new Date(notif.date).toLocaleDateString()}
+																	{new Date(notif.date).toLocaleTimeString([], {
+																		hour: '2-digit',
+																		minute: '2-digit'
+																	})}
+																</p>
+															</div>
 														</div>
-													</div>
-												</a>
-											{/each}
-										{/if}
-									</div>
+													</a>
+												{/each}
+											{/if}
+										</div>
+									{/await}
 								</div>
 							{/if}
 						</div>
