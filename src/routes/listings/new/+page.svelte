@@ -564,7 +564,7 @@
 
 <ResultModal
 	isOpen={showSuccessModal}
-	title="Listing Created Successfully!"
+	title="successfully created listing"
 	message="Your item is now live and ready for rentals. Track its performance in your dashboard."
 	buttonText="Go to Listings"
 	onClose={() => goto('/listings')}

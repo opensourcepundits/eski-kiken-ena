@@ -1477,7 +1477,10 @@
 								return async ({ result, update }) => {
 									isSubmittingResponse = false;
 									if (result.type === 'success') {
-										openResult('Request Declined', 'The rental request has been declined.');
+										openResult(
+											'successfully declined request',
+											'The rental request has been declined.'
+										);
 									}
 									await update();
 									closeRespondModal();
@@ -1512,7 +1515,7 @@
 									isSubmittingResponse = false;
 									if (result.type === 'success') {
 										openResult(
-											'Rental Approved!',
+											`successfully approved rental of ${bookingToRespond.listing.title}`,
 											'You have successfully confirmed this rental request.'
 										);
 									}
