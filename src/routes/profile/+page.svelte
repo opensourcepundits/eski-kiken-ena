@@ -4,6 +4,7 @@
 	import ListingMap from '$lib/components/ListingMap.svelte';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import ResultModal from '$lib/components/ResultModal.svelte';
+	import TimePicker from '$lib/components/TimePicker.svelte';
 
 	let { data } = $props();
 	let user = $derived(data.user);
@@ -1199,14 +1200,7 @@
 													class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1"
 													>New Pickup Time <span class="text-red-500">*</span></label
 												>
-												<input
-													type="time"
-													name="pickupTime"
-													value={selectedBooking.pickupTime}
-													required
-													onclick={(e) => e.currentTarget.showPicker()}
-													class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
-												/>
+												<TimePicker name="pickupTime" value={selectedBooking.pickupTime} required />
 											</div>
 										{/if}
 										{#if fields.length === 0 || fields.includes('Return Time')}
@@ -1216,14 +1210,7 @@
 													class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1"
 													>New Return Time <span class="text-red-500">*</span></label
 												>
-												<input
-													type="time"
-													name="returnTime"
-													value={selectedBooking.returnTime}
-													required
-													onclick={(e) => e.currentTarget.showPicker()}
-													class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
-												/>
+												<TimePicker name="returnTime" value={selectedBooking.returnTime} required />
 											</div>
 										{/if}
 
@@ -1385,14 +1372,7 @@
 									class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
 									>Pickup Time <span class="text-red-500">*</span></label
 								>
-								<input
-									type="time"
-									id="respPickupTime"
-									bind:value={responsePickupTime}
-									required
-									onclick={(e) => e.currentTarget.showPicker()}
-									class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
-								/>
+								<TimePicker id="respPickupTime" bind:value={responsePickupTime} required />
 							</div>
 							<div>
 								<label
@@ -1400,14 +1380,7 @@
 									class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
 									>Return Time <span class="text-red-500">*</span></label
 								>
-								<input
-									type="time"
-									id="respReturnTime"
-									bind:value={responseReturnTime}
-									required
-									onclick={(e) => e.currentTarget.showPicker()}
-									class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
-								/>
+								<TimePicker id="respReturnTime" bind:value={responseReturnTime} required />
 							</div>
 						</div>
 

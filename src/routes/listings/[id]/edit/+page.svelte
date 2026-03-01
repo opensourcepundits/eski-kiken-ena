@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import MapPicker from '$lib/components/MapPicker.svelte';
+	import TimePicker from '$lib/components/TimePicker.svelte';
+	import CustomSelect from '$lib/components/CustomSelect.svelte';
 
 	let { data, form } = $props();
 	let listing = $derived(data.listing);
@@ -143,53 +145,38 @@
 							<label for="category" class="block text-sm font-medium text-slate-700"
 								>Category *</label
 							>
-							<select
+							<CustomSelect
 								id="category"
 								name="category"
 								required
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-teal-600 focus:ring-teal-600 sm:text-sm p-2.5 border bg-white"
-							>
-								{#each categories as cat}
-									<option value={cat} selected={listing.category === cat}
-										>{cat.replace('_', ' ')}</option
-									>
-								{/each}
-							</select>
+								options={categories}
+								value={listing.category}
+							/>
 						</div>
 
 						<div>
 							<label for="condition" class="block text-sm font-medium text-slate-700"
 								>Condition</label
 							>
-							<select
+							<CustomSelect
 								id="condition"
 								name="condition"
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-teal-600 focus:ring-teal-600 sm:text-sm p-2.5 border bg-white"
-							>
-								{#each conditions as cond}
-									<option value={cond} selected={listing.condition === cond}
-										>{cond.replace('_', ' ')}</option
-									>
-								{/each}
-							</select>
+								options={conditions}
+								value={listing.condition}
+							/>
 						</div>
 
 						<div>
 							<label for="powerSource" class="block text-sm font-medium text-slate-700"
 								>Power Source</label
 							>
-							<select
+							<CustomSelect
 								id="powerSource"
 								name="powerSource"
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-teal-600 focus:ring-teal-600 sm:text-sm p-2.5 border bg-white"
-							>
-								<option value="">None / Manual</option>
-								{#each powerSources as source}
-									<option value={source} selected={listing.powerSource === source}
-										>{source.replace('_', ' ')}</option
-									>
-								{/each}
-							</select>
+								options={powerSources}
+								value={listing.powerSource || ''}
+								placeholder="None / Manual"
+							/>
 						</div>
 					</div>
 				</section>
@@ -206,35 +193,26 @@
 							<label for="dispatch" class="block text-sm font-medium text-slate-700"
 								>Dispatch *</label
 							>
-							<select
+							<CustomSelect
 								id="dispatch"
 								name="dispatch"
 								bind:value={dispatchValue}
 								required
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-teal-600 focus:ring-teal-600 sm:text-sm p-2.5 border bg-white"
-							>
-								{#each dispatchOptions as option}
-									<option value={option.value}>{option.label}</option>
-								{/each}
-							</select>
+								options={dispatchOptions}
+							/>
 						</div>
 
 						<div>
 							<label for="transportSize" class="block text-sm font-medium text-slate-700"
 								>Transport Requirements</label
 							>
-							<select
+							<CustomSelect
 								id="transportSize"
 								name="transportSize"
-								class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-teal-600 focus:ring-teal-600 sm:text-sm p-2.5 border bg-white"
-							>
-								<option value="">Not Specified</option>
-								{#each transportSizes as size}
-									<option value={size} selected={listing.transportSize === size}
-										>{size.replace('_', ' ')}</option
-									>
-								{/each}
-							</select>
+								options={transportSizes}
+								value={listing.transportSize || ''}
+								placeholder="Not Specified"
+							/>
 						</div>
 
 						{#if dispatchValue === 'DELIVER_ONLY' || dispatchValue === 'PICKUP_OR_DELIVERY'}
@@ -297,14 +275,11 @@
 									<label for="operatingHoursStart" class="block text-xs text-slate-500 mb-1"
 										>Start Time</label
 									>
-									<input
-										type="time"
+									<TimePicker
 										name="operatingHoursStart"
 										id="operatingHoursStart"
 										value={listing.operatingHours?.start || '09:00'}
 										required
-										onclick={(e) => e.currentTarget.showPicker()}
-										class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-teal-600 focus:ring-teal-600 sm:text-sm p-2.5 border"
 									/>
 								</div>
 								<span class="text-slate-400">to</span>
@@ -312,14 +287,11 @@
 									<label for="operatingHoursEnd" class="block text-xs text-slate-500 mb-1"
 										>End Time</label
 									>
-									<input
-										type="time"
+									<TimePicker
 										name="operatingHoursEnd"
 										id="operatingHoursEnd"
 										value={listing.operatingHours?.end || '17:00'}
 										required
-										onclick={(e) => e.currentTarget.showPicker()}
-										class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-teal-600 focus:ring-teal-600 sm:text-sm p-2.5 border"
 									/>
 								</div>
 							</div>

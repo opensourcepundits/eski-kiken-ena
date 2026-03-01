@@ -4,6 +4,8 @@
 	import { fly } from 'svelte/transition';
 	import LoadingSpinner from '$lib/components/LoadingSpinner.svelte';
 	import ResultModal from '$lib/components/ResultModal.svelte';
+	import TimePicker from '$lib/components/TimePicker.svelte';
+	import CustomSelect from '$lib/components/CustomSelect.svelte';
 	import { goto } from '$app/navigation';
 
 	let { data, form } = $props();
@@ -237,49 +239,38 @@
 							<label for="category" class="block text-sm font-bold text-slate-700 mb-1"
 								>Category *</label
 							>
-							<select
+							<CustomSelect
 								id="category"
 								name="category"
 								required
-								class="block w-full rounded-xl border-slate-200 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border bg-slate-50/50"
-							>
-								<option value="" disabled selected>Select category</option>
-								{#each categories as cat}
-									<option value={cat}>{cat.replace('_', ' ')}</option>
-								{/each}
-							</select>
+								options={categories}
+								placeholder="Select category"
+							/>
 						</div>
 
 						<div>
 							<label for="condition" class="block text-sm font-bold text-slate-700 mb-1"
 								>Condition *</label
 							>
-							<select
+							<CustomSelect
 								id="condition"
 								name="condition"
 								required
-								class="block w-full rounded-xl border-slate-200 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border bg-slate-50/50"
-							>
-								{#each conditions as cond}
-									<option value={cond}>{cond.replace('_', ' ')}</option>
-								{/each}
-							</select>
+								options={conditions}
+								value="LIKE_NEW"
+							/>
 						</div>
 
 						<div>
 							<label for="powerSource" class="block text-sm font-bold text-slate-700 mb-1"
 								>Power Source</label
 							>
-							<select
+							<CustomSelect
 								id="powerSource"
 								name="powerSource"
-								class="block w-full rounded-xl border-slate-200 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border bg-slate-50/50"
-							>
-								<option value="">None / Manual</option>
-								{#each powerSources as source}
-									<option value={source}>{source.replace('_', ' ')}</option>
-								{/each}
-							</select>
+								options={powerSources}
+								placeholder="None / Manual"
+							/>
 						</div>
 					</div>
 				</section>
@@ -297,33 +288,25 @@
 							<label for="dispatch" class="block text-sm font-bold text-slate-700 mb-1"
 								>Dispatch *</label
 							>
-							<select
+							<CustomSelect
 								id="dispatch"
 								name="dispatch"
 								bind:value={dispatchValue}
 								required
-								class="block w-full rounded-xl border-slate-200 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border bg-slate-50/50"
-							>
-								{#each dispatchOptions as option}
-									<option value={option.value}>{option.label}</option>
-								{/each}
-							</select>
+								options={dispatchOptions}
+							/>
 						</div>
 
 						<div>
 							<label for="transportSize" class="block text-sm font-bold text-slate-700 mb-1"
 								>Transport Requirements</label
 							>
-							<select
+							<CustomSelect
 								id="transportSize"
 								name="transportSize"
-								class="block w-full rounded-xl border-slate-200 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border bg-slate-50/50"
-							>
-								<option value="">Not Specified</option>
-								{#each transportSizes as size}
-									<option value={size}>{size.replace('_', ' ')}</option>
-								{/each}
-							</select>
+								options={transportSizes}
+								placeholder="Not Specified"
+							/>
 						</div>
 
 						{#if dispatchValue === 'DELIVER_ONLY' || dispatchValue === 'PICKUP_OR_DELIVERY'}
@@ -391,14 +374,11 @@
 										class="block text-[10px] uppercase font-black tracking-widest text-slate-400 mb-1"
 										>Start</label
 									>
-									<input
-										type="time"
+									<TimePicker
 										name="operatingHoursStart"
 										id="operatingHoursStart"
 										value="09:00"
 										required
-										onclick={(e) => e.currentTarget.showPicker()}
-										class="block w-full rounded-xl border-slate-200 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border bg-slate-50/50"
 									/>
 								</div>
 								<span class="text-slate-300 mt-5">to</span>
@@ -408,14 +388,11 @@
 										class="block text-[10px] uppercase font-black tracking-widest text-slate-400 mb-1"
 										>End</label
 									>
-									<input
-										type="time"
+									<TimePicker
 										name="operatingHoursEnd"
 										id="operatingHoursEnd"
 										value="17:00"
 										required
-										onclick={(e) => e.currentTarget.showPicker()}
-										class="block w-full rounded-xl border-slate-200 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border bg-slate-50/50"
 									/>
 								</div>
 							</div>
