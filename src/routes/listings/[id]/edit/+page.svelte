@@ -303,6 +303,7 @@
 										id="operatingHoursStart"
 										value={listing.operatingHours?.start || '09:00'}
 										required
+										onclick={(e) => e.currentTarget.showPicker()}
 										class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-teal-600 focus:ring-teal-600 sm:text-sm p-2.5 border"
 									/>
 								</div>
@@ -317,6 +318,7 @@
 										id="operatingHoursEnd"
 										value={listing.operatingHours?.end || '17:00'}
 										required
+										onclick={(e) => e.currentTarget.showPicker()}
 										class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-teal-600 focus:ring-teal-600 sm:text-sm p-2.5 border"
 									/>
 								</div>

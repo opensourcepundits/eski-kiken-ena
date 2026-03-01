@@ -397,6 +397,7 @@
 										id="operatingHoursStart"
 										value="09:00"
 										required
+										onclick={(e) => e.currentTarget.showPicker()}
 										class="block w-full rounded-xl border-slate-200 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border bg-slate-50/50"
 									/>
 								</div>
@@ -413,6 +414,7 @@
 										id="operatingHoursEnd"
 										value="17:00"
 										required
+										onclick={(e) => e.currentTarget.showPicker()}
 										class="block w-full rounded-xl border-slate-200 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border bg-slate-50/50"
 									/>
 								</div>

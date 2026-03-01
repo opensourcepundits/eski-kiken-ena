@@ -1204,6 +1204,7 @@
 													name="pickupTime"
 													value={selectedBooking.pickupTime}
 													required
+													onclick={(e) => e.currentTarget.showPicker()}
 													class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
 												/>
 											</div>
@@ -1220,6 +1221,7 @@
 													name="returnTime"
 													value={selectedBooking.returnTime}
 													required
+													onclick={(e) => e.currentTarget.showPicker()}
 													class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
 												/>
 											</div>
@@ -1388,6 +1390,7 @@
 									id="respPickupTime"
 									bind:value={responsePickupTime}
 									required
+									onclick={(e) => e.currentTarget.showPicker()}
 									class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
 								/>
 							</div>
@@ -1402,6 +1405,7 @@
 									id="respReturnTime"
 									bind:value={responseReturnTime}
 									required
+									onclick={(e) => e.currentTarget.showPicker()}
 									class="w-full px-4 py-3 bg-teal-50/30 border-2 border-teal-100 rounded-xl text-sm font-bold focus:ring-4 focus:ring-teal-200 focus:border-teal-500 transition-all outline-none shadow-sm"
 								/>
 							</div>
