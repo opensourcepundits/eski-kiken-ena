@@ -111,7 +111,7 @@
 						>Browse</a
 					>
 					<a href="/how-it-works" class="text-background/70 hover:text-background transition-colors"
-						>How eke works</a
+						>How does eke work</a
 					>
 				</div>
 
