@@ -42,8 +42,7 @@
 	let displayTime = $derived(() => {
 		if (!value) return '00:00';
 		const h = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-		const ampm = hour >= 12 ? 'PM' : 'AM';
-		return `${h}:${minute.toString().padStart(2, '0')} ${ampm}`;
+		return `${h}:${minute.toString().padStart(2, '0')}`;
 	});
 </script>
 
@@ -96,7 +95,7 @@
 								onclick={() => selectHour(h)}
 							>
 								{h.toString().padStart(2, '0')}
-								<span class="text-[10px] opacity-60 ml-1">{h >= 12 ? 'PM' : 'AM'}</span>
+								<span class="text-[10px] opacity-60 ml-1">{h}</span>
 							</button>
 						{/each}
 					</div>
