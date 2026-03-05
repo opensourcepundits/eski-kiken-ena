@@ -2,14 +2,14 @@
 	import { onMount } from 'svelte';
 	import { Clock } from 'lucide-svelte';
 
-	let { value = $bindable('09:00'), name = undefined, id = undefined, required = false } = $props();
+	let { value = $bindable(''), name = undefined, id = undefined, required = false } = $props();
 
 	let isOpen = $state(false);
 	let container: HTMLElement | null = $state(null);
 
 	// Parse current value
-	let hour = $derived(parseInt(value.split(':')[0]) || 9);
-	let minute = $derived(parseInt(value.split(':')[1]) || 0);
+	let hour = $derived(value ? parseInt(value.split(':')[0]) || 0 : 0);
+	let minute = $derived(value ? parseInt(value.split(':')[1]) || 0 : 0);
 
 	const hours = Array.from({ length: 24 }, (_, i) => i);
 	const minutes = Array.from({ length: 12 }, (_, i) => i * 5); // 5-minute intervals for aesthetics
@@ -40,6 +40,7 @@
 	});
 
 	let displayTime = $derived(() => {
+		if (!value) return '00:00';
 		const h = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
 		const ampm = hour >= 12 ? 'PM' : 'AM';
 		return `${h}:${minute.toString().padStart(2, '0')} ${ampm}`;

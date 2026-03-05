@@ -1370,17 +1370,17 @@
 								<label
 									for="respPickupTime"
 									class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
-									>Pickup Time <span class="text-red-500">*</span></label
+									>Pickup Time</label
 								>
-								<TimePicker id="respPickupTime" bind:value={responsePickupTime} required />
+								<TimePicker id="respPickupTime" bind:value={responsePickupTime} />
 							</div>
 							<div>
 								<label
 									for="respReturnTime"
 									class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1"
-									>Return Time <span class="text-red-500">*</span></label
+									>Return Time</label
 								>
-								<TimePicker id="respReturnTime" bind:value={responseReturnTime} required />
+								<TimePicker id="respReturnTime" bind:value={responseReturnTime} />
 							</div>
 						</div>
 
@@ -1511,10 +1511,7 @@
 							<button
 								type="button"
 								onclick={confirmApprove}
-								disabled={!responseMessage ||
-									!responsePickupTime ||
-									!responseReturnTime ||
-									isSubmittingResponse}
+								disabled={!responseMessage || isSubmittingResponse}
 								class="w-full py-4 bg-teal-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-teal-700 shadow-lg shadow-teal-900/10 transition-all active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:scale-100 flex items-center justify-center gap-2"
 							>
 								{#if isSubmittingResponse}

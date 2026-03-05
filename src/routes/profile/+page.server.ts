@@ -144,8 +144,8 @@ export const actions: Actions = {
 			if (isOwner) {
 				if (ownerMessage) updateData.ownerMessage = ownerMessage;
 				if (status === 'CONFIRMED') {
-					if (pickupTime) updateData.pickupTime = pickupTime;
-					if (returnTime) updateData.returnTime = returnTime;
+					updateData.pickupTime = pickupTime || '00:00';
+					updateData.returnTime = returnTime || '00:00';
 				}
 			}
 
