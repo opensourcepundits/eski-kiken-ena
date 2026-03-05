@@ -82,7 +82,7 @@ export const users = pgTable('users', {
 	phone: text('phone'),
 	role: roleEnum('role').default('USER'),
 
-
+	tnc: boolean('tnc').default(false),
 	profileImage: text('profile_image'),
 	reputation: smallint('reputation'),
 	createdAt: timestamp('created_at').defaultNow()

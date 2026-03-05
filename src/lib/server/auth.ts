@@ -18,7 +18,8 @@ export const lucia = new Lucia(adapter, {
 			lastName: attributes.lastName,
 			phone: attributes.phone,
 			reputation: attributes.reputation,
-			role: attributes.role
+			role: attributes.role,
+			tnc: attributes.tnc ?? false
 		};
 	}
 });
@@ -37,5 +38,6 @@ interface DatabaseUserAttributes {
 	phone: string | null;
 	reputation: number | null;
 	role: 'USER' | 'ADMIN';
+	tnc: boolean;
 }
 

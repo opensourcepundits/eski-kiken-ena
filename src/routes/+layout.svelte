@@ -5,6 +5,7 @@
 	import { Search, LogOut, Menu, Bell } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import TncModal from '$lib/components/TncModal.svelte';
 
 	let { data, children } = $props();
 
@@ -354,6 +355,14 @@
 
 	<!-- Main Content Area -->
 	<main class="flex-grow">
+		{#if data.user && data.user.tnc === false}
+			<TncModal
+				userFullName={`${data.user.firstName} ${data.user.lastName}`}
+				onComplete={() => {
+					window.location.reload();
+				}}
+			/>
+		{/if}
 		{@render children()}
 	</main>
 

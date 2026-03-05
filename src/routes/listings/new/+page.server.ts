@@ -17,6 +17,9 @@ export const actions: Actions = {
         if (!locals.user) {
             return fail(401, { message: 'Unauthorized' });
         }
+        if (!locals.user.tnc) {
+            return fail(403, { message: 'You must accept the Terms and Conditions before listing items.' });
+        }
 
         const formData = await request.formData();
         const title = formData.get('title') as string;

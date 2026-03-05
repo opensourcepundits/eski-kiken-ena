@@ -40,6 +40,9 @@ export const actions: Actions = {
 		if (!locals.user) {
 			return fail(401, { message: 'Verify out identity avan fer enn booking' });
 		}
+		if (!locals.user.tnc) {
+			return fail(403, { message: 'You must accept the Terms and Conditions before booking items.' });
+		}
 
 		const formData = await request.formData();
 		const startDate = formData.get('startDate') as string;

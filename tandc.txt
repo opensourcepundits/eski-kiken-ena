@@ -1,0 +1,30 @@
+1. The Nature of Our Service
+[Platform Name] (the "Company", "we", or "us") provides an online marketplace that connects Owners of personal property with Renters. You acknowledge and agree that [Platform Name] is acting solely as an intermediary and payment facilitator. We are not a party to any rental agreement between users. We do not own, sell, resell, provide, rent, re-rent, manage, or physically control any items listed on the platform.
+2. User Responsibilities & Assumption of Risk
+For Owners: You acknowledge that lending your property involves inherent risks, including theft, loss, or damage. You are strongly advised to verify that your personal insurance policies cover commercial or peer-to-peer rental activities.
+For Renters: You acknowledge that the use of rented items, particularly power tools and machinery, involves inherent risks of physical injury, death, or property damage. You agree to carefully inspect all items upon receipt, use them entirely at your own risk, and warrant that you possess the necessary competence to operate the equipment safely.
+3. The Rental Contract Between Users & Renter Liability
+When a rental transaction is confirmed through the platform, a legally binding contract is automatically formed directly between the Owner and the Renter. By entering into this transaction, both parties agree to the following terms:
+Owner’s Obligation (Condition of Item): The Owner warrants that the item is well-maintained, in good and safe working order, and fit for its intended use at the time of handover.
+Renter’s Obligation (Care of Item): The Renter agrees to operate the item strictly in accordance with manufacturer instructions, treat the item with care, and return it to the Owner at the agreed-upon time in the exact same condition it was received, excluding normal wear and tear.
+Renter Liability for Damage: The Renter is strictly and fully liable for any damage, loss, or theft of the item that occurs during the rental period. If an item is returned damaged (beyond normal wear and tear) or is not returned at all, the Renter agrees to pay for the full cost of repair or the fair market replacement value of the item.
+4. Payments, Fees, and Enforcement of Liability
+Facilitation: All payments must be processed through [Platform Name]’s designated third-party payment processor. Attempting to bypass the platform for payment violates these Terms.
+Security Deposits & Damage Charges: Owners may require a security deposit. Furthermore, by accepting these terms, the Renter authorizes [Platform Name] to charge their payment method on file for repair or replacement costs in the event the Renter damages, loses, or fails to return an item, subject to our dispute resolution process.
+5. Dispute Resolution Between Users
+Marketplace trust is our priority. If a dispute arises regarding the condition of an item, damage, late returns, or theft:
+Good Faith Effort: The Owner and Renter must first attempt to resolve the issue directly in good faith.
+Platform Mediation: If a resolution cannot be reached within [e.g., 48 hours], either party may escalate the issue to [Platform Name] by providing photographic evidence and statements.
+Final Decision: We reserve the right, but not the obligation, to mediate the dispute, review evidence, and make a final determination regarding the release of funds, security deposits, or additional damage charges. However, we cannot guarantee the recovery of stolen or damaged property.
+6. Limitation of Liability & Disclaimer of Warranties
+"As-Is" Provision: All items on the platform are provided by Owners "as-is." To the maximum extent permitted by law, [Platform Name] expressly disclaims all warranties, whether express or implied, including warranties of merchantability, fitness for a particular purpose, and safety of the listed items.
+Limitation of Liability: Except in cases of gross negligence or willful misconduct by the Company, [Platform Name], its officers, and employees shall NOT be liable for:
+Any direct, indirect, incidental, or consequential damages resulting from a rental transaction.
+Physical injury, death, or property damage caused by a rented item.
+Theft, disappearance, or "no-show" of any item or user.
+Financial losses due to technical malfunctions, system downtime, or payment processing delays.
+In no event shall the Company's total liability to you exceed the total platform fees you have paid to us in the twelve (12) months prior to the event giving rise to the liability.
+7. Indemnification
+You agree to indemnify, defend, and hold harmless [Platform Name] and its affiliates from any claims, suits, demands, damages, or legal fees made by any third party due to or arising out of: (a) your breach of these Terms; (b) your violation of any law or the rights of a third party; or (c) any interaction, dispute, or injury resulting from your rental or listing of an item.
+8. Independent Contractors
+Nothing in these Terms creates a partnership, joint venture, agency, or employer-employee relationship between you and [Platform Name]. Owners and Renters act exclusively as independent contractors.
