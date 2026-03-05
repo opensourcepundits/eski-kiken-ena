@@ -55,6 +55,7 @@
 		"lucide-svelte": "^0.562.0",
 		"oslo": "^1.2.1",
 		"postgres": "^3.4.8",
-		"resend": "^6.9.2"
+		"resend": "^6.9.2",
+		"vercel": "^50.27.1"
 	}
 }
