@@ -110,9 +110,6 @@
 					<a href="/listings" class="text-background/70 hover:text-background transition-colors"
 						>Browse</a
 					>
-					<a href="/how-it-works" class="text-background/70 hover:text-background transition-colors"
-						>How does eke work</a
-					>
 				</div>
 
 				<div class="h-6 w-px bg-background/10"></div>
@@ -292,11 +289,6 @@
 							class="text-background/80 hover:text-background py-3 border-b border-background/10"
 							onclick={() => (isMobileMenuOpen = false)}>Browse items</a
 						>
-						<a
-							href="/how-it-works"
-							class="text-background/80 hover:text-background py-3 border-b border-background/10"
-							onclick={() => (isMobileMenuOpen = false)}>How it works</a
-						>
 					</div>
 					<div class="pt-4 flex flex-col space-y-3">
 						{#if data.user}
@@ -386,9 +378,6 @@
 						<a href="/listings/new" class="hover:text-background transition-colors"
 							>List Your Item</a
 						>
-					</li>
-					<li>
-						<a href="/how-it-works" class="hover:text-background transition-colors">How it works</a>
 					</li>
 				</ul>
 			</div>
